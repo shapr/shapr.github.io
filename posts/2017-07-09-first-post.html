@@ -27,16 +27,28 @@
     
 </div>
 
+<h1 id="introduction">Introduction</h1>
 <p>Posted on <span class="math inline"><em>d</em><em>a</em><em>t</em><em>e</em></span></p>
 <p>Once you get past reading books and subject-specific blog posts, how do you bring all the pieces together and apply them to your own code? This is the first in a series of blog posts of examining existing Haskell code with the goal of having bite sized conclusions I can use in my own code.</p>
 <p>This series will start by solving programming puzzles for the <a href="https://adventofcode.com/2016">Advent of Code 2016</a>. I will compare <a href="https://github.com/shapr/adventofcode2016">my Haskell solutions</a> to those written by others, starting with <a href="http://adventofcode.com/2016/day/1">Day 1</a>.</p>
 <p>If you’d like to follow along, write up your own solutions and see how they compare.</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">var</span> s <span class="op">=</span> <span class="st">&quot;JavaScript syntax highlighting&quot;</span><span class="op">;</span>
-<span class="at">alert</span>(s)<span class="op">;</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">s <span class="op">=</span> <span class="st">&quot;Python syntax highlighting&quot;</span>
-<span class="bu">print</span> s</code></pre></div>
-<pre><code>No language indicated, so no syntax highlighting.
-But let's throw in a &lt;b&gt;tag&lt;/b&gt;.</code></pre>
+<h1 id="first-comparison">First Comparison</h1>
+<h2 id="strict-fields">Strict Fields</h2>
+<p>I compared my solution to <a href="https://github.com/glguy/advent2016/blob/master/Day01.hs">glguy’s solution</a> and immediately noticed the use of strict fields, the exclamation points in front of the Int below:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Vec</span> <span class="fu">=</span> <span class="dt">Vec</span> <span class="fu">!</span><span class="dt">Int</span> <span class="fu">!</span><span class="dt">Int</span></code></pre></div>
+<p>That led me to the GHC User’s Guide section on <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/sooner.html#faster-producing-a-program-that-runs-quicker">producing a program that runs quicker</a>.</p>
+<p>I also found a worthwhile <a href="https://stackoverflow.com/questions/8576795/advantages-of-strict-fields-in-data-types">stack overflow post</a> on when strict fields are a good idea.</p>
+<p>Further reading turned up the new GHC 8.0 pragma <a href="http://blog.johantibell.com/2015/11/the-design-of-strict-haskell-pragma.html">Strict</a> and StrictData. Much of my Haskell code depends on laziness, so StrictData will probably be better for me.</p>
+<h2 id="use-a-real-parser">Use a Real Parser</h2>
+<p>Second I noticed that my code pattern matched on the input string I pasted directly into the file, while Eric’s code read from an input file and used a ‘real’ parser.</p>
+<p>I’d written parsers before in Haskell, but hadn’t used the Applicative notation to do so. Applicative parsers are really easy to write:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Command</span> <span class="fu">=</span> <span class="dt">Command</span> <span class="fu">!</span><span class="dt">Char</span> <span class="fu">!</span><span class="dt">Int</span>
+
+<span class="ot">parser ::</span> <span class="dt">Parser</span> [<span class="dt">Command</span>]
+parser <span class="fu">=</span> (<span class="dt">Command</span> <span class="fu">&lt;$&gt;</span> oneOf <span class="st">&quot;LDRU&quot;</span> <span class="fu">&lt;*&gt;</span> number) <span class="ot">`sepBy`</span> string <span class="st">&quot;, &quot;</span></code></pre></div>
+<p>That motivated me to dig into <a href="http://haskellbook.com">Haskell from First Principles</a> and do all the Applicative homework problems to prove to myself that I understood how to write parsers in that style.</p>
+<h2 id="addendum">Addendum</h2>
+<p>If you’ve ever written C code, you’ve probably set a compiler flag to turn on all warnings. GHC has the same flag, but I didn’t do that until several days into the contest. I strongly recommend turning on all warnings with <code>-Wall</code> and turning off any you don’t want to see, I usually have <code>-fno-warn-missing-signatures</code>, probably because I write Python code for a living.</p>
 
         </div>
         <div id="footer">
