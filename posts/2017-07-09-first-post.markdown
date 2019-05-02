@@ -1,5 +1,6 @@
 ---
 title: Faster Haskell code, by example!
+description: how to speed up your Haskell code
 ---
 
 # Introduction

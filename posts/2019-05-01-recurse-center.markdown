@@ -1,5 +1,6 @@
 ---
 title: Recurse Center
+description: Recurse Center is amazing, I can barely wait to start
 ---
 
 I was accepted to the [Recurse Center](http://recurse.com/)! I'll be attending from May 20 2019 to August 8th 2019, I'm excited!

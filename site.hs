@@ -42,6 +42,19 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/default.html" archiveCtx
                 >>= relativizeUrls
 
+    create ["atom.xml"] $ do
+                  route idRoute
+                  compile $ do
+                            let feedCtx = postCtx `mappend` constField "description" "This is the post description"
+                            posts <- fmap (take 10) . recentFirst =<< loadAll "posts/*"
+                            renderAtom myFeedConfiguration feedCtx posts
+    create ["feed.rss"] $ do
+                  route idRoute
+                  compile $ do
+                            let feedCtx = postCtx `mappend` constField "description" "This is the post description"
+                            posts <- fmap (take 10) . recentFirst =<< loadAll "posts/*"
+                            renderRss myFeedConfiguration feedCtx posts
+
 
     match "index.html" $ do
         route idRoute
@@ -66,3 +79,12 @@ postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     defaultContext
 
+
+myFeedConfiguration :: FeedConfiguration
+myFeedConfiguration = FeedConfiguration
+    { feedTitle       = "shapr's blog"
+    , feedDescription = "This feed provides fresh recipes for fresh food!"
+    , feedAuthorName  = "Shae Erisson"
+    , feedAuthorEmail = "shae+blog@ScannedInAvian.com"
+    , feedRoot        = "http://shapr.github.io"
+    }
