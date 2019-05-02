@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>shapr's blog</title>
+        <link>http://shapr.github.io</link>
+        <description><![CDATA[This feed provides fresh recipes for fresh food!]]></description>
+        <atom:link href="http://shapr.github.io/feed.rss" rel="self"
+                   type="application/rss+xml" />
+        <lastBuildDate>Wed, 01 May 2019 00:00:00 UT</lastBuildDate>
+        <item>
+    <title>Recurse Center</title>
+    <link>http://shapr.github.io/posts/2019-05-01-recurse-center.html</link>
+    <description><![CDATA[Recurse Center is amazing, I can barely wait to start]]></description>
+    <pubDate>Wed, 01 May 2019 00:00:00 UT</pubDate>
+    <guid>http://shapr.github.io/posts/2019-05-01-recurse-center.html</guid>
+    <dc:creator>Shae Erisson</dc:creator>
+</item>
+<item>
+    <title>Faster Haskell code, by example!</title>
+    <link>http://shapr.github.io/posts/2017-07-09-first-post.html</link>
+    <description><![CDATA[how to speed up your Haskell code]]></description>
+    <pubDate>Sun, 09 Jul 2017 00:00:00 UT</pubDate>
+    <guid>http://shapr.github.io/posts/2017-07-09-first-post.html</guid>
+    <dc:creator>Shae Erisson</dc:creator>
+</item>
+
+    </channel>
+</rss>

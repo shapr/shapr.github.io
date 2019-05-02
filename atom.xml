@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>shapr's blog</title>
+    <link href="http://shapr.github.io/atom.xml" rel="self" />
+    <link href="http://shapr.github.io" />
+    <id>http://shapr.github.io/atom.xml</id>
+    <author>
+        <name>Shae Erisson</name>
+        <email>shae+blog@ScannedInAvian.com</email>
+    </author>
+    <updated>2019-05-01T00:00:00Z</updated>
+    <entry>
+    <title>Recurse Center</title>
+    <link href="http://shapr.github.io/posts/2019-05-01-recurse-center.html" />
+    <id>http://shapr.github.io/posts/2019-05-01-recurse-center.html</id>
+    <published>2019-05-01T00:00:00Z</published>
+    <updated>2019-05-01T00:00:00Z</updated>
+    <summary type="html"><![CDATA[Recurse Center is amazing, I can barely wait to start]]></summary>
+</entry>
+<entry>
+    <title>Faster Haskell code, by example!</title>
+    <link href="http://shapr.github.io/posts/2017-07-09-first-post.html" />
+    <id>http://shapr.github.io/posts/2017-07-09-first-post.html</id>
+    <published>2017-07-09T00:00:00Z</published>
+    <updated>2017-07-09T00:00:00Z</updated>
+    <summary type="html"><![CDATA[how to speed up your Haskell code]]></summary>
+</entry>
+
+</feed>
