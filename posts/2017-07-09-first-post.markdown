@@ -3,7 +3,6 @@ title: Faster Haskell code, by example!
 ---
 
 # Introduction
-Posted on $date$
 
 Once you get past reading books and subject-specific blog posts, how do you bring all the pieces together and apply them to your own code?
 This is the first in a series of blog posts of examining existing Haskell code with the goal of having bite sized conclusions I can use in my own code.
