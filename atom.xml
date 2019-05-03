@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2019-05-01T00:00:00Z</updated>
+    <updated>2019-05-02T00:00:00Z</updated>
     <entry>
+    <title>blogging with emacs' org-mode</title>
+    <link href="http://shapr.github.io/posts/2019-05-02-org-mode.html" />
+    <id>http://shapr.github.io/posts/2019-05-02-org-mode.html</id>
+    <published>2019-05-02T00:00:00Z</published>
+    <updated>2019-05-02T00:00:00Z</updated>
+    <summary type="html"><![CDATA[hakyll blog posts from emacs]]></summary>
+</entry>
+<entry>
     <title>Recurse Center</title>
     <link href="http://shapr.github.io/posts/2019-05-01-recurse-center.html" />
     <id>http://shapr.github.io/posts/2019-05-01-recurse-center.html</id>
