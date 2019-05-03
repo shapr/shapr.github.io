@@ -1,0 +1,32 @@
+---
+title: blogging with emacs' org-mode 
+description: hakyll blog posts from emacs
+tags: emacs
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2019-05-02
+#+TITLE: org-mode is amazing
+* org-mode
+
+If you use emacs, you should try [[https://orgmode.org/][org-mode]]!
+
+I worked at my last job just under four years, and in that time I accumulated 67,000 lines of notes in my employer related org files. 
+Due to my copious note-taking, I became the team historian, always able to provide details on what we did years earlier.
+
+I started using org as a simple todo list. Then I started clocking in to each todo item and that turned into [[https://github.com/volhovm/orgstat][feedback loops]] to figure out why some things took so long.
+
+Below is test input for org-mode posts with hakyll, most of this learned from [[https://turbomack.github.io/posts/2016-12-21-org-mode-in-hakyll.html][turbomack]]'s post.
+[[../images/dreamstaves.png]]
+
+#+BEGIN_SRC haskell :results output
+  myid :: a -> a
+  myid a = a
+#+END_SRC
+
+This is *bold* /italic/ =code= ~verbatim~ and +strike+ text formatting.
+
+| head 1 | head 2 |
+| some   | other  |
+| thing  | here   |
+
+tables need better css here.
