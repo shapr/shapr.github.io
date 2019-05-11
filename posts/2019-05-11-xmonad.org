@@ -1,0 +1,62 @@
+---
+title: xmonad the tiling window manager
+description: setting up xmonad on ubuntu 19.04
+tags: haskell, xmonad
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2019-05-11
+* tiling window managers, xmonad on ubuntu 19.04
+
+I like screen real estate, my laptop has a 4k screen and I mean to use every last pixel to display code. Gnome on Ubuntu has two bars at the top of the screen, I want to use that space for code!
+
+I often press F11 in various applications to take up the entire screen, but I want more, it's time to install [[https://xmonad.org/][xmonad]]!
+
+xmonad has great features like virtual desktops. I keep my shell open in desktop 1, emacs on 2, a browser on 3, and other apps on their own desktops.
+I'm also a fan of recompiling and reloading my xmonad config at runtime to try out new changes.
+
+xmonad expects to be installed system-wide so it can easily recompile itself, but I've since switched to cabal's new-build and new-install commands.
+
+[[../images/girlstave.png]]
+
+* xmonad with cabal new-install
+I asked on the #xmonad IRC channel, geekosaur told me I can use a build script to get around system-wide installation.
+
+I'm still fighting with build scripts but in short I ended up creating a [[https://github.com/shapr/shaexmonad][separate cabal project]] that depends on xmonad and xmonad-contrib.
+The [[https://github.com/xmonad/xmonad-testing][xmonad-testing]] repository was suggested, it includes an [[https://github.com/xmonad/xmonad-testing/blob/master/build-scripts/build-with-cabal-new.sh][example build script]].
+
+1. git clone https://github.com/shapr/shaexmonad.git
+4. mkdir ~/.xmonad
+5. cp shaexmonad/build ~/.xmonad/build
+6. chmod u+x ~/.xmonad/build
+7. edit ~/.xmonad/build and change SRC_DIR to the location of your xmonad checkout
+
+create /usr/share/xsessions/xmonad.desktop and paste in
+
+#+BEGIN_SRC fundamental
+  [Desktop Entry]
+  Name=XMonad The Incredible
+  Comment=Lightweight tiling window manager
+  Exec=/home/shae/.xmonad/xmonad-x86_64-linux
+  Type=Application
+#+END_SRC
+
+You will want to change the value in the Exec= field to match your install location!
+
+* requirements
+
+** install Haskell
+1. git clone https://github.com/haskell/ghcup.git
+2. cd ghcup
+3. mkdir -p ~/.ghcup/bin # create a directory for ghcup
+4. export PATH=~/.ghcup/bin:$PATH # add the new directory to your PATH
+5. ./ghcup install 8.6.3 # this will download the Haskell compiler for your platform (Linux, Mac, WSL?)
+6. ./ghcup install-cabal # this will install the package manager
+7. cabal new-update # if this doesn't work, ~/.ghcup/bin/ probably is not in your PATH
+
+** install utilities
+
+cabal new-install xmobar
+
+If you want to use the exact same config as above, you'll need to install trayer.
+
+If you have gnome installed, you'll have nm-applet.
