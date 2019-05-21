@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2019-05-11T00:00:00Z</updated>
+    <updated>2019-05-21T00:00:00Z</updated>
     <entry>
+    <title>mastermind in elisp</title>
+    <link href="http://shapr.github.io/posts/2019-05-21-mastermind-elisp.html" />
+    <id>http://shapr.github.io/posts/2019-05-21-mastermind-elisp.html</id>
+    <published>2019-05-21T00:00:00Z</published>
+    <updated>2019-05-21T00:00:00Z</updated>
+    <summary type="html"><![CDATA[sketch of a mastermind game in elisp]]></summary>
+</entry>
+<entry>
     <title>xmonad the tiling window manager</title>
     <link href="http://shapr.github.io/posts/2019-05-11-xmonad.html" />
     <id>http://shapr.github.io/posts/2019-05-11-xmonad.html</id>
