@@ -1,0 +1,73 @@
+---
+title: mastermind in elisp
+description: sketch of a mastermind game in elisp
+tags: elisp, game
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2019-05-21
+
+* pair programming
+Today at recurse center there was a pair programming intro session and implementing the mastermind game was suggested.
+[[../images/kaupaloki.png]]
+
+* mastermind
+[[https://en.wikipedia.org/wiki/Mastermind_(board_game)][Mastermind]] is a board game with four colored pegs where the active player tries to guess the hidden pattern.
+Both the color and the order of the pegs must be correct for the player to win.
+
+When a player enters a guess of four colored pegs, four black or white pegs are the response.
+Black pegs means the correct color in the correct position, white pegs means the correct color but in the wrong position.
+
+My pairing partner and I decided to use emacs lisp as our implementation language, here's the result.
+
+#+BEGIN_SRC lisp
+  (require 'dash)
+
+  (setq kColors '( :red :green :blue :cyan :orange :yellow))
+
+  (defun make-random-color (x)
+    "Picks a random color."
+    (nth (random ( length kColors) ) kColors ))
+
+  (defun make-sequence (n)
+    "Creates a color sequence of length n"
+    (mapcar 'make-random-color (number-sequence 1 n 1)))
+
+  (defun score-whites (key guess)
+       "Scores misplaced correct colors."
+       (mapcar (lambda (l) (member l key)) guess))
+
+  (defun score-game (key guess)
+    "Scores a guess using an answer color key."
+    (mapcar
+     (lambda (l) (let ((is_whites (car l)) (key (cadr l)) (guess (caddr l)))
+			(cond
+			 ((equal key guess) :black)
+			 ((not is_whites) :none)
+			 (t :white))))
+     (-zip (score-whites key guess) key guess)))
+
+  ;; test all good
+  (let ((guess '(:red :red :red :red))
+	(key '(:red :red :red :red)))
+   ( score-game guess key))
+
+  ;; test all bad
+  (let ((guess '(:blue :blue :blue :blue))
+	(key '(:red :red :red :red)))
+   (score-game guess key))
+
+  ;; right colors wrong order
+  (let ((guess '(:cyan :blue :green :red))
+	(key '(:red :green :blue :cyan)))
+   (score-game guess key))
+#+END_SRC
+
+My partner had never used emacs or lisp, but quickly picked up both.
+I don't think I've written lisp in the last ten years, but memories started to surface as we wrote code and read elisp docs.
+
+In our implementation, we have a list of six colors named ~kColors~ and we use ~make-random-color~ to choose one,
+while ~make-sequence~ calls ~make-random-color~ ~n~ times.
+
+We discovered that ~element~ returns the entire sequence if the element is present in the sequence. My partner used that and a zip3 to do the black and white scoring in a single step.
+
+My Haskell approach would have essentially been ~zipWith (==) hidden guess~ but I couldn't figure out how to easily score the white pegs, luckily my pairing partner just solved everything in a single go.
