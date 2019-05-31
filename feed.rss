@@ -7,8 +7,16 @@
         <description><![CDATA[This feed provides fresh recipes for fresh food!]]></description>
         <atom:link href="http://shapr.github.io/feed.rss" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 21 May 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Fri, 31 May 2019 00:00:00 UT</lastBuildDate>
         <item>
+    <title>markov keyboard</title>
+    <link>http://shapr.github.io/posts/2019-05-31-markov-keyboard.html</link>
+    <description><![CDATA[markov keyboard that changes with every letter you type]]></description>
+    <pubDate>Fri, 31 May 2019 00:00:00 UT</pubDate>
+    <guid>http://shapr.github.io/posts/2019-05-31-markov-keyboard.html</guid>
+    <dc:creator>Shae Erisson</dc:creator>
+</item>
+<item>
     <title>mastermind in elisp</title>
     <link>http://shapr.github.io/posts/2019-05-21-mastermind-elisp.html</link>
     <description><![CDATA[sketch of a mastermind game in elisp]]></description>
