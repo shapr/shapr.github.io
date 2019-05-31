@@ -6,6 +6,8 @@ tags: elisp, keyboard
 #+AUTHOR: Shae Erisson
 #+DATE: 2019-05-31
 
+Jump directly to the [[https://github.com/shapr/markovkeyboard][finished thing]]?
+
 * Markov chains
 
 [[https://en.wikipedia.org/wiki/Markov_chain][Markov chains]] keep track of how often one things follows another.
