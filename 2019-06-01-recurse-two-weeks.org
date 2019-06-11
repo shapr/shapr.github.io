@@ -1,0 +1,36 @@
+---
+title: two weeks of recurse center
+description: retrospective on two weeks at the recurse center
+tags: recurse center, retrospective
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2019-06-01
+
+* retrospective
+
+[[../images/recurse-center.png]]
+
+1. don't get distracted! turn off IRC and even recurse center's internal zulip chat.
+2. don't forget to sleep. I have negative programming skill when I've had less than six hours sleep, I create problems that I have to solve when I do get enough sleep.
+3. don't forget to eat. When my brain just suddenly halts, it's often because I was so focused on coding that I haven't eaten in hours and my blood sugars drops.
+4. I still need to exercise!
+
+It's hard to list all the amazing people I've met and informative discussions I've had.
+
+A friend asked me to take pictures so I could show him what it's like, but I realized the magic is in the community, and doesn't show up in pictures.
+
+* what's good?
+
+I've gotten so many things done! This is like one of those Saturdays where nothing needs to be done around the house, you have a clear plan for a cool thing to build, and everything is in balance.
+
+I spend most hours of the day at the recurse center, because I feel like I have a free pass to the best adventure park that ever existed, and I don't want to miss out! I have so few weeks left to build cool stuff!
+
+Other people at the recurse center have built things I could never have imagined! Did you know that the X window system can have multiple mouse cursors [[https://github.com/blinry/mousetoy][at the same time]]?
+
+* what's bad?
+
+My sleep schedule is in [[https://en.wikipedia.org/wiki/Hysteresis#Types][solid hysteresis]], I'm usually sleeping too much or too little.
+
+* what needs to improve?
+
+My plan is to get significantly better at writing Haskell, but so far I've spent my time writing Python and emacs lisp, or fixing Haskell code written by others. That's good for the world in general, but I need more focus!
