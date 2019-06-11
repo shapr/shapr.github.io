@@ -17,6 +17,14 @@
     <dc:creator>Shae Erisson</dc:creator>
 </item>
 <item>
+    <title>two weeks of recurse center</title>
+    <link>http://shapr.github.io/posts/2019-06-01-recurse-two-weeks.html</link>
+    <description><![CDATA[retrospective on two weeks at the recurse center]]></description>
+    <pubDate>Sat, 01 Jun 2019 00:00:00 UT</pubDate>
+    <guid>http://shapr.github.io/posts/2019-06-01-recurse-two-weeks.html</guid>
+    <dc:creator>Shae Erisson</dc:creator>
+</item>
+<item>
     <title>markov keyboard</title>
     <link>http://shapr.github.io/posts/2019-05-31-markov-keyboard.html</link>
     <description><![CDATA[markov keyboard that changes with every letter you type]]></description>
