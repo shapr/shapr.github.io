@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Shae Erisson's blog - Linux on RISC-V</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="logo">
+                <a href="../">Shae Erisson's Blog</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>Linux on RISC-V</h1>
+
+            <div class="info">
+    Posted on June  8, 2019
+    
+</div>
+
+<h1 id="whats-risc-v">What’s RISC-V ?</h1>
+<p><a href="https://en.wikipedia.org/wiki/RISC-V">RISC-V</a> is a new type of CPU architecture.</p>
+<p><img src="../images/ghoststaves.png" /></p>
+<p>If you’ve used a desktop or laptop computer, it’s almost certainly using Intel’s <a href="https://en.wikipedia.org/wiki/X86">x86 architecture</a>. If you’ve used a cell phone, it’s almost certainly using Advanced Research Machines’ <a href="https://en.wikipedia.org/wiki/ARM_architecture">ARM architecture</a>.</p>
+<p>In a nutshell, a <a href="https://en.wikipedia.org/wiki/Central_processing_unit">CPU</a> architecture is one way to answer “How do I describe work to be done?” as well as “How do I build a machine to cheaply and efficiently do the described work?”.</p>
+<p>Both x86 and ARM are copyrighted, and have various restrictions on use. While Intel designs and builds their own CPUs, ARM designs but does not build.</p>
+<p>ARM designs many different options that are easy to plug together so a licensee can choose any combination of trade-off between performance and cost.</p>
+<h1 id="how-do-i-try-it">How do I try it?</h1>
+<p>RISC-V takes the surprising approach of “We describe how the CPU should work, and you as a user can <a href="https://riscv.org/risc-v-cores/">download</a> one and try it out”.</p>
+<p>Part of the surprise is that “reprogrammable chips” are now common, so you really can do this!</p>
+<p>I purchased a <a href="https://www.crowdsupply.com/qwerty-embedded-design/beaglewire">BeagleWire</a> because it has both a standalone Linux system and a daughterboard that include an <a href="https://en.wikipedia.org/wiki/Field-programmable_gate_array">FPGA</a>, the “reprogrammable chip”.</p>
+<p>The FPGA on the BeagleWire is very small and can’t do much, but that also means it’s $8 USD instead of $20,000 USD that the high-end FPGAs cost.</p>
+<p>While the <a href="https://github.com/cliffordwolf/picorv32">smallest RISC-V</a> can fit on the BeagleWire, I chose to buy one of the first batch of <strong>real</strong> RISC-V boards that could boot Linux, the <a href="https://www.crowdsupply.com/sifive/hifive-unleashed">HiFive Unleashed</a>.</p>
+<h1 id="why-are-you-doing-this">WHY are you doing this?</h1>
+<p>I want to get my favorite programming language, <a href="https://www.haskell.org/">Haskell</a>, to <a href="https://gitlab.haskell.org/ghc/ghc/issues/16783">work on the RISC-V</a> architecture!</p>
+<h1 id="how-are-you-doing-this">How are you doing this?</h1>
+<p>My familiar development environment is a Linux system, preferably the <a href="https://www.debian.org/">Debian</a> distribution so I can easily install packages I need.</p>
+<p>When <a href="https://www.sifive.com/boards/hifive-unleashed">the board</a> arrived, I booted it up and discovered it does have Linux, but only <a href="https://en.wikipedia.org/wiki/BusyBox">busybox</a> and a very small set of tools.</p>
+<p>The hardware is nice, it has 8 gigabytes of RAM and four RISC-V 64-bit cores. The board boots from an SD card, but the documentation says that SD card read/write speed is slow. If you’re willing to spend another $2,000 USD, you can get the <a href="https://www.crowdsupply.com/microsemi/hifive-unleashed-expansion-board">expansion board</a> that lets you connect a real disk drive, a screen, and even more RAM! I decided the thousand dollar base board would have to work for me, and I’d skip the extra two thousand dollars.</p>
+<h1 id="so-you-want-to-install-a-real-linux">So you want to install a Real Linux?</h1>
+<p>Yes! I was hoping this would be as easy as 1990s Linux installs where I would download an image to write to an SD card, and the system would then boot into ‘real’ Linux!</p>
+<p>But no, it’s not yet that easy.</p>
+<p>I was a Unix sysadmin for a few years, and I’ve been a software developer for many more years, but this level of working with hardware is out of my comfort zone.</p>
+<p>After much reading on the internet, I think I clone and build the freedom-u-sdk, and then install a Debian userland around that kernel?</p>
+<p>That’s what I understand from reading the [[<a href="https://wiki.debian.org/RISC-V#OS_.2F_filesystem_images">https://wiki.debian.org/RISC-V#OS_.2F_filesystem_images</a>][Debian RISC-V] pages.</p>
+<h1 id="its-not-an-emergency-if-you-prepared-for-it">It’s not an emergency if you prepared for it</h1>
+<p>The first time I do something, it’s usually terrible. Thus I shall prepare for failure by making a backup copy of the SD card that came with the HiFive Unleashed.</p>
+<p>I’ve used the utility <code>dd</code> to copy an image onto an sd card, perhaps it’s just as easy to copy an sd card to an image? Stackoverflow <a href="https://askubuntu.com/questions/227924/sd-card-cloning-using-the-dd-command">says yes</a>?</p>
+<p>Now I settle down to wait for <code>dd if=/dev/sda of=/root/hifive.img</code> to finish.</p>
+<h1 id="frustration-sets-in">Frustration sets in</h1>
+<p>I spent several days fighting to mount the second partition on the SD card, always getting the most generic error possible.</p>
+<p><code>wrong fs type, bad option, bad superblock on /dev/loop23p2, missing codepage or helper program, or other error</code></p>
+<p>Nothing shows up in dmesg or other system logs, I just don’t know.</p>
+<p>On the good side, I ran across the creator of Debian filesystem images on IRC, and they confirmed that I don’t have to do it this way! They used scp to dump the files onto the filesystem, and it will likely work for me. But at this point, I’ve had too much frustration and it’s time to do something else.</p>
+<p>Next time I pick this up, I should be able to start from <a href="https://wiki.debian.org/RISC-V#OS_.2F_filesystem_images">Debian RISC-V</a> and jump in!</p>
+
+        </div>
+        <div id="footer">
+	    <a href="feed.rss">RSS</a>
+	    <a href="atom.xml">ATOM</a>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+
+        </div>
+    </body>
+</html>

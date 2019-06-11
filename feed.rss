@@ -7,8 +7,16 @@
         <description><![CDATA[This feed provides fresh recipes for fresh food!]]></description>
         <atom:link href="http://shapr.github.io/feed.rss" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 31 May 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sat, 08 Jun 2019 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Linux on RISC-V</title>
+    <link>http://shapr.github.io/posts/2019-06-08-riscv-linux.html</link>
+    <description><![CDATA[how I installed Linux on my RISC-V board]]></description>
+    <pubDate>Sat, 08 Jun 2019 00:00:00 UT</pubDate>
+    <guid>http://shapr.github.io/posts/2019-06-08-riscv-linux.html</guid>
+    <dc:creator>Shae Erisson</dc:creator>
+</item>
+<item>
     <title>markov keyboard</title>
     <link>http://shapr.github.io/posts/2019-05-31-markov-keyboard.html</link>
     <description><![CDATA[markov keyboard that changes with every letter you type]]></description>
