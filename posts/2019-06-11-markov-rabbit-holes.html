@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Shae Erisson's blog - Markov Keyboard, The Rabbit Hole Factory</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="logo">
+                <a href="../">Shae Erisson's Blog</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>Markov Keyboard, The Rabbit Hole Factory</h1>
+
+            <div class="info">
+    Posted on June 11, 2019
+    
+</div>
+
+<h1 id="so-many-cool-ideas">So Many Cool Ideas!</h1>
+<p>My friend and batch-mate <a href="https://minor.gripe/">Chris</a> suggested that markov keyboard is “a factory for rabbit holes”. Almost every time I describe the <a href="https://github.com/shapr/markovkeyboard">markov keyboard</a> to someone, they have an interesting and unique take on the whole idea. The count of ideas is getting too long to speak or write when I interact with a new person, so I shall pitch a collection of them into this blog post.</p>
+<p><img src="../images/nodrowningstave.png" /></p>
+<p>This project was never designed to be useful, but I am getting feature requests and piles of ideas.</p>
+<p>I described the whole idea to my friend <a href="https://twitter.com/cdsmithus">Chris Smith</a>. I told him that many letters have fewer than 26 letters that follow them, so I had to filter the letters that did follow out of the unigram frequency, and then stick the leftovers, in order, on the end. Right now I generate 26 different static keymaps from a given text. Because of that, Chris suggested that a cost function be added where extremely similar keymaps be merged to reduce the effort of memorizing the many layouts.</p>
+<p>I had the idea that I could prove that multiple keyboards would reduce hand wear over any single static layout. <a href="http://wry.me/">Darius</a> (co-author of markov keyboard) pointed out that pathological text could always be found, but that in general I was likely correct.</p>
+<p><a href="http://danluu.com/">Dan Luu</a> said that the goal of increasing typing speed would be more easily achieved by pressing multiple keys at the same time.</p>
+<p>Darius also suggested some relation with <a href="https://en.wikipedia.org/wiki/Stenotype">stenographers</a> <a href="https://en.wikipedia.org/wiki/Chorded_keyboard">chording keyboards</a>. He said the user could press all the letters in the set of letters that make up a word, and a markov chain could figure out what order of those letters is most likely the next word.</p>
+<p><a href="https://blog.jle.im/">Justin Le</a> pointed out that chording breaks many assumptions because you can only discover the final key combo on key release, not keypress. All the code I have now operates when a key is pressed!</p>
+<p>Many people suggested the <a href="https://www.artlebedev.com/optimus/maximus/">Optimus Keyboard</a> which has a screen on each key. I pointed out that you can’t see the screen while you’re typing, so I suggested that each key should have a single Braille character. Until recently, Braille displays were about 10,000 USD for a one character tall and 20 character wide display. The recently released <a href="https://www.aph.org/research/orbit-reader-20-details/">Orbit 20 Reader</a> is a fraction of that at only 500 USD, and even better, it’s pocket sized! Perhaps I could take one apart and see if I can fit a single character Braille display into a single keycap? That would be even cooler than the <a href="https://imgur.com/gallery/69stJ6K">tengwar keycaps</a> I have now!</p>
+<p>The discussion on hacker news said that mobile phone keyboards dynamically change the effective ‘size’ of the keys as you’re typing to make more likely next letters larger and easier to press. I had no idea!</p>
+<p><a href="https://github.com/mlsteele/dvouac">Miles Steele</a> had a related idea for detecting whether you were <strong>expecting</strong> to be typing on dvorak or qwerty keyboard layouts, and then automatically changing the keyboard layout for you. I haven’t tried it yet, but since I switch between dvorak and qwerty several times a day, I need this.</p>
+<h1 id="feature-requests">Feature Requests?!</h1>
+<p>Most frequently, anyone who uses this has asked that backspace change the layout to the previous layout. That is, if you meant to type a letter, but you pressed the wrong one on accident, you can’t just press backspace and then the right letter, all the letters moved when you pressed the wrong key!</p>
+<p>Second most frequently, anyone who doesn’t touch type has asked that the home row keys be highlighted in the keyboard display, because they don’t know where their fingers are resting!</p>
+<p>Additionally, I’ve had requests for support for French and Dvorak, I have no clue how to approach these! Do I remap the entire keyboard instead of just the 26 letters? French has more letters! Oh no, now what?</p>
+<p>If you have ideas or thoughts, contact me on twitter or keybase or github!</p>
+
+        </div>
+        <div id="footer">
+	    <a href="feed.rss">RSS</a>
+	    <a href="atom.xml">ATOM</a>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+
+        </div>
+    </body>
+</html>
