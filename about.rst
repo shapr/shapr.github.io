@@ -1,7 +1,7 @@
 ---
 title: About
 ---
-Shae Erisson - I live in Atlanta, Georgia where I write Python for work and Haskell for fun.
+Shae Erisson - For the moment I live in Brooklyn, New York and attend the Recurse Center where I decide each day what will be the most fun code to write!
 
 Also, writing a blog is harder than talking to people, it's hard to guess how much the reader will already know.
 

@@ -1,0 +1,46 @@
+---
+title: Markov Keyboard, The Rabbit Hole Factory
+description: suggestions and ideas for the markov keybaord
+tags: markov, keyboard
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2019-06-11
+
+* So Many Cool Ideas!
+
+My friend and batch-mate [[https://minor.gripe/][Chris]] suggested that markov keyboard is "a factory for rabbit holes". Almost every time I describe the [[https://github.com/shapr/markovkeyboard][markov keyboard]] to someone, they have an interesting and unique take on the whole idea.
+The count of ideas is getting too long to speak or write when I interact with a new person, so I shall pitch a collection of them into this blog post.
+
+[[../images/nodrowningstave.png]]
+
+This project was never designed to be useful, but I am getting feature requests and piles of ideas.
+
+I described the whole idea to my friend [[https://twitter.com/cdsmithus][Chris Smith]]. I told him that many letters have fewer than 26 letters that follow them, so I had to filter the letters that did follow out of the unigram frequency, and then stick the leftovers, in order, on the end.
+Right now I generate 26 different static keymaps from a given text. Because of that, Chris suggested that a cost function be added where extremely similar keymaps be merged to reduce the effort of memorizing the many layouts.
+
+I had the idea that I could prove that multiple keyboards would reduce hand wear over any single static layout. [[http://wry.me/][Darius]] (co-author of markov keyboard) pointed out that pathological text could always be found, but that in general I was likely correct.
+
+[[http://danluu.com/][Dan Luu]] said that the goal of increasing typing speed would be more easily achieved by pressing multiple keys at the same time.
+
+Darius also suggested some relation with [[https://en.wikipedia.org/wiki/Stenotype][stenographers]] [[https://en.wikipedia.org/wiki/Chorded_keyboard][chording keyboards]]. He said the user could press all the letters in the set of letters that make up a word, and a markov chain could figure out what order of those letters is most likely the next word.
+
+[[https://blog.jle.im/][Justin Le]] pointed out that chording breaks many assumptions because you can only discover the final key combo on key release, not keypress. All the code I have now operates when a key is pressed!
+
+Many people suggested the [[https://www.artlebedev.com/optimus/maximus/][Optimus Keyboard]] which has a screen on each key. I pointed out that you can't see the screen while you're typing, so I suggested that each key should have a single Braille character.
+Until recently, Braille displays were about 10,000 USD for a one character tall and 20 character wide display. The recently released [[https://www.aph.org/research/orbit-reader-20-details/][Orbit 20 Reader]] is a fraction of that at only 500 USD, and even better, it's pocket sized!
+Perhaps I could take one apart and see if I can fit a single character Braille display into a single keycap? That would be even cooler than the [[https://imgur.com/gallery/69stJ6K][tengwar keycaps]] I have now!
+
+The discussion on hacker news said that mobile phone keyboards dynamically change the effective 'size' of the keys as you're typing to make more likely next letters larger and easier to press. I had no idea!
+
+[[https://github.com/mlsteele/dvouac][Miles Steele]] had a related idea for detecting whether you were *expecting* to be typing on dvorak or qwerty keyboard layouts, and then automatically changing the keyboard layout for you.
+I haven't tried it yet, but since I switch between dvorak and qwerty several times a day, I need this.
+
+* Feature Requests?!
+
+Most frequently, anyone who uses this has asked that backspace change the layout to the previous layout. That is, if you meant to type a letter, but you pressed the wrong one on accident, you can't just press backspace and then the right letter, all the letters moved when you pressed the wrong key!
+
+Second most frequently, anyone who doesn't touch type has asked that the home row keys be highlighted in the keyboard display, because they don't know where their fingers are resting!
+
+Additionally, I've had requests for support for French and Dvorak, I have no clue how to approach these! Do I remap the entire keyboard instead of just the 26 letters? French has more letters! Oh no, now what?
+
+If you have ideas or thoughts, contact me on twitter or keybase or github!

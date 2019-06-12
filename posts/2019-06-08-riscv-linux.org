@@ -55,7 +55,7 @@ I was a Unix sysadmin for a few years, and I've been a software developer for ma
 
 After much reading on the internet, I think I clone and build the freedom-u-sdk, and then install a Debian userland around that kernel?
 
-That's what I understand from reading the [[https://wiki.debian.org/RISC-V#OS_.2F_filesystem_images][Debian RISC-V] pages.
+That's what I understand from reading the [[https://wiki.debian.org/RISC-V#OS_.2F_filesystem_images][Debian RISC-V]] pages.
 
 * It's not an emergency if you prepared for it
 
