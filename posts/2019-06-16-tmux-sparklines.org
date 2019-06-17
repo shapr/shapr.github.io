@@ -8,6 +8,8 @@ tags: optimization
 
 * ▁▂▃▄▅▆▇█ Sparklines! █▇▆▅▄▃▂▁
 
+[[../images/feingurstave.png]]
+
 Years ago [[https://www.edwardtufte.com/tufte/][Edward Tufte]] came out with his books on visualizing information, and I learned about [[https://en.wikipedia.org/wiki/Sparkline][sparklines]]!
 
 Sparklines are such a cool idea, but I rarely use them because most of my code talks to databases or consoles, not graphical displays.
