@@ -1,0 +1,160 @@
+---
+title: Sparklines in text
+description: I want to use sparklines to display data in tmux
+tags: optimization
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2019-06-16
+
+* ▁▂▃▄▅▆▇█ Sparklines! █▇▆▅▄▃▂▁
+
+Years ago [[https://www.edwardtufte.com/tufte/][Edward Tufte]] came out with his books on visualizing information, and I learned about [[https://en.wikipedia.org/wiki/Sparkline][sparklines]]!
+
+Sparklines are such a cool idea, but I rarely use them because most of my code talks to databases or consoles, not graphical displays.
+
+Just now, I almost missed my flight but it was delayed two hours! So maybe I can build a small thing?
+
+Ok, I'm not the first person to have this idea, there's even a [[https://rosettacode.org/wiki/Sparkline_in_unicode][rosetta code entry]] for this!
+
+So I'll hack up something quick in Haskell, and if I get stuck, read the existing answers.
+The rosetta code entry has unit tests I can steal, that's handy.
+The eight unicode characters they suggest are in the heading above.
+
+First thought on how to solve this is, for any set of numbers,
+find the max and min, then calculate the half, quarter, and eighth values, to be able to put all input numbers in a region.
+Then output one of the eight values.
+
+First, calculate the eight regions, then map a function over the numbers that replaces each one with the character that matches this region.
+
+#+BEGIN_SRC haskell
+  module Main where
+
+  tests =
+      [sparkline [0, 999, 4000, 4999, 7000, 7999] == "▁▁▅▅██"
+      , sparkline [0, 1, 19, 20] == "▁▁██"
+      , sparkline [1,2,3,4,5,6,7,8] == "▁▂▃▄▅▆▇█"
+      , sparkline [8,7,6,5,4,3,2,1] == "█▇▆▅▄▃▂▁"
+      ]
+
+  lines = "▁▂▃▄▅▆▇█" -- this code assumes lines is ascending order values
+
+  maxChar = last lines -- fails on empty list
+  minChar = head lines -- fails on empty list
+  halfChar = lines !! (length lines `div` 2) -- still works if lines changes length
+
+  sparkline [] = "" -- no elements? no values!
+  sparkline (x:[]) = "▅" -- only one element? you get a value! does this "single element list" syntax even work?
+  sparkline all@(x:y:zs) = map convertHere all -- at least two, we can do stuff now
+      where inc = findIncrement (minN,maxN)
+	    minN = min all
+	    maxN = max all
+	    convertHere = numToOffset minN inc -- partial application, yay!
+
+  findIncrement :: Num n => (n,n) -> n
+  findIncrement (min,max) = increment = (max - min) / (length lines) -- allows lines to change length
+
+  numToOffset minN increment num = lines !! offset
+      where addIncs i = i * increment + minN
+	    offset = until (\v -> addIncs v > num) (+ 1) 0
+#+END_SRC
+
+After getting partway into the code above I realized a sparkline calculation requires a minimum of two values to have a max and min and then calculate the values.
+
+The code above is what I wrote without consulting the typechecker.
+
+
+The [[https://www.haskell.org/onlinereport/haskell2010/haskellch6.html#x13-1270011][Haskell 2010 Report - Standard Classes]] shows the hierarchy of number types.
+
+* Floating point numbers are not your friend
+
+Once I reached the point where I expected the code to work, I ran across a conflict between ~div~ and ~/~ in Haskell.
+In the interest of getting the code done quickly, I decided to divide the difference between the max and min by the number of sparkline characters, eight in this case.
+Then I could add that increment a certain number of times and use that number to index into the list of sparkline characters.
+The index operator ~!!~ requires an integer, but all the other division operations really need to be floating point (or maybe ratio?).
+
+I hacked around on the code above, when the type system was happy, it required the input number type to be both a whole number *and* a fractional number!
+
+Since that's not a real thing, I had to find a better way to do this. I ended ugly hacking around the problem by relying on rounding converting a floating point number that's less than zero but more than -1 into zero, ugh!
+
+The initial version was two hours before and during a flight to Atlanta, then an hour fighting with floating point math on the flight back to NYC.
+If already you have Haskell installed, you can copy the the version below into a file, set it executable, and it works as a shell script if you feed it numbers.
+
+#+BEGIN_SRC shell
+  % ./Sparkline.hs 1 2 3 4 5 6 7 8 9
+  ▁▁▂▃▄▅▆▇█
+#+END_SRC
+
+
+#+BEGIN_SRC haskell
+  $! runhaskell
+  module Main where
+
+  import           System.Environment (getArgs)
+
+  tests =
+      [sparkline [0, 999, 4000, 4999, 7000, 7999] == "▁▁▅▅██"
+      , sparkline [0, 1, 19, 20] == "▁▁██"
+      , sparkline [1,2,3,4,5,6,7,8] == "▁▂▃▄▅▆▇█"
+      , sparkline [8,7,6,5,4,3,2,1] == "█▇▆▅▄▃▂▁"
+      ]
+
+  lineChars = "▁▂▃▄▅▆▇█" -- this code assumes lineChars is ascending order values
+
+  maxChar = last lineChars -- fails on empty list
+  minChar = head lineChars -- fails on empty list
+  halfChar = lineChars !! (length lineChars `div` 2) -- still works if lineChars changes length
+
+  sparkline :: (RealFrac a) => [a] -> [Char]
+  sparkline [] = [] -- no elements? no values!
+  sparkline [x] = [] -- only one element? you get a value!
+  sparkline all@(x:y:zs) = convertHere <$> all -- at least two, we can do stuff now
+      where inc = findIncrement (minN,maxN)
+	    minN = minimum all
+	    maxN = maximum all
+	    convertHere = numToChar minN inc -- partial application, yay!
+
+  findIncrement :: (Fractional a) => (a,a) -> a
+  findIncrement (minnum,maxnum) = (maxnum - minnum) / (realToFrac $ length lineChars) -- allows lineChars to change length
+
+  numToOffset :: (Ord a, Num a) => a -> a -> a -> a
+  numToOffset minN increment num = until (\v -> addIncs v >= num) (+ 1) 0
+      where addIncs i = i * increment + minN
+
+  numToChar :: RealFrac a => a -> a -> a -> Char
+  numToChar minN increment num = lineChars !! if off < 0 then 0 else off
+      where off = (truncate $ (numToOffset minN increment num) - 1)
+
+  main :: IO ()
+  main = do
+    args <- getArgs
+    putStrLn . sparkline $ read <$> args
+#+END_SRC
+
+* Final thoughts
+
+The Recurse Center manual says "understand why your code works the way it does". When I'm tired, it's too easy for me to fix the code to make the type checker happy without using my brain to consider the actual problem.
+As I said in the two week retro, if I'm tired I write code that I have to fix later.
+
+After my version worked, I looked at the [[https://rosettacode.org/wiki/Sparkline_in_unicode#Haskell][Haskell solutions]] and golly that second solution is compact.
+
+If you assume each input number is a separate command line argument, there's an even more compact version below.
+
+#+BEGIN_SRC haskell
+  #! runhaskell
+  import           Control.Arrow      ((&&&))
+  import           Data.List          (findIndex)
+  import           Data.Maybe         (maybe)
+  import           System.Environment (getArgs)
+
+  sparkLine xs =
+    let (mn, mx) = (minimum &&& maximum) xs
+	w = (mx - mn) / 8
+	lbounds = (mn +) . (w *) <$> [1 .. 7]
+    in fmap (maybe '█' ("▁▂▃▄▅▆▇" !!) . flip findIndex lbounds . flip (>)) xs
+
+  main = do
+    args <- getArgs
+    putStrLn . sparkLine $ read <$> args
+#+END_SRC
+
+Still doesn't get close to the [[https://rosettacode.org/wiki/Sparkline_in_unicode#APL][APL version]] though!
