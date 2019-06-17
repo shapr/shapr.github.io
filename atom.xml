@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2019-06-11T00:00:00Z</updated>
+    <updated>2019-06-16T00:00:00Z</updated>
     <entry>
+    <title>Sparklines in text</title>
+    <link href="http://shapr.github.io/posts/2019-06-16-tmux-sparklines.html" />
+    <id>http://shapr.github.io/posts/2019-06-16-tmux-sparklines.html</id>
+    <published>2019-06-16T00:00:00Z</published>
+    <updated>2019-06-16T00:00:00Z</updated>
+    <summary type="html"><![CDATA[I want to use sparklines to display data in tmux]]></summary>
+</entry>
+<entry>
     <title>Markov Keyboard, The Rabbit Hole Factory</title>
     <link href="http://shapr.github.io/posts/2019-06-11-markov-rabbit-holes.html" />
     <id>http://shapr.github.io/posts/2019-06-11-markov-rabbit-holes.html</id>
