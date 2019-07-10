@@ -56,7 +56,7 @@ I decided to cut that port down into the simplest thing that would demonstrate t
 
 Something has a name, a cost, and a benefit. Given a limited budget, what's the largest benefit I can get that fits?
 
-In the code below, the somethings have names of x1, x2, x3; costs of 100, 50, and 15; and benefits of 85, 45, and 13.
+In the code below, the somethings have names of x1, x2, x3; costs of 100, 50, and 15; and benefits of 83, 42, and 13.
 
 There's one function that calculates the cost, one for the benefit, a few extra constraints are thrown into the mix and everything is handed off to the z3 SMT solver.
 
