@@ -128,7 +128,7 @@
 <a class="sourceLine" id="cb3-9" title="9"></a>
 <a class="sourceLine" id="cb3-10" title="10"><span class="ot">configure ::</span> <span class="dt">Goal</span></a>
 <a class="sourceLine" id="cb3-11" title="11">configure <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb3-12" title="12">  engineNames <span class="ot">&lt;-</span> sInt32s <span class="op">$</span> getName <span class="op">&lt;$&gt;</span> engines' <span class="co">-- engines' is Integer only</span></a>
+<a class="sourceLine" id="cb3-12" title="12">  engineNames <span class="ot">&lt;-</span> sInt32s <span class="op">$</span> getName <span class="op">&lt;$&gt;</span> engines</a>
 <a class="sourceLine" id="cb3-13" title="13"></a>
 <a class="sourceLine" id="cb3-14" title="14">  <span class="kw">let</span> engineCost <span class="ot">=</span> costAmount engineNames</a>
 <a class="sourceLine" id="cb3-15" title="15">  thrust <span class="ot">=</span> thrustAmount engineNames <span class="co">-- round down floats</span></a>
@@ -144,13 +144,13 @@
 <a class="sourceLine" id="cb3-25" title="25">  maximize <span class="st">&quot;sum thrust and steering/36&quot;</span> ((thrust <span class="op">*</span> <span class="dv">36</span>) <span class="op">+</span><span class="ot"> turn ::</span> <span class="dt">SInt32</span>)</a>
 <a class="sourceLine" id="cb3-26" title="26"></a>
 <a class="sourceLine" id="cb3-27" title="27"><span class="ot">costAmount ::</span> [<span class="dt">SInt32</span>] <span class="ot">-&gt;</span> <span class="dt">SInt32</span></a>
-<a class="sourceLine" id="cb3-28" title="28">costAmount es <span class="ot">=</span> <span class="fu">sum</span> <span class="op">$</span> <span class="fu">zipWith</span> (<span class="op">*</span>) (getSize <span class="op">&lt;$&gt;</span> engines') es</a>
+<a class="sourceLine" id="cb3-28" title="28">costAmount es <span class="ot">=</span> <span class="fu">sum</span> <span class="op">$</span> <span class="fu">zipWith</span> (<span class="op">*</span>) (getSize <span class="op">&lt;$&gt;</span> engines) es</a>
 <a class="sourceLine" id="cb3-29" title="29"></a>
 <a class="sourceLine" id="cb3-30" title="30"><span class="ot">turnAmount ::</span> [<span class="dt">SInt32</span>] <span class="ot">-&gt;</span> <span class="dt">SInt32</span></a>
-<a class="sourceLine" id="cb3-31" title="31">turnAmount es <span class="ot">=</span> <span class="fu">sum</span> <span class="op">$</span> <span class="fu">zipWith</span> (<span class="op">*</span>) (getTurn <span class="op">&lt;$&gt;</span> engines') es</a>
+<a class="sourceLine" id="cb3-31" title="31">turnAmount es <span class="ot">=</span> <span class="fu">sum</span> <span class="op">$</span> <span class="fu">zipWith</span> (<span class="op">*</span>) (getTurn <span class="op">&lt;$&gt;</span> engines) es</a>
 <a class="sourceLine" id="cb3-32" title="32"></a>
 <a class="sourceLine" id="cb3-33" title="33"><span class="ot">thrustAmount ::</span> [<span class="dt">SInt32</span>] <span class="ot">-&gt;</span> <span class="dt">SInt32</span></a>
-<a class="sourceLine" id="cb3-34" title="34">thrustAmount es <span class="ot">=</span> <span class="fu">sum</span> <span class="op">$</span> <span class="fu">zipWith</span> (<span class="op">*</span>) (getThrust <span class="op">&lt;$&gt;</span> engines') es</a>
+<a class="sourceLine" id="cb3-34" title="34">thrustAmount es <span class="ot">=</span> <span class="fu">sum</span> <span class="op">$</span> <span class="fu">zipWith</span> (<span class="op">*</span>) (getThrust <span class="op">&lt;$&gt;</span> engines) es</a>
 <a class="sourceLine" id="cb3-35" title="35"></a>
 <a class="sourceLine" id="cb3-36" title="36">getName (n,_,_,_) <span class="ot">=</span> n</a>
 <a class="sourceLine" id="cb3-37" title="37">getSize (_,s,_,_) <span class="ot">=</span> s</a>
@@ -164,8 +164,8 @@
 <a class="sourceLine" id="cb3-45" title="45"><span class="co">-- values from https://github.com/endless-sky/endless-sky/blob/master/data/engines.txt</span></a>
 <a class="sourceLine" id="cb3-46" title="46"><span class="co">-- name, size, thrust, turning</span></a>
 <a class="sourceLine" id="cb3-47" title="47"><span class="co">-- this one multiplies all float values by 10 to make them integers</span></a>
-<a class="sourceLine" id="cb3-48" title="48"><span class="ot">engines' ::</span> [(<span class="dt">String</span>, <span class="dt">SInt32</span>, <span class="dt">SInt32</span>, <span class="dt">SInt32</span>)]</a>
-<a class="sourceLine" id="cb3-49" title="49">engines' <span class="ot">=</span> [ (<span class="st">&quot;X1050&quot;</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">1100</span>) <span class="co">-- has both thrust and turning!</span></a>
+<a class="sourceLine" id="cb3-48" title="48"><span class="ot">engines ::</span> [(<span class="dt">String</span>, <span class="dt">SInt32</span>, <span class="dt">SInt32</span>, <span class="dt">SInt32</span>)]</a>
+<a class="sourceLine" id="cb3-49" title="49">engines <span class="ot">=</span> [ (<span class="st">&quot;X1050&quot;</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">1100</span>) <span class="co">-- has both thrust and turning!</span></a>
 <a class="sourceLine" id="cb3-50" title="50">      , (<span class="st">&quot;X1200&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">1600</span>)</a>
 <a class="sourceLine" id="cb3-51" title="51">      , (<span class="st">&quot;X1700&quot;</span>, <span class="dv">16</span>, <span class="dv">60</span>, <span class="dv">0</span>)</a>
 <a class="sourceLine" id="cb3-52" title="52">      , (<span class="st">&quot;X2200&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">3070</span>)</a>
