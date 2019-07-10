@@ -1,5 +1,5 @@
 ---
-title: Linear Programming
+title: SMT Solvers, Integer Linear Programming
 description: How do I get started optimizing cost/benefit with constraints?
 tags: optimization, smt, haskell, endless sky
 ---
