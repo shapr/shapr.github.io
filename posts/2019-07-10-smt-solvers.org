@@ -154,7 +154,7 @@ So here's the code that's been heating up my living area for the past fourteen h
 
   configure :: Goal
   configure = do
-    engineNames <- sInt32s $ getName <$> engines' -- engines' is Integer only
+    engineNames <- sInt32s $ getName <$> engines
 
     let engineCost = costAmount engineNames
 	thrust = thrustAmount engineNames -- round down floats
@@ -170,13 +170,13 @@ So here's the code that's been heating up my living area for the past fourteen h
     maximize "sum thrust and steering/36" ((thrust * 36) + turn :: SInt32)
 
   costAmount :: [SInt32] -> SInt32
-  costAmount es = sum $ zipWith (*) (getSize <$> engines') es
+  costAmount es = sum $ zipWith (*) (getSize <$> engines) es
 
   turnAmount :: [SInt32] -> SInt32
-  turnAmount es = sum $ zipWith (*) (getTurn <$> engines') es
+  turnAmount es = sum $ zipWith (*) (getTurn <$> engines) es
 
   thrustAmount :: [SInt32] -> SInt32
-  thrustAmount es = sum $ zipWith (*) (getThrust <$> engines') es
+  thrustAmount es = sum $ zipWith (*) (getThrust <$> engines) es
 
   getName (n,_,_,_) = n
   getSize (_,s,_,_) = s
@@ -190,8 +190,8 @@ So here's the code that's been heating up my living area for the past fourteen h
   -- values from https://github.com/endless-sky/endless-sky/blob/master/data/engines.txt
   -- name, size, thrust, turning
   -- this one multiplies all float values by 10 to make them integers
-  engines' :: [(String, SInt32, SInt32, SInt32)]
-  engines' = [ ("X1050", 20, 40, 1100) -- has both thrust and turning!
+  engines :: [(String, SInt32, SInt32, SInt32)]
+  engines = [ ("X1050", 20, 40, 1100) -- has both thrust and turning!
 	    , ("X1200", 12, 0, 1600)
 	    , ("X1700", 16, 60, 0)
 	    , ("X2200", 20, 0, 3070)
