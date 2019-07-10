@@ -50,7 +50,7 @@
 <p>Ok, let’s start much much smaller. The heavily commented Z3 tutorial example in this post has three Virtual Machines that can run on one or more of three host servers, let’s shrink that down a bunch.</p>
 <p>The Haskell library I want to use has a port of the virtual machine packing example from the z3 tutorial. I decided to cut that port down into the simplest thing that would demonstrate to me that this approach was going to work.</p>
 <p>Something has a name, a cost, and a benefit. Given a limited budget, what’s the largest benefit I can get that fits?</p>
-<p>In the code below, the somethings have names of x1, x2, x3; costs of 100, 50, and 15; and benefits of 85, 45, and 13.</p>
+<p>In the code below, the somethings have names of x1, x2, x3; costs of 100, 50, and 15; and benefits of 83, 42, and 13.</p>
 <p>There’s one function that calculates the cost, one for the benefit, a few extra constraints are thrown into the mix and everything is handed off to the z3 SMT solver.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></a>
 <a class="sourceLine" id="cb1-2" title="2"></a>
