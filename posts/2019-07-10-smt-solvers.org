@@ -8,7 +8,7 @@ tags: optimization, smt, haskell, endless sky
 
 SMT is the biggest hammer. It can likely solve your problem but is rarely the best at solving problems in a particular domain.
 
-[[../img/witchcraftstaves.png]]
+[[../images/witchcraftstaves.png]]
 
 * Game addiction? Write code!
 
