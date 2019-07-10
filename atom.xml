@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2019-06-16T00:00:00Z</updated>
+    <updated>2019-07-10T00:00:00Z</updated>
     <entry>
+    <title>Linear Programming</title>
+    <link href="http://shapr.github.io/posts/2019-07-10-smt-solvers.html" />
+    <id>http://shapr.github.io/posts/2019-07-10-smt-solvers.html</id>
+    <published>2019-07-10T00:00:00Z</published>
+    <updated>2019-07-10T00:00:00Z</updated>
+    <summary type="html"><![CDATA[How do I get started optimizing cost/benefit with constraints?]]></summary>
+</entry>
+<entry>
     <title>Sparklines in text</title>
     <link href="http://shapr.github.io/posts/2019-06-16-tmux-sparklines.html" />
     <id>http://shapr.github.io/posts/2019-06-16-tmux-sparklines.html</id>
@@ -80,14 +88,6 @@
     <published>2019-05-01T00:00:00Z</published>
     <updated>2019-05-01T00:00:00Z</updated>
     <summary type="html"><![CDATA[Recurse Center is amazing, I can barely wait to start]]></summary>
-</entry>
-<entry>
-    <title>Faster Haskell code, by example!</title>
-    <link href="http://shapr.github.io/posts/2017-07-09-first-post.html" />
-    <id>http://shapr.github.io/posts/2017-07-09-first-post.html</id>
-    <published>2017-07-09T00:00:00Z</published>
-    <updated>2017-07-09T00:00:00Z</updated>
-    <summary type="html"><![CDATA[how to speed up your Haskell code]]></summary>
 </entry>
 
 </feed>
