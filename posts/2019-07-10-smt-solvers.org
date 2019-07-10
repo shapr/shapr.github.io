@@ -1,0 +1,344 @@
+---
+title: Linear Programming
+description: How do I get started optimizing cost/benefit with constraints?
+tags: optimization, smt, haskell, endless sky
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2019-07-10
+
+SMT is the biggest hammer. It can likely solve your problem but is rarely the best at solving problems in a particular domain.
+
+[[../img/witchcraftstaves.png]]
+
+* Game addiction? Write code!
+
+I get addicted to games I play on my computer. The best fix I've found is to write code to solve the game once and for all.
+
+* What? Endless Sky!
+
+I like to play this game [[https://endless-sky.github.io/][Endless Sky]] and part of the games is exploring the starmap discovering different nations offering unique ships and ship components. Sometimes these new components have big benefits.
+
+But hey, I'm at a programmer's summer camp, and this looks like a constraint problem of some sort?
+Given the list of components with their stats and a particular ship with a certain amount of space for engines and weapons, I should be able to calculate the optimal components, right?
+
+For Endless Sky my question is, how can I maximize the value of thrust and turn with without exceeding a certain value for engine capacity?
+
+But I have no idea how to do that! Even better, when I do it by hand, I keep finding novel solutions that are better than I thought was possible. How do I solve this once and forever?
+
+Davean suggested I use into [[https://en.wikipedia.org/wiki/Integer_programming][integer]] [[https://en.wikipedia.org/wiki/Integer_programming][linear]] programming. I also investigated [[https://en.wikipedia.org/wiki/Mathematical_optimization][many other options]] but finally decided to try an [[https://en.wikipedia.org/wiki/Satisfiability_modulo_theories][SMT solver]]. That led to *many* days of reading and frustration, but finally VICTORY (well, sort of).
+
+* Go Fast, mostly
+
+Problem Statement: A ship can hold 210 units of engine capacity, and I want a balance of go fast and turn.
+
+Happily, Endless Sky is open source, so I can get engine stats out of the [[https://github.com/endless-sky/endless-sky/tree/master/data][github data files]].
+
+* SMT Solvers
+
+The term SMT Solver is [[https://en.wikipedia.org/wiki/Satisfiability_modulo_theories][satisfiability modulo theories]] which is a generalization [[https://en.wikipedia.org/wiki/Boolean_satisfiability_problem][boolean satisfiability]] which is roughly "I have a boolean expression, is there any combination of inputs that will make its outputs true?
+
+With help (and [[https://github.com/vaibhavsagar/advent-of-code/blob/master/2018/notebooks/Day23.ipynb][demo code]]) from Vaibhav, I chose the the [[http://hackage.haskell.org/package/sbv][sbv]] Haskell library as a friendly wrapper for talking to SMT solvers.
+
+I read the examples several times, and finally chose the [[https://github.com/LeventErkok/sbv/blob/master/Documentation/SBV/Examples/Optimization/VM.hs][virtual machine packing example]] as a starting point. I didn't get anywhere, after hours of trying to figure out how to express the problem.
+
+After much skull sweat, how to express the idea came from [[https://vaibhavsagar.com/][Vaibhav]] saying "Express it as a sum of Integers". That is, a ship can have zero or more of each engine, and each of those integers has a particular value.
+[[https://en.wikipedia.org/wiki/Integer_programming][Integer linear programming]]! SMT solvers are much more general than ILP, but they can also do that, with their usual "can do, but won't be fast" kind of approach.
+
+A bunch of searching around turned up the [[https://rise4fun.com/Z3/tutorialcontent/optimization#h25][z3 optimization tutorial]] which does the same thing, but then says "In this example, the boolean encoding is not really natural."
+They rewrite the problem with a bunch of Integer values, and that's what I want!
+
+* Look, I totally zoned out, can you repeat all that stuff in much smaller words?
+
+Ok, let's start much much smaller. The heavily commented Z3 tutorial example in this post has three Virtual Machines that can run on one or more of three host servers, let's shrink that down a bunch.
+
+The Haskell library I want to use has a port of the virtual machine packing example from the z3 tutorial.
+I decided to cut that port down into the simplest thing that would demonstrate to me that this approach was going to work.
+
+Something has a name, a cost, and a benefit. Given a limited budget, what's the largest benefit I can get that fits?
+
+In the code below, the somethings have names of x1, x2, x3; costs of 100, 50, and 15; and benefits of 85, 45, and 13.
+
+There's one function that calculates the cost, one for the benefit, a few extra constraints are thrown into the mix and everything is handed off to the z3 SMT solver.
+
+#+BEGIN_SRC haskell
+  module Main where
+
+  import           Data.SBV
+
+  -- name, cost, benefit
+  things :: [(String, SInteger, SInteger)]
+  things = [ ("x1", 100, 83)
+	   ,( "x2", 50, 42)
+	   , ("x3", 15, 13)
+	   ]
+
+  getName (n,_,_) = n
+  getCost (_,c,_) = c
+  getBene (_,_,b) = b
+
+  -- calculate total *cost* for three inputs, using the list above named things
+  -- given 1,1,1 you get 1 * 100 + 1 * 50 + 1 * 15 = 165
+  -- given 0,1,0 you get 0 * 100 + 1 * 50 + 0 * 15 = 50
+  cost :: [SInteger] -> SInteger
+  cost rs = sum $ zipWith (*) (getCost <$> things) rs
+
+  -- calculate total *benefit* for three inputs, using the list above named things
+  -- given 1,1,1 you get 1 * 83 + 1 * 42 + 1 * 13 = 138
+  -- given 0,1,0 you get 0 * 100 + 1 * 42 + 0 * 15 = 42
+  benefit :: [SInteger] -> SInteger
+  benefit rs = sum $ zipWith (*) (getBene <$> things) rs
+
+  allocate :: Goal
+  allocate = do
+      names <- sIntegers $ getName <$> things -- create symbolic integers
+
+      let capacity1 = cost names -- calculate the cost of three integer values
+	  benefit1 = benefit names -- calculate the benefit of three integer values
+
+      mapM_ (\x -> constrain $ x .>= 0) names -- each of the things must be zero or larger
+
+      constrain $ capacity1 .<= 100
+      constrain $ capacity1 .>= 0
+      constrain $ benefit1 .>= 0
+
+      let cost1 = sum names
+
+      constrain $ cost1 .>= 0
+      constrain $ cost1 .<= 100
+
+      maximize "benefit - cost" (benefit1 - cost1 :: SInteger)
+
+  main = do
+    res <- optimize Lexicographic allocate
+    print res
+#+END_SRC
+
+A tiny amount of time later, the results are in!
+
+#+BEGIN_SRC fundamental
+  Optimal model:
+    x1             =  0 :: Integer
+    x2             =  2 :: Integer
+    x3             =  0 :: Integer
+    benefit - cost = 82 :: Integer
+#+END_SRC
+
+The best profit is 82, and comes from producing two of x2.
+
+* Ok, so why is the room near you warmer than the rest of the building?
+
+Once I had the example above working, I was able to port it to exactly the problem I wanted to solve.
+In the process of banging my head on this and complaining on various IRC channels I ran across [[https://github.com/peddie][Matt Peddie]] in one of the Australian FP chats.
+He confirmed that I was on the right track, and that this would likely suceed.
+
+The code below has a list of all the engines in Endless Sky, as well as the amount of space required, and turn and thrust produced.
+
+Originally I used floating point values directly from the data files, Matt suggested switching to the smallest integer type that wouldn't overflow, as that would be solved in the smallest amount of time by z3.
+So I multiplied thrust and turn values by ten, as the data files had at most one number after the decimal point.
+
+Initial runs would sit and spin for ten or twenty minutes, and give no result. Matt suggested I comment out all but a few of the engine components to see if that gave
+
+With eleven engines as input, a good solution took a fraction of a second! With nineteen engines, 7.3 seconds to find the best solution. Thirty one engines takes 24 seconds for the perfect solution. Forty two engines ... I gave up after half an hour and killed it. There are seventy eight engines in the data file, I figured I'd uncomment them all and let it run overnight.
+
+So here's the code that's been heating up my living area for the past fourteen hours:
+
+#+BEGIN_SRC haskell
+  module Main where
+
+  import           Data.SBV
+  import           Data.SBV.Trans.Control
+
+  main = do
+    res <- optimize Lexicographic configure
+    print res
+
+  configure :: Goal
+  configure = do
+    engineNames <- sInt32s $ getName <$> engines' -- engines' is Integer only
+
+    let engineCost = costAmount engineNames
+	thrust = thrustAmount engineNames -- round down floats
+	turn = turnAmount engineNames -- round down floats
+
+    constrain $ engineCost .<= 210 -- Kestrel + Weapons
+    constrain $ engineCost .>= 0 -- can't be negative!
+    constrain $ thrust .> 0
+    constrain $ turn .> 0
+    mapM_ (\x -> constrain $ x .>= 0) engineNames -- zero or more of each component
+    mapM_ (\x -> constrain $ x .<= 10) engineNames -- I can't imagine more than ten of any component?
+
+    maximize "sum thrust and steering/36" ((thrust * 36) + turn :: SInt32)
+
+  costAmount :: [SInt32] -> SInt32
+  costAmount es = sum $ zipWith (*) (getSize <$> engines') es
+
+  turnAmount :: [SInt32] -> SInt32
+  turnAmount es = sum $ zipWith (*) (getTurn <$> engines') es
+
+  thrustAmount :: [SInt32] -> SInt32
+  thrustAmount es = sum $ zipWith (*) (getThrust <$> engines') es
+
+  getName (n,_,_,_) = n
+  getSize (_,s,_,_) = s
+  getThrust (_,_,th,_) = th
+  getTurn (_,_,_,tu) = tu
+
+  {- many engines, with different amounts of thrust and turning
+  a ship has limited space
+  What combination of engines fits into the ship, and gives the most thrust? -}
+
+  -- values from https://github.com/endless-sky/endless-sky/blob/master/data/engines.txt
+  -- name, size, thrust, turning
+  -- this one multiplies all float values by 10 to make them integers
+  engines' :: [(String, SInt32, SInt32, SInt32)]
+  engines' = [ ("X1050", 20, 40, 1100) -- has both thrust and turning!
+	    , ("X1200", 12, 0, 1600)
+	    , ("X1700", 16, 60, 0)
+	    , ("X2200", 20, 0, 3070)
+	    , ("X2700", 27, 115, 0)
+	    , ("X3200", 35, 0, 5900)
+	    , ("X3700", 46, 221, 0)
+	    , ("X4200", 59, 0, 11320)
+	    , ("X4700", 79, 425, 0)
+	    , ("X5200", 100, 0, 21740)
+	    , ("X5700", 134, 815, 0)
+	    , ("Chipmunk Thruster", 20, 96, 0)
+	    , ("Chipmunk Steering", 15, 0, 2560)
+	    , ("Greyhound Steering", 26, 0, 4920)
+	    , ("Greyhound Thruster", 34, 184, 0)
+	    , ("Impala Steering", 43, 0, 9440)
+	    , ("Impala Thruster", 58, 354, 0)
+	    , ("Orca Steering", 74, 0, 18120)
+	    , ("Orca Thruster", 98, 679, 0)
+	    , ("Tyrant Steering", 125, 0, 34790)
+	    , ("Tyrant Thruster", 167, 1305, 0)
+	    , ("A120 Thruster", 22, 154, 0)
+	    , ("A125 Steering", 16, 0, 3920)
+	    , ("A250 Thruster", 34, 273, 0)
+	    , ("A255 Steering", 25, 0, 6870)
+	    , ("A370 Thruster", 53, 476, 0)
+	    , ("A375 Steering", 38, 0, 11920)
+	    , ("A520 Thruster", 82, 819, 0)
+	    , ("A525 Steering", 60, 0, 20500)
+	    , ("A860 Thruster", 127, 1397, 0)
+	    , ("A865 Steering", 92, 0, 35090)
+	    , ("Baellie", 24, 101, 2500) -- hai
+	    , ("Basrem Thruster", 18, 132, 0)
+	    , ("Benga Thruster", 28, 236, 0)
+	    , ("Biroo Thruster", 44, 415, 0)
+	    , ("Bondir Thruster", 63, 661, 0)
+	    , ("Bufaer Thruster", 104, 1201, 0)
+	    , ("Basrem Steering", 12, 0, 3090)
+	    , ("Benga Steering", 20, 0, 5770)
+	    , ("Biroo Steering", 32, 0, 10540)
+	    , ("Bondir Steering", 49, 0, 17580)
+	    , ("Bufaer Steering", 76, 0, 30430)
+	    , ("Coalition Large Steering", 25, 0, 7119) -- coalition
+	    , ("Coalition Large Thruster", 32, 262, 0)
+	    , ("Coalition Small Steering", 7, 0, 1788)
+	    , ("Coalition Small Thruster", 9, 66, 0)
+	    , ("Korath Asteroid Steering", 10, 0, 2800) -- Korath
+	    , ("Korath Asteroid Thruster", 14, 112, 0)
+	    , ("Korath Comet Steering", 18, 0, 5688)
+	    , ("Korath Comet Thruster", 24, 218, 0)
+	    , ("Korath Lunar Steering", 30, 0, 10560)
+	    , ("Korath Lunar Thruster", 40, 412, 0)
+	    , ("Korath Planetary Steering", 52, 0, 20696)
+	    , ("Korath Planetary Thruster", 69, 800, 0)
+	    , ("Korath Stellar Steering", 89, 0, 40050)
+	    , ("Korath Stellar Thruster", 118, 1534, 0)
+	    , ("Pug Akfar Thruster", 43, 280, 0) -- pug
+	    , ("Pug Akfar Steering", 33, 0, 7500)
+	    , ("Pug Cormet Thruster", 60, 440, 0)
+	    , ("Pug Comet Steering", 46, 0, 11300)
+	    , ("Pug Lohmar Thruster", 84, 660, 0)
+	    , ("Pug Lohmar Steering", 64, 0, 17000)
+	    , ("Quarg Medium Thruster", 70, 800, 0) -- quarg
+	    , ("Quarg Medium Steering", 50, 0, 16000)
+	    , ("Crucible Thruster", 20, 180, 0) -- remnant
+	    , ("Crucible Steering", 14, 0, 4480)
+	    , ("Forge Thruster", 39, 370, 0)
+	    , ("Forge Steering", 28, 0, 9520)
+	    , ("Smelter Thruster", 76, 768, 0)
+	    , ("Smelter Steering", 55, 0, 19800)
+	    , ("Type 1 Radiant Thruster", 12, 66, 0) -- wanderer
+	    , ("Type 1 Radiant Steering", 9, 0, 1728)
+	    , ("Type 2 Radiant Thruster", 27, 176, 0)
+	    , ("Type 2 Radiant Steering", 20, 0, 4540)
+	    , ("Type 3 Radiant Thruster", 42, 315, 0)
+	    , ("Type 3 Radiant Steering", 30, 0, 7860)
+	    , ("Type 4 Radiant Thruster", 64, 552, 0)
+	    , ("Type 4 Radiant Steering", 47, 0, 13959)
+	    ]
+
+#+END_SRC
+
+Given the progress above, I'm not terribly optimistic about how long z3 might take to solve this problem. Within my lifetime? Who knows?
+
+Seems like davean was right, I should have used [[http://hackage.haskell.org/package/limp][limp]] or other ILP solver.
+
+Even so, my goal was to get started with SMT solvers and the sbv library.
+The [[https://github.com/LeventErkok/sbv/tree/master/Documentation/SBV/Examples][sbv examples]] show *many* more flavors of SMT-soluble problems that aren't the optimization problems I described above, you may find something you like!
+If you want non-interactive input from the helpful Matt Peddie, check out this [[https://www.youtube.com/watch?v=luaPkv5Rnpk][video of a talk]] he gave to the Brisbane Functional Programming Group.
+
+* Appendix: Many helpful comments for the Integer Example In The Z3 Docs
+
+I had a hard time reading the [[https://rise4fun.com/Z3/tutorial/guide][z3 tutorial]] so I've added a bunch of comments to the optimization example that uses integer constraints, in hopes of easing comprehension for YOU should you decide to dig into this subject.
+
+#+BEGIN_SRC lisp
+  ;; declare a cartesian product of host server and VM
+  ;; three VMs x1, x2, x3 and three hosts y1, y2, y3
+  (declare-const x11 Int) ; VM x1 might be on host y1
+  (declare-const x12 Int) ; VM x1 might be on host y2
+  (declare-const x13 Int)
+  (declare-const x21 Int) ; VM x2 might be on host y1
+  (declare-const x22 Int)
+  (declare-const x23 Int)
+  (declare-const x31 Int)
+  (declare-const x32 Int)
+  (declare-const x33 Int) ; VM x3 might be on host y3
+
+  ;; declare the hosts as Int
+  (declare-const y1 Int)
+  (declare-const y2 Int)
+  (declare-const y3 Int)
+
+  ;; the solution grid cannot be negative
+  ;; each combination of VM and host must be zero or more
+  (assert (and (>= x11 0) (>= x12 0) (>= x13 0)
+	       (>= x21 0) (>= x22 0) (>= x23 0)
+	       (>= x31 0) (>= x32 0) (>= x33 0)))
+
+  ;; There's no more than one of each host server.
+  (assert (and (<= y1 1) (<= y2 1) (<= y3 1)))
+
+  ;; the sum of the count of each VM on all hosts is one
+  ;; that is, VM x1 must exist on one of the hosts, but no more or less than one
+  (assert (= (+ x11 x12 x13) 1)) ; VM x1 must exist somewhere
+  (assert (= (+ x21 x22 x23) 1)) ; VM x2 must exist somewhere
+  (assert (= (+ x31 x32 x33) 1)) ; VM x3 must exist somewhere
+
+  ;; if a VM is allocated to a host, that host must have a positive count
+  (assert (and (>= y1 x11) (>= y1 x21) (>= y1 x31)))
+  (assert (and (>= y2 x12) (>= y2 x22) (>= y2 x32)))
+  (assert (and (>= y3 x13) (>= y3 x23) (>= y3 x33)))
+
+  ;; server y1 has 100 GB space, y2 has 75GB, y3 has 200GB
+  ;; VM x1 requires 100, x2 requires 50, x3 requires 15
+  (assert (<= (+ (* 100 x11) (* 50 x21) (* 15 x31)) (* 100 y1)))
+  (assert (<= (+ (* 100 x12) (* 50 x22) (* 15 x32)) (* 75 y2)))
+  (assert (<= (+ (* 100 x13) (* 50 x23) (* 15 x33)) (* 200 y3)))
+
+  ;; use the fewest hosts
+  (minimize (+ y1 y2 y3))
+  ;; server y1 costs $10 a day, y2 costs $5/day, y3 costs $20 a day
+  ;; minimize the daily host costs
+  (minimize (+ (* 10 y1) (* 5 y2) (* 20 y3)))
+
+  ;;(set-option :opt.priority pareto)
+  ;; is there a solution?
+  (check-sat)
+  ;; display the best solution
+  (get-model)
+  (get-objectives)
+#+END_SRC
