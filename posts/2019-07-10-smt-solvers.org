@@ -37,7 +37,7 @@ Happily, Endless Sky is open source, so I can get engine stats out of the [[http
 
 The term SMT Solver is [[https://en.wikipedia.org/wiki/Satisfiability_modulo_theories][satisfiability modulo theories]] which is a generalization [[https://en.wikipedia.org/wiki/Boolean_satisfiability_problem][boolean satisfiability]] which is roughly "I have a boolean expression, is there any combination of inputs that will make its outputs true?
 
-With help (and [[https://github.com/vaibhavsagar/advent-of-code/blob/master/2018/notebooks/Day23.ipynb][demo code]]) from Vaibhav, I chose the the [[http://hackage.haskell.org/package/sbv][sbv]] Haskell library as a friendly wrapper for talking to SMT solvers.
+With help (and [[https://github.com/vaibhavsagar/advent-of-code/blob/master/2018/notebooks/Day23.ipynb][demo code]]) from Vaibhav, I chose the [[http://hackage.haskell.org/package/sbv][sbv]] Haskell library as a friendly wrapper for talking to SMT solvers.
 
 I read the examples several times, and finally chose the [[https://github.com/LeventErkok/sbv/blob/master/Documentation/SBV/Examples/Optimization/VM.hs][virtual machine packing example]] as a starting point. I didn't get anywhere, after hours of trying to figure out how to express the problem.
 
@@ -136,7 +136,7 @@ The code below has a list of all the engines in Endless Sky, as well as the amou
 Originally I used floating point values directly from the data files, Matt suggested switching to the smallest integer type that wouldn't overflow, as that would be solved in the smallest amount of time by z3.
 So I multiplied thrust and turn values by ten, as the data files had at most one number after the decimal point.
 
-Initial runs would sit and spin for ten or twenty minutes, and give no result. Matt suggested I comment out all but a few of the engine components to see if that gave
+Initial runs would sit and spin for ten or twenty minutes, and give no result. Matt suggested I comment out all but a few of the engine components to see if that gave results in a reasonable amount of time.
 
 With eleven engines as input, a good solution took a fraction of a second! With nineteen engines, 7.3 seconds to find the best solution. Thirty one engines takes 24 seconds for the perfect solution. Forty two engines ... I gave up after half an hour and killed it. There are seventy eight engines in the data file, I figured I'd uncomment them all and let it run overnight.
 
