@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2019-07-10T00:00:00Z</updated>
+    <updated>2019-07-12T00:00:00Z</updated>
     <entry>
+    <title>Part two of SMT Solvers, Integer Linear Programming</title>
+    <link href="http://shapr.github.io/posts/2019-07-12-smt-solvers-part-two.html" />
+    <id>http://shapr.github.io/posts/2019-07-12-smt-solvers-part-two.html</id>
+    <published>2019-07-12T00:00:00Z</published>
+    <updated>2019-07-12T00:00:00Z</updated>
+    <summary type="html"><![CDATA[Other people already know how to do this well]]></summary>
+</entry>
+<entry>
     <title>SMT Solvers, Integer Linear Programming</title>
     <link href="http://shapr.github.io/posts/2019-07-10-smt-solvers.html" />
     <id>http://shapr.github.io/posts/2019-07-10-smt-solvers.html</id>
@@ -80,14 +88,6 @@
     <published>2019-05-02T00:00:00Z</published>
     <updated>2019-05-02T00:00:00Z</updated>
     <summary type="html"><![CDATA[hakyll blog posts from emacs]]></summary>
-</entry>
-<entry>
-    <title>Recurse Center</title>
-    <link href="http://shapr.github.io/posts/2019-05-01-recurse-center.html" />
-    <id>http://shapr.github.io/posts/2019-05-01-recurse-center.html</id>
-    <published>2019-05-01T00:00:00Z</published>
-    <updated>2019-05-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[Recurse Center is amazing, I can barely wait to start]]></summary>
 </entry>
 
 </feed>
