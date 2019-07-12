@@ -1,0 +1,408 @@
+---
+title: Part two of SMT Solvers, Integer Linear Programming
+description: Other people already know how to do this well
+tags: optimization, smt, haskell, endless sky
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2019-07-12
+
+SMT is the slowest hammer. Your problem may have died of old age before SMT gets around to it. That was my conclusion at the end of my last blog post.
+
+But wait! Other people are not complete newbies to the world of SMT, and even more people recognized this problem as straight up integer linear programming, which doesn't need an SMT solver.
+
+[[../images/thievesstaves.png]
+
+* So, what's the answer?
+
+Well, the answer to my original question is, one Korath thruster and one Korath steering. That's not nearly as interesting to me now, which means the *real* problem is solved! My addiction is cured!
+
+* Wait, did your program finish?
+
+Well, no. I killed the process after it ran for twenty hours.
+
+But several people reduced it to an easily solved integer programming problem, and one person used a different problem expression and SMT solver to produce a solution in just over a minute.
+
+** Linear Programming
+
+Five minutes after the blog post was live, Davean had written [[https://code.xkrd.net/davean/shapr-ilp][a solver]] that uses [[http://hackage.haskell.org/package/limp][limp]] and find a solution in three milliseconds, but it only returns one single engine component, and I haven't figured out how to fix it.
+
+Jeeger used an [[https://gist.github.com/jeeger/eb4aac58dd26b4faf327aa758b31c76c][IPython notebook in a gist]], I didn't know you could do that! I haven't tried this one locally, so I don't know how long it takes to run on my laptop.
+Jeeger's code matches the other solvers with the claim that Korath Stellar steering and thruster are the best solution.
+
+** SMT Solver
+
+I'm glad I posted a link on twitter, I got a reply from [[https://gist.github.com/notwa][notwa]] who used Python bindings to yices2 to find [[https://gist.github.com/notwa/6595f8471eeb82cfca8bb076263a86c9][the solution]] in one minute! This solver also says that Korath Stellar steering and thruster is the best solution.
+
+** Dynamic programming, and just using your brain
+
+My friend Chazz occasionally uses simulated annealing at work, so he came up with some really neat Python code that dynamically finds better solutions and also found the best answer as described above.
+
+My friend [[https://twitter.com/opticron][opticron]] created a [[https://docs.google.com/spreadsheets/d/1KVgHrmw1vB2DCKb5qwZA51yiWjy7qaSq-pRrfEBz4S8/edit#gid=309298984][spreadsheet]] scoring engines based on the original fitness function. He also came up with a fitness function that matches the top and bottom the thrust and steering components.
+It looks like ~((thrust * 20) + 1060) * turn~ and when inserted into the yices2/knapsack SMT solver code above, breaks everything. Instead you get some suboptimal solutions and then quite a few lines of:
+#+BEGIN_SRC fundamental
+  The context is unsat. No model.
+  unsat
+  The context is unsat. Try (reset)
+#+END_SRC
+
+Opticron also decided that Korath Stellar steering and thruster is the best configuration.
+
+* Further work
+
+I'd like to find the best scoring engine components for all the ships in Endless Sky. I'd also like to add the amount of heat produced so I could minimize total outfit space used to go fast.
+That is, Korath engines produce so much heat you end up being forced to add coolers or your ship shuts down every few seconds. So what's the best thrust+turn I can get that produces the least amount of heat?
+Lots of interesting questions I could answer if I'm not totally bored of Endless Sky.
+
+* Conclusion
+
+Paraphrasing something [[https://github.com/ekmett/][Ed]] said to me years ago: "SMT is the biggest hammer. It can likely solve your problem but is rarely the best at solving problems in a particular domain."
+
+Prior to this investigation, I had not realized the speed difference could be so large between an SMT solver and a solver optimized for the domain.
+Seems like it's still important to know which solvers are fast at which things, and how to express the problem so the solver can go fast.
+
+I still have many questions, ar SMT solvers are in general better for solving linear constraints? I know they have a bunch of 'backend solvers' but I don't know how they choose among the options. Is that a manual decision?
+
+Is there some survey that shows which SMT solvers are fast at which things? Can I mix and match? Is that why [[http://smtlib.cs.uiowa.edu/][SMT-LIB]] was created in the first place? Find out on the next episode of SMT SOLVERS IN PROBLEM SPACE!
+
+Also, I need to understand all the other things SMT solvers can do and figure out how to apply them to my everyday life questions (more games?).
+
+* Sneak Peek from the drafts folder of my blog
+
+I bought an [[https://shop.tympan.org/][open source hardware hearing aid]] that I can use to [[https://forum.tympan.org/t/changing-the-sample-rate/137][listen to bats]]! (ultrasonics)
+
+* Appendices
+
+** notwa's knapsack.py yices2 solver
+
+Originally [[https://gist.github.com/notwa/6595f8471eeb82cfca8bb076263a86c9][a gist]], takes almost exactly a minute to finish on my overpowered laptop.
+
+#+BEGIN_SRC python
+  #!/usr/bin/env python3
+  # run like:
+  # python3 knapsack.py write | yices --logic=QF_BV | python3 knapsack.py read
+
+  from collections import namedtuple
+
+  # settings
+
+  # work our way up incrementally:
+  minimum_scores = (30000, 60000, 90000, 92000, 94000, 95000, 96000)
+
+  thrust_weight = 36
+  turn_weight = 1
+  cost_limit = 210
+  individual_limit = 7
+
+  # data
+
+  Engine = namedtuple('Engine', ['name', 'size', 'thrust', 'turn'])
+
+  # from https://github.com/endless-sky/endless-sky/blob/master/data/engines.txt
+  engines = [
+      Engine("X1050", 20, 40, 1100),  # has both thrust and turning!
+      Engine("X1200", 12, 0, 1600),
+      Engine("X1700", 16, 60, 0),
+      Engine("X2200", 20, 0, 3070),
+      Engine("X2700", 27, 115, 0),
+      Engine("X3200", 35, 0, 5900),
+      Engine("X3700", 46, 221, 0),
+      Engine("X4200", 59, 0, 11320),
+      Engine("X4700", 79, 425, 0),
+      Engine("X5200", 100, 0, 21740),
+      Engine("X5700", 134, 815, 0),
+      Engine("Chipmunk Thruster", 20, 96, 0),
+      Engine("Chipmunk Steering", 15, 0, 2560),
+      Engine("Greyhound Steering", 26, 0, 4920),
+      Engine("Greyhound Thruster", 34, 184, 0),
+      Engine("Impala Steering", 43, 0, 9440),
+      Engine("Impala Thruster", 58, 354, 0),
+      Engine("Orca Steering", 74, 0, 18120),
+      Engine("Orca Thruster", 98, 679, 0),
+      Engine("Tyrant Steering", 125, 0, 34790),
+      Engine("Tyrant Thruster", 167, 1305, 0),
+      Engine("A120 Thruster", 22, 154, 0),
+      Engine("A125 Steering", 16, 0, 3920),
+      Engine("A250 Thruster", 34, 273, 0),
+      Engine("A255 Steering", 25, 0, 6870),
+      Engine("A370 Thruster", 53, 476, 0),
+      Engine("A375 Steering", 38, 0, 11920),
+      Engine("A520 Thruster", 82, 819, 0),
+      Engine("A525 Steering", 60, 0, 20500),
+      Engine("A860 Thruster", 127, 1397, 0),
+      Engine("A865 Steering", 92, 0, 35090),
+      Engine("Baellie", 24, 101, 2500),  # hai
+      Engine("Basrem Thruster", 18, 132, 0),
+      Engine("Benga Thruster", 28, 236, 0),
+      Engine("Biroo Thruster", 44, 415, 0),
+      Engine("Bondir Thruster", 63, 661, 0),
+      Engine("Bufaer Thruster", 104, 1201, 0),
+      Engine("Basrem Steering", 12, 0, 3090),
+      Engine("Benga Steering", 20, 0, 5770),
+      Engine("Biroo Steering", 32, 0, 10540),
+      Engine("Bondir Steering", 49, 0, 17580),
+      Engine("Bufaer Steering", 76, 0, 30430),
+      Engine("Coalition Large Steering", 25, 0, 7119),  # coalition
+      Engine("Coalition Large Thruster", 32, 262, 0),
+      Engine("Coalition Small Steering", 7, 0, 1788),
+      Engine("Coalition Small Thruster", 9, 66, 0),
+      Engine("Korath Asteroid Steering", 10, 0, 2800),  # Korath
+      Engine("Korath Asteroid Thruster", 14, 112, 0),
+      Engine("Korath Comet Steering", 18, 0, 5688),
+      Engine("Korath Comet Thruster", 24, 218, 0),
+      Engine("Korath Lunar Steering", 30, 0, 10560),
+      Engine("Korath Lunar Thruster", 40, 412, 0),
+      Engine("Korath Planetary Steering", 52, 0, 20696),
+      Engine("Korath Planetary Thruster", 69, 800, 0),
+      Engine("Korath Stellar Steering", 89, 0, 40050),
+      Engine("Korath Stellar Thruster", 118, 1534, 0),
+      Engine("Pug Akfar Thruster", 43, 280, 0),  # pug
+      Engine("Pug Akfar Steering", 33, 0, 7500),
+      Engine("Pug Cormet Thruster", 60, 440, 0),
+      Engine("Pug Comet Steering", 46, 0, 11300),
+      Engine("Pug Lohmar Thruster", 84, 660, 0),
+      Engine("Pug Lohmar Steering", 64, 0, 17000),
+      Engine("Quarg Medium Thruster", 70, 800, 0),  # quarg
+      Engine("Quarg Medium Steering", 50, 0, 16000),
+      Engine("Crucible Thruster", 20, 180, 0),  # remnant
+      Engine("Crucible Steering", 14, 0, 4480),
+      Engine("Forge Thruster", 39, 370, 0),
+      Engine("Forge Steering", 28, 0, 9520),
+      Engine("Smelter Thruster", 76, 768, 0),
+      Engine("Smelter Steering", 55, 0, 19800),
+      Engine("Type 1 Radiant Thruster", 12, 66, 0),  # wanderer
+      Engine("Type 1 Radiant Steering", 9, 0, 1728),
+      Engine("Type 2 Radiant Thruster", 27, 176, 0),
+      Engine("Type 2 Radiant Steering", 20, 0, 4540),
+      Engine("Type 3 Radiant Thruster", 42, 315, 0),
+      Engine("Type 3 Radiant Steering", 30, 0, 7860),
+      Engine("Type 4 Radiant Thruster", 64, 552, 0),
+      Engine("Type 4 Radiant Steering", 47, 0, 13959),
+  ]
+
+  # utilities
+
+  alphanumeric = 'abcdefghijklmnopqrstuvwxyz0123456789'
+
+  def encode(name):
+      name = name.lower()
+      # this code is a little brute but it works
+      name = ''.join(c if c in alphanumeric else '_' for c in name)
+      return name
+
+  def scoreit(engine):
+      return thrust_weight * engine.thrust + turn_weight * engine.turn
+
+  # main
+
+  def read(f):
+      variables = dict()
+      sat = False
+      any_sat = False
+
+      def dump():
+	  nonlocal variables, sat
+	  if not sat:
+	      return
+
+	  print('[solution]')
+	  for k, v in variables.items():
+	      if v > 0:
+		  print(f'{k}={v}')
+	  print()
+
+	  variables = dict()
+	  sat = False
+
+      for line in f:
+	  line = line.strip()
+	  if line.startswith('(=') and line.endswith(')'):
+	      _, name, value = line.split(' ')
+	      assert value.startswith('0b')
+	      variables[name] = int(value[2:-1], 2)
+	  elif line == 'sat':
+	      sat = True
+	      any_sat = True
+	  elif line == 'next':
+	      dump()
+	  else:
+	      print(line, file=sys.stderr)
+
+      dump()
+      return any_sat
+
+  def write():
+      # compute the shortest bitvectors that hold the worst case scenario:
+      big = sum(scoreit(engine) for engine in engines)
+      N, C = (big * individual_limit).bit_length(), individual_limit.bit_length()
+
+      print(f'(define-type num (bitvector {N}))')
+      print(f'(define-type count (bitvector {C}))')
+      print('(define cost::num)')
+      print('(define score::num)')
+
+      variable_names = [encode(engine.name) for engine in engines]
+
+      for engine, v_count in zip(engines, variable_names):
+	  print(f'(define {v_count}::count)')
+
+      for engine, v_count in zip(engines, variable_names):
+	  print(f'(assert (bv-le {v_count} (mk-bv {C} {individual_limit})))')
+
+      print('(assert (= cost (bv-add')
+      for engine, v_count in zip(engines, variable_names):
+	  if C < N:
+	      v_count = f'(bv-zero-extend {v_count} {N - C})'
+	  print(f'(bv-mul {v_count} (mk-bv {N} {engine.size}))')
+      print(')))')
+
+      print('(assert (= score (bv-add')
+      for engine, v_count in zip(engines, variable_names):
+	  if C < N:
+	      v_count = f'(bv-zero-extend {v_count} {N - C})'
+	  print(f'(bv-mul {v_count} (mk-bv {N} {scoreit(engine)}))')
+      print(')))')
+
+      # at least one chosen engine must have thrust
+      print('(assert (or')
+      for engine, v_count in zip(engines, variable_names):
+	  if engine.thrust > 0:
+	      print(f'(bv-gt {v_count} (mk-bv {C} 0))')
+      print('))')
+
+      # at least one chosen engine must have turn
+      print('(assert (or')
+      for engine, v_count in zip(engines, variable_names):
+	  if engine.turn > 0:
+	      print(f'(bv-gt {v_count} (mk-bv {C} 0))')
+      print('))')
+
+      print(f'(assert (and (bv-ge cost (mk-bv {N} 0)) (bv-le cost (mk-bv {N} {cost_limit}))))')
+
+      for minscore in minimum_scores:
+	  print(f'(assert (bv-ge score (mk-bv {N} {minscore})))')
+	  print('(check)')
+	  print('(show-model)')
+	  print('(echo "next\\n")')
+
+  if __name__ == '__main__':
+      import sys
+      if len(sys.argv) < 2 or sys.argv[1] not in ('read', 'write'):
+	  print(f'usage: {sys.argv[0]} (read|write)', file=sys.stderr)
+	  sys.exit(1)
+      elif sys.argv[1] == 'read':
+	  sat = read(sys.stdin)
+	  if not sat:
+	      sys.exit(1)
+      elif sys.argv[1] == 'write':
+	  write()
+#+END_SRC
+
+** Jeeger's linear solver
+Originally [[https://gist.github.com/jeeger/eb4aac58dd26b4faf327aa758b31c76c][a gist]] by Jeeger.
+
+#+BEGIN_SRC python
+  import numpy as np
+  import pandas as pd
+
+  import pulp
+  import collections
+
+  Engine = collections.namedtuple("Engine", ["name", "space", "thrust", "turn"])
+  engines = [Engine("X1050", 20, 40, 1100) #  has both thrust and turning!
+	     , Engine("X1200", 12, 0, 1600)
+	     , Engine("X1700", 16, 60, 0)
+	     , Engine("X2200", 20, 0, 3070)
+	     , Engine("X2700", 27, 115, 0)
+	     , Engine("X3200", 35, 0, 5900)
+	     , Engine("X3700", 46, 221, 0)
+	     , Engine("X4200", 59, 0, 11320)
+	     , Engine("X4700", 79, 425, 0)
+	     , Engine("X5200", 100, 0, 21740)
+	     , Engine("X5700", 134, 815, 0)
+	     , Engine("Chipmunk Thruster", 20, 96, 0)
+	     , Engine("Chipmunk Steering", 15, 0, 2560)
+	     , Engine("Greyhound Steering", 26, 0, 4920)
+	     , Engine("Greyhound Thruster", 34, 184, 0)
+	     , Engine("Impala Steering", 43, 0, 9440)
+	     , Engine("Impala Thruster", 58, 354, 0)
+	     , Engine("Orca Steering", 74, 0, 18120)
+	     , Engine("Orca Thruster", 98, 679, 0)
+	     , Engine("Tyrant Steering", 125, 0, 34790)
+	     , Engine("Tyrant Thruster", 167, 1305, 0)
+	     , Engine("A120 Thruster", 22, 154, 0)
+	     , Engine("A125 Steering", 16, 0, 3920)
+	     , Engine("A250 Thruster", 34, 273, 0)
+	     , Engine("A255 Steering", 25, 0, 6870)
+	     , Engine("A370 Thruster", 53, 476, 0)
+	     , Engine("A375 Steering", 38, 0, 11920)
+	     , Engine("A520 Thruster", 82, 819, 0)
+	     , Engine("A525 Steering", 60, 0, 20500)
+	     , Engine("A860 Thruster", 127, 1397, 0)
+	     , Engine("A865 Steering", 92, 0, 35090)
+	     , Engine("Baellie", 24, 101, 2500) #  hai
+	     , Engine("Basrem Thruster", 18, 132, 0)
+	     , Engine("Benga Thruster", 28, 236, 0)
+	     , Engine("Biroo Thruster", 44, 415, 0)
+	     , Engine("Bondir Thruster", 63, 661, 0)
+	     , Engine("Bufaer Thruster", 104, 1201, 0)
+	     , Engine("Basrem Steering", 12, 0, 3090)
+	     , Engine("Benga Steering", 20, 0, 5770)
+	     , Engine("Biroo Steering", 32, 0, 10540)
+	     , Engine("Bondir Steering", 49, 0, 17580)
+	     , Engine("Bufaer Steering", 76, 0, 30430)
+	     , Engine("Coalition Large Steering", 25, 0, 7119) #  coalition
+	     , Engine("Coalition Large Thruster", 32, 262, 0)
+	     , Engine("Coalition Small Steering", 7, 0, 1788)
+	     , Engine("Coalition Small Thruster", 9, 66, 0)
+	     , Engine("Korath Asteroid Steering", 10, 0, 2800) #  Korath
+	     , Engine("Korath Asteroid Thruster", 14, 112, 0)
+	     , Engine("Korath Comet Steering", 18, 0, 5688)
+	     , Engine("Korath Comet Thruster", 24, 218, 0)
+	     , Engine("Korath Lunar Steering", 30, 0, 10560)
+	     , Engine("Korath Lunar Thruster", 40, 412, 0)
+	     , Engine("Korath Planetary Steering", 52, 0, 20696)
+	     , Engine("Korath Planetary Thruster", 69, 800, 0)
+	     , Engine("Korath Stellar Steering", 89, 0, 40050)
+	     , Engine("Korath Stellar Thruster", 118, 1534, 0)
+	     , Engine("Pug Akfar Thruster", 43, 280, 0) #  pug
+	     , Engine("Pug Akfar Steering", 33, 0, 7500)
+	     , Engine("Pug Cormet Thruster", 60, 440, 0)
+	     , Engine("Pug Comet Steering", 46, 0, 11300)
+	     , Engine("Pug Lohmar Thruster", 84, 660, 0)
+	     , Engine("Pug Lohmar Steering", 64, 0, 17000)
+	     , Engine("Quarg Medium Thruster", 70, 800, 0) #  quarg
+	     , Engine("Quarg Medium Steering", 50, 0, 16000)
+	     , Engine("Crucible Thruster", 20, 180, 0) #  remnant
+	     , Engine("Crucible Steering", 14, 0, 4480)
+	     , Engine("Forge Thruster", 39, 370, 0)
+	     , Engine("Forge Steering", 28, 0, 9520)
+	     , Engine("Smelter Thruster", 76, 768, 0)
+	     , Engine("Smelter Steering", 55, 0, 19800)
+	     , Engine("Type 1 Radiant Thruster", 12, 66, 0) #  wanderer
+	     , Engine("Type 1 Radiant Steering", 9, 0, 1728)
+	     , Engine("Type 2 Radiant Thruster", 27, 176, 0)
+	     , Engine("Type 2 Radiant Steering", 20, 0, 4540)
+	     , Engine("Type 3 Radiant Thruster", 42, 315, 0)
+	     , Engine("Type 3 Radiant Steering", 30, 0, 7860)
+	     , Engine("Type 4 Radiant Thruster", 64, 552, 0)
+	     , Engine("Type 4 Radiant Steering", 47, 0, 13959)
+  ]
+
+  p = pulp.LpProblem("Engines", sense=pulp.constants.LpMaximize)
+
+  amountOfEngines = {engine.name: pulp.LpVariable("amountOf_%s" % engine.name, lowBound=0, cat='Integer') for engine in engines}
+
+  constraint = pulp.lpSum([amountOfEngines[engine.name] * engine.space for engine in engines]) <= 210, 'Total space'
+
+  p += constraint
+
+  totalThrust = pulp.lpSum([amountOfEngines[engine.name] * engine.thrust for engine in engines])
+  totalTurn = pulp.lpSum([amountOfEngines[engine.name] * engine.turn for engine in engines])
+
+  p += totalThrust * 36 + totalTurn
+
+  p.solve()
+
+  for engine in engines:
+      print("{}: {}".format(engine.name, pulp.value(amountOfEngines[engine.name])))
+#+END_SRC
