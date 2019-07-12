@@ -10,7 +10,7 @@ SMT is the slowest hammer. Your problem may have died of old age before SMT gets
 
 But wait! Other people are not complete newbies to the world of SMT, and even more people recognized this problem as straight up integer linear programming, which doesn't need an SMT solver.
 
-[[../images/thievesstaves.png]]
+[[../images/thievesstave.png]]
 
 * So, what's the answer?
 
