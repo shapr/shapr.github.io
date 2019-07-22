@@ -63,7 +63,6 @@
 <a class="sourceLine" id="cb2-7" title="7">};</a>
 <a class="sourceLine" id="cb2-8" title="8"></a></code></pre></div>
 <p>At that point, I was able to run the command <code>xkbcomp -w3 -I$HOME/.xkb $HOME/.xkb/keymap/default $DISPLAY</code> and almost everything was perfect!</p>
-<p>Finally</p>
 <h1 id="future-work">Future work</h1>
 <p>Some of the many documents I read about xkb claim that xkb can handle hotplug events and per-usb device keyboard layouts. If that’s true, that would save me lots of time. I use the dvorak layout natively, but switch my laptop to qwerty for my ergodox that has dvorak in the firmware. It would be nice to skip that manual step of switching the layout. Even so, the solution above required a solid eight hours of reading docs and just trying things, this part might take longer!</p>
 <p>The code above does most things right, but the keys still act as if they are keys to be toggled rather than pure modifier keys This means that just pressing those keys gives an error in emacs <code>&lt;VoidSymbol&gt; is undefined</code>. Not sure how to fix that, but would be nice to figure out.</p>
