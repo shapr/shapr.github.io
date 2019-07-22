@@ -64,8 +64,6 @@ The chunk of code above ends up in ~$HOME/.xkb/symbols/shapr~ and the source bel
 
 At that point, I was able to run the command ~xkbcomp -w3 -I$HOME/.xkb $HOME/.xkb/keymap/default $DISPLAY~ and almost everything was perfect!
 
-Finally
-
 * Future work
 
 Some of the many documents I read about xkb claim that xkb can handle hotplug events and per-usb device keyboard layouts. If that's true, that would save me lots of time.
