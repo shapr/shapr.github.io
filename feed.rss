@@ -7,8 +7,24 @@
         <description><![CDATA[This feed provides fresh recipes for fresh food!]]></description>
         <atom:link href="http://shapr.github.io/feed.rss" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 12 Jul 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 21 Jul 2019 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Hyper and Super on my keyboard?</title>
+    <link>http://shapr.github.io/posts/2019-07-21-space-cadet.html</link>
+    <description><![CDATA[Stranger Strings or the new-ish way to redefine keyboard layouts in the X Window System]]></description>
+    <pubDate>Sun, 21 Jul 2019 00:00:00 UT</pubDate>
+    <guid>http://shapr.github.io/posts/2019-07-21-space-cadet.html</guid>
+    <dc:creator>Shae Erisson</dc:creator>
+</item>
+<item>
+    <title>2019-07-21-space-cadet</title>
+    <link>http://shapr.github.io/posts/2019-07-21-space-cadet.html</link>
+    <description><![CDATA[This is the post description]]></description>
+    <pubDate>Sun, 21 Jul 2019 00:00:00 UT</pubDate>
+    <guid>http://shapr.github.io/posts/2019-07-21-space-cadet.html</guid>
+    <dc:creator>Shae Erisson</dc:creator>
+</item>
+<item>
     <title>Part two of SMT Solvers, Integer Linear Programming</title>
     <link>http://shapr.github.io/posts/2019-07-12-smt-solvers-part-two.html</link>
     <description><![CDATA[Other people already know how to do this well]]></description>
@@ -70,22 +86,6 @@
     <description><![CDATA[sketch of a mastermind game in elisp]]></description>
     <pubDate>Tue, 21 May 2019 00:00:00 UT</pubDate>
     <guid>http://shapr.github.io/posts/2019-05-21-mastermind-elisp.html</guid>
-    <dc:creator>Shae Erisson</dc:creator>
-</item>
-<item>
-    <title>xmonad the tiling window manager</title>
-    <link>http://shapr.github.io/posts/2019-05-11-xmonad.html</link>
-    <description><![CDATA[setting up xmonad on ubuntu 19.04]]></description>
-    <pubDate>Sat, 11 May 2019 00:00:00 UT</pubDate>
-    <guid>http://shapr.github.io/posts/2019-05-11-xmonad.html</guid>
-    <dc:creator>Shae Erisson</dc:creator>
-</item>
-<item>
-    <title>blogging with emacs' org-mode</title>
-    <link>http://shapr.github.io/posts/2019-05-02-org-mode.html</link>
-    <description><![CDATA[hakyll blog posts from emacs]]></description>
-    <pubDate>Thu, 02 May 2019 00:00:00 UT</pubDate>
-    <guid>http://shapr.github.io/posts/2019-05-02-org-mode.html</guid>
     <dc:creator>Shae Erisson</dc:creator>
 </item>
 
