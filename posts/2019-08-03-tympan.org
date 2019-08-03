@@ -1,0 +1,91 @@
+---
+title: Open Source Hardware Hearing Aid Part 1
+description: Why pay thousands for a hearing aid when you could pay $300?
+tags: aging, open source
+---
+
+You might want a hearing aid for yourself, or someone you know.
+
+[[../images/nonmagicalbutterstave.png]]
+
+* My mother lost her expensive hearing aid.
+
+My mother got hearing aids a few years ago. About a month later, she lost one. Insurance said if she wanted a replacement, she could pay them many thousands of dollars or she could wait a year.
+
+That seemed incredibly expensive. I haven't done much electronics, but [[https://en.wikipedia.org/wiki/Digital_signal_processing][digital signal processing]] doesn't seem that expensive?
+I started diving in, the parts for a hearing aid looked like they couldn't possibly cost more than $500, probably closer to $100.
+A friend of mine was in a medical device software job, and told me human testing starts at about half a million dollars.
+
+No way I can get that kind of money, so I gave up on that idea.
+
+Along the way, I met a person at a Python conference who had only the upper half of the normal human range of hearing. She said she couldn't hear her husband unless he spoke in a falsetto.
+I know that music uses [[https://en.wikipedia.org/wiki/Pitch_shift][pitch shifting]], seemed like it would be easy enough to squash the full range of normal human hearing into what a user can actually hear.
+
+* Years later, I found an affordable open source hearing aid
+
+A few weeks ago, I found an [[https://shop.tympan.org/][open source hardware hearing aid]] called Tympan.  For only *three hundred dollars* US you can buy a white 3D printed case that holds a [[https://www.pjrc.com/store/teensy36.html][Teensy 3.6]] with some additional audio processing hardware.
+If you've previously done Arduino development, the Teensy is similar, and can use [[https://www.pjrc.com/teensy/teensyduino.html][the same tools]].
+
+So [[https://twitter.com/shapr/status/1149124980241833985][I bought one]]! At the same time I contacted the [[https://twitter.com/tympanorg][Tympan on twitter]] and asked a bunch of questions like:
+
+Can you give me a big picture of what I would do with a Tympan? How did they beat the cost of human testing? Could this hardware compress the normal human spectrum into only the parts that a user could hear?
+
+Several of my questions were answered by reading [[https://github.com/Tympan/Docs/tree/master/Posters][the posters]] in their docs repository.
+
+* Way more people were interested than I expected
+
+I told a bunch of people about this neat project. My girlfriend told someone who had been putting off buying a hearing aid for years due to the cost, and now they want a Tympan.
+
+A friend from my last job has several eldery family members who have failed to jump through all the insurance hoops, and have no way to afford hearing aids on their fixed income.
+His investigation found "affordable" hearing aids for only two thousand dollars a pair! That's still far outside fixed income.
+
+I gave a five minute talk about Tympan at [[https://www.recurse.com/][The Recurse Center]] and many people were excited! Software and hardware used for good, and not advertising, wow!
+
+* Ok you bought it, did it work?
+
+I'm not done yet, but sort of? I read Tympan's [[https://github.com/Tympan/Docs/wiki/Getting-Starting-with-Tympan][getting started]] document.
+
+I had problems compiling the code, and discovered the [[https://www.biomurph.com/][designer of the hardware]] was just a few blocks away.
+So I sent off an email requesting in person help and was invited to [[https://www.flywheellab.com/][the secret lab]]! I got to see a 1970s pinball machine and an [[https://www.openhak.com/][open source fitbit]]!
+
+In a nutshell, a recently released update in Teensyduino 1.46 had collided with the code in the [[https://github.com/Tympan/Tympan_Library][Tympan Library]], it wasn't just my lack of understanding. Hurrah, problem diagnosed!
+
+The Tympan team [[https://github.com/Tympan/Tympan_Library/commit/21a3dce7fffe296ddfd2f826c1a2d7e737d05f18][fixed the code]] in the next 24 hours, on a weekend! Wow!
+
+More hours of frustration got new code loaded onto the Tympan, but I can't get it loading reliably.
+When I did get new code loaded, switching it on produced a series of tones, did that mean I'd done something wrong?
+Hours of digging later, I'm almost certain there's calibration code built into Tympan's startup to check for feedback loops between input and output.
+
+When it works, it's really amazing! *I* can hear more clearly, and I thought my hearing was great! That leads to ...
+
+* Part 2 Soon
+
+Tympan's Getting Started documentation is good, but there's a bunch of useful information that I would want to exist before handing this hearing aid to my mother.
+This post is a big hand wavy description that tells you this is a good idea, and worth noticing. Part 2 will include more picky details I'd want before I handed this to my mother.
+
+* Outstanding questions
+
+Is there an app that lets me test my own hearing in the spectrum and see what I have?
+
+Is the Tympan designed to be an everyday hearing aid? On the [[https://forum.tympan.org/][Tympan Forum]] I read this is designed to be a "Master Hearing Aid" to be used for [[https://hearinghealthmatters.org/waynesworld/2014/hearing-aid-evolution-iv/][fitting hearing aids]].
+I immediately thought of the big complicated machine that is used to test eyesight and find the perfect prescription for glasses. Neat, but that doesn't tell me if I can use this as an everyday hearing aid.
+
+My first out of the box test of the Tympan drastically cut down on background noise. Does that mean I should get my hearing tested?!
+Joel Murphy gave me the name of the [[https://github.com/Tympan/Tympan_Library/blob/master/examples/05-FullSystems/WDRC_8BandIIR_wBT/WDRC_8BandIIR_wBT.ino][default code]] loaded onto a Tympan, but I haven't read up on exactly what that code does.
+
+Can I listen to bats with a Tympan? [[https://forum.tympan.org/t/changing-the-sample-rate/137][Yes]], but I haven't gotten it to work yet!
+
+When will Tympan start selling their [[https://twitter.com/Tympanorg/status/1100817227861934082][own headphones]] designed as part of "usable straight out-of-of-the-box"? Hopefully next year, according to [[https://github.com/biomurph][Joel Murphy]].
+Even cooler, I heard talk of a system with two microphones mounted on each ear, one facing forward, one facing backward.
+I think that would let you subtract background noise from the rear facing microphone from the incoming sound from the person you are facing.
+
+* WARNING
+
+While testing code on the hearing aid I have been very careful not to damage my hearing, but once or twice my ears were still ringing a bit after twisting the volume knob too hard.
+You can damage your hearing by experimenting on yourself! Be careful!
+
+Before offering this to yourself or someone else, understand the risk and the tech involved. If you understand this tech better than me, I want to hear from you!
+
+* How do YOU get involved?
+
+Read the [[https://forum.tympan.org/][Tympan Forum]], buy [[https://shop.tympan.org/][the hardware]], read [[https://github.com/Tympan/Docs/wiki/Getting-Starting-with-Tympan][the docs]] or the [[https://github.com/Tympan/Docs/tree/master/Posters][posters]]. Even better, tell me stuff I don't know about this!
