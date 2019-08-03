@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2019-07-21T00:00:00Z</updated>
+    <updated>2019-08-03T00:00:00Z</updated>
     <entry>
+    <title>Open Source Hardware Hearing Aid Part 1</title>
+    <link href="http://shapr.github.io/posts/2019-08-03-tympan.html" />
+    <id>http://shapr.github.io/posts/2019-08-03-tympan.html</id>
+    <published>2019-08-03T00:00:00Z</published>
+    <updated>2019-08-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[Why pay thousands for a hearing aid when you could pay $300?]]></summary>
+</entry>
+<entry>
     <title>Hyper and Super on my keyboard?</title>
     <link href="http://shapr.github.io/posts/2019-07-21-space-cadet.html" />
     <id>http://shapr.github.io/posts/2019-07-21-space-cadet.html</id>
@@ -80,14 +88,6 @@
     <published>2019-05-21T00:00:00Z</published>
     <updated>2019-05-21T00:00:00Z</updated>
     <summary type="html"><![CDATA[sketch of a mastermind game in elisp]]></summary>
-</entry>
-<entry>
-    <title>xmonad the tiling window manager</title>
-    <link href="http://shapr.github.io/posts/2019-05-11-xmonad.html" />
-    <id>http://shapr.github.io/posts/2019-05-11-xmonad.html</id>
-    <published>2019-05-11T00:00:00Z</published>
-    <updated>2019-05-11T00:00:00Z</updated>
-    <summary type="html"><![CDATA[setting up xmonad on ubuntu 19.04]]></summary>
 </entry>
 
 </feed>

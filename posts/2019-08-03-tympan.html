@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Shae Erisson's blog - Open Source Hardware Hearing Aid Part 1</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="logo">
+                <a href="../">Shae Erisson's Blog</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>Open Source Hardware Hearing Aid Part 1</h1>
+
+            <div class="info">
+    Posted on August  3, 2019
+    
+</div>
+
+<p>You might want a hearing aid for yourself, or someone you know.</p>
+<p><img src="../images/nonmagicalbutterstave.png" /></p>
+<h1 id="my-mother-lost-her-expensive-hearing-aid.">My mother lost her expensive hearing aid.</h1>
+<p>My mother got hearing aids a few years ago. About a month later, she lost one. Insurance said if she wanted a replacement, she could pay them many thousands of dollars or she could wait a year.</p>
+<p>That seemed incredibly expensive. I haven’t done much electronics, but <a href="https://en.wikipedia.org/wiki/Digital_signal_processing">digital signal processing</a> doesn’t seem that expensive? I started diving in, the parts for a hearing aid looked like they couldn’t possibly cost more than $500, probably closer to $100. A friend of mine was in a medical device software job, and told me human testing starts at about half a million dollars.</p>
+<p>No way I can get that kind of money, so I gave up on that idea.</p>
+<p>Along the way, I met a person at a Python conference who had only the upper half of the normal human range of hearing. She said she couldn’t hear her husband unless he spoke in a falsetto. I know that music uses <a href="https://en.wikipedia.org/wiki/Pitch_shift">pitch shifting</a>, seemed like it would be easy enough to squash the full range of normal human hearing into what a user can actually hear.</p>
+<h1 id="years-later-i-found-an-affordable-open-source-hearing-aid">Years later, I found an affordable open source hearing aid</h1>
+<p>A few weeks ago, I found an <a href="https://shop.tympan.org/">open source hardware hearing aid</a> called Tympan. For only <strong>three hundred dollars</strong> US you can buy a white 3D printed case that holds a <a href="https://www.pjrc.com/store/teensy36.html">Teensy 3.6</a> with some additional audio processing hardware. If you’ve previously done Arduino development, the Teensy is similar, and can use <a href="https://www.pjrc.com/teensy/teensyduino.html">the same tools</a>.</p>
+<p>So <a href="https://twitter.com/shapr/status/1149124980241833985">I bought one</a>! At the same time I contacted the <a href="https://twitter.com/tympanorg">Tympan on twitter</a> and asked a bunch of questions like:</p>
+<p>Can you give me a big picture of what I would do with a Tympan? How did they beat the cost of human testing? Could this hardware compress the normal human spectrum into only the parts that a user could hear?</p>
+<p>Several of my questions were answered by reading <a href="https://github.com/Tympan/Docs/tree/master/Posters">the posters</a> in their docs repository.</p>
+<h1 id="way-more-people-were-interested-than-i-expected">Way more people were interested than I expected</h1>
+<p>I told a bunch of people about this neat project. My girlfriend told someone who had been putting off buying a hearing aid for years due to the cost, and now they want a Tympan.</p>
+<p>A friend from my last job has several eldery family members who have failed to jump through all the insurance hoops, and have no way to afford hearing aids on their fixed income. His investigation found “affordable” hearing aids for only two thousand dollars a pair! That’s still far outside fixed income.</p>
+<p>I gave a five minute talk about Tympan at <a href="https://www.recurse.com/">The Recurse Center</a> and many people were excited! Software and hardware used for good, and not advertising, wow!</p>
+<h1 id="ok-you-bought-it-did-it-work">Ok you bought it, did it work?</h1>
+<p>I’m not done yet, but sort of? I read Tympan’s <a href="https://github.com/Tympan/Docs/wiki/Getting-Starting-with-Tympan">getting started</a> document.</p>
+<p>I had problems compiling the code, and discovered the <a href="https://www.biomurph.com/">designer of the hardware</a> was just a few blocks away. So I sent off an email requesting in person help and was invited to <a href="https://www.flywheellab.com/">the secret lab</a>! I got to see a 1970s pinball machine and an <a href="https://www.openhak.com/">open source fitbit</a>!</p>
+<p>In a nutshell, a recently released update in Teensyduino 1.46 had collided with the code in the <a href="https://github.com/Tympan/Tympan_Library">Tympan Library</a>, it wasn’t just my lack of understanding. Hurrah, problem diagnosed!</p>
+<p>The Tympan team <a href="https://github.com/Tympan/Tympan_Library/commit/21a3dce7fffe296ddfd2f826c1a2d7e737d05f18">fixed the code</a> in the next 24 hours, on a weekend! Wow!</p>
+<p>More hours of frustration got new code loaded onto the Tympan, but I can’t get it loading reliably. When I did get new code loaded, switching it on produced a series of tones, did that mean I’d done something wrong? Hours of digging later, I’m almost certain there’s calibration code built into Tympan’s startup to check for feedback loops between input and output.</p>
+<p>When it works, it’s really amazing! <strong>I</strong> can hear more clearly, and I thought my hearing was great! That leads to …</p>
+<h1 id="part-2-soon">Part 2 Soon</h1>
+<p>Tympan’s Getting Started documentation is good, but there’s a bunch of useful information that I would want to exist before handing this hearing aid to my mother. This post is a big hand wavy description that tells you this is a good idea, and worth noticing. Part 2 will include more picky details I’d want before I handed this to my mother.</p>
+<h1 id="outstanding-questions">Outstanding questions</h1>
+<p>Is there an app that lets me test my own hearing in the spectrum and see what I have?</p>
+<p>Is the Tympan designed to be an everyday hearing aid? On the <a href="https://forum.tympan.org/">Tympan Forum</a> I read this is designed to be a “Master Hearing Aid” to be used for <a href="https://hearinghealthmatters.org/waynesworld/2014/hearing-aid-evolution-iv/">fitting hearing aids</a>. I immediately thought of the big complicated machine that is used to test eyesight and find the perfect prescription for glasses. Neat, but that doesn’t tell me if I can use this as an everyday hearing aid.</p>
+<p>My first out of the box test of the Tympan drastically cut down on background noise. Does that mean I should get my hearing tested?! Joel Murphy gave me the name of the <a href="https://github.com/Tympan/Tympan_Library/blob/master/examples/05-FullSystems/WDRC_8BandIIR_wBT/WDRC_8BandIIR_wBT.ino">default code</a> loaded onto a Tympan, but I haven’t read up on exactly what that code does.</p>
+<p>Can I listen to bats with a Tympan? <a href="https://forum.tympan.org/t/changing-the-sample-rate/137">Yes</a>, but I haven’t gotten it to work yet!</p>
+<p>When will Tympan start selling their <a href="https://twitter.com/Tympanorg/status/1100817227861934082">own headphones</a> designed as part of “usable straight out-of-of-the-box”? Hopefully next year, according to <a href="https://github.com/biomurph">Joel Murphy</a>. Even cooler, I heard talk of a system with two microphones mounted on each ear, one facing forward, one facing backward. I think that would let you subtract background noise from the rear facing microphone from the incoming sound from the person you are facing.</p>
+<h1 id="warning">WARNING</h1>
+<p>While testing code on the hearing aid I have been very careful not to damage my hearing, but once or twice my ears were still ringing a bit after twisting the volume knob too hard. You can damage your hearing by experimenting on yourself! Be careful!</p>
+<p>Before offering this to yourself or someone else, understand the risk and the tech involved. If you understand this tech better than me, I want to hear from you!</p>
+<h1 id="how-do-you-get-involved">How do YOU get involved?</h1>
+<p>Read the <a href="https://forum.tympan.org/">Tympan Forum</a>, buy <a href="https://shop.tympan.org/">the hardware</a>, read <a href="https://github.com/Tympan/Docs/wiki/Getting-Starting-with-Tympan">the docs</a> or the <a href="https://github.com/Tympan/Docs/tree/master/Posters">posters</a>. Even better, tell me stuff I don’t know about this!</p>
+
+        </div>
+        <div id="footer">
+	    <a href="feed.rss">RSS</a>
+	    <a href="atom.xml">ATOM</a>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+
+        </div>
+    </body>
+</html>
