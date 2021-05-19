@@ -33,7 +33,7 @@ Is this something I can debug myself?
 
 I used M-x toggle-debug-on-error to view a traceback.
 I then ran the command magit-status and I see this debugger traceback.
-  #+begin_src elisp
+#+BEGIN_SRC elisp
   Debugger entered--Lisp error: (void-variable upstream)
     magit-get-upstream-branch("develop")
     magit-insert-upstream-branch-header()
@@ -60,7 +60,7 @@ I then ran the command magit-status and I see this debugger traceback.
     funcall-interactively(magit-status nil ((18 . 11) (("/home/shae/build/shapr.github.io/" "show" "--no-patch" "--format=%h %s" "HEAD^{commit}" "--") . "cee7133 add open source hearing aid post") (("/home/shae/build/shapr.github.io/" "symbolic-ref" "--short" "HEAD") . "develop") (("/home/shae/build/shapr.github.io/" "rev-parse" "--verify" "HEAD") . "cee71337bf0b4bde2f1d229fd62ac73bac87b335") (("/home/shae/build/shapr.github.io/" . config) . #<hash-table equal 19/65 0x244a8a1>) (("/home/shae/build/shapr.github.io/" . magit-toplevel) . "/home/shae/build/shapr.github.io/") (("/home/shae/build/shapr.github.io/drafts/" . magit-toplevel) . "/home/shae/build/shapr.github.io/") (("/home/shae/build/shapr.github.io/" "rev-parse" "--show-toplevel") . "/home/shae/build/shapr.github.io") (("/home/shae/build/shapr.github.io/" "rev-parse" "--show-cdup") . "") (("/home/shae/build/shapr.github.io/drafts/" "rev-parse" "--show-cdup") . "../") (("/home/shae/build/shapr.github.io/drafts/" "rev-parse" "--show-toplevel") . "/home/shae/build/shapr.github.io")))
     call-interactively(magit-status nil nil)
     command-execute(magit-status)
-  #+end_src
+#+END_SRC
 That didn't help me much.
 
 Am I able to understand the problem from the stack trace?
