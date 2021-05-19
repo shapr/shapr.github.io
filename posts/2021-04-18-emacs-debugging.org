@@ -1,0 +1,87 @@
+---
+title: Why does magit-status give me an error?
+description: A stream of consciousness recording of my attempt to debug an emacs problem
+tags: emacs, debugging
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2021-04-18
+* Why does magit-status give me an error?
+
+My debugging process:
+
+What version do I have installed?
+
+I used C-h v magit-version to get 20210414.1306
+
+Did I update my thing to the latest version?
+
+This version of magit is four days ago, so an update is unlikely to help, but I could still check for a more recent version.
+
+Have I looked at the bug reports for the thing?
+
+I asked a search engine for the magit website, that got me to https://magit.vc/ and the front page links to the [[https://github.com/magit/magit/issues][issue tracker]].
+I don't see any bug reports that are similar to my problem.
+
+Did I make a change that may have caused this problem?
+
+I renamed a git remote from origin to upstream in one of my repos, and I've had this problem in every repo since that change.
+
+Is this something I can debug myself?
+
+I used M-x toggle-debug-on-error to view a traceback.
+I then ran the command magit-status and I see this debugger traceback.
+  #+begin_src elisp
+  Debugger entered--Lisp error: (void-variable upstream)
+    magit-get-upstream-branch("develop")
+    magit-insert-upstream-branch-header()
+    apply(magit-insert-upstream-branch-header nil)
+    magit-run-section-hook(magit-status-headers-hook)
+    magit-insert-headers(magit-status-headers-hook)
+    magit-insert-status-headers()
+    apply(magit-insert-status-headers nil)
+    magit-run-section-hook(magit-status-sections-hook)
+    magit-status-refresh-buffer()
+    apply(magit-status-refresh-buffer nil)
+    (save-excursion (apply refresh (with-no-warnings magit-refresh-args)))
+    (let ((inhibit-read-only t)) (erase-buffer) (save-excursion (apply refresh (with-no-warnings magit-refresh-args))))
+    (let* ((buffer (current-buffer)) (windows (apply 'append (mapcar #'(lambda (it) (ignore it) (let ... ...)) (or (get-buffer-window-list buffer nil t) (list (selected-window))))))) (deactivate-mark) (setq magit-section-highlight-overlays nil) (setq magit-section-highlighted-section nil) (setq magit-section-highlighted-sections nil) (setq magit-section-unhighlight-sections nil) (magit-process-unset-mode-line-error-status) (let ((inhibit-read-only t)) (erase-buffer) (save-excursion (apply refresh (with-no-warnings magit-refresh-args)))) (let ((--dolist-tail-- windows)) (while --dolist-tail-- (let ((x2291 (car --dolist-tail--))) (let* ((x2292 (car x2291)) (x2293 (cdr x2291))) (let ((args x2293) (window x2292)) (let (...) (save-current-buffer ...)))) (setq --dolist-tail-- (cdr --dolist-tail--))))) (run-hooks 'magit-refresh-buffer-hook) (magit-section-update-highlight) (set-buffer-modified-p nil))
+    (progn (if magit-refresh-verbose (progn (message "Refreshing buffer `%s'..." (buffer-name)))) (let* ((buffer (current-buffer)) (windows (apply 'append (mapcar #'(lambda ... ... ...) (or (get-buffer-window-list buffer nil t) (list ...)))))) (deactivate-mark) (setq magit-section-highlight-overlays nil) (setq magit-section-highlighted-section nil) (setq magit-section-highlighted-sections nil) (setq magit-section-unhighlight-sections nil) (magit-process-unset-mode-line-error-status) (let ((inhibit-read-only t)) (erase-buffer) (save-excursion (apply refresh (with-no-warnings magit-refresh-args)))) (let ((--dolist-tail-- windows)) (while --dolist-tail-- (let ((x2291 (car --dolist-tail--))) (let* ((x2292 ...) (x2293 ...)) (let (... ...) (let ... ...))) (setq --dolist-tail-- (cdr --dolist-tail--))))) (run-hooks 'magit-refresh-buffer-hook) (magit-section-update-highlight) (set-buffer-modified-p nil)) (if magit-refresh-verbose (progn (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name) (float-time (time-subtract (current-time) magit-refresh-start-time))))))
+    (if (functionp refresh) (progn (if magit-refresh-verbose (progn (message "Refreshing buffer `%s'..." (buffer-name)))) (let* ((buffer (current-buffer)) (windows (apply 'append (mapcar #'... (or ... ...))))) (deactivate-mark) (setq magit-section-highlight-overlays nil) (setq magit-section-highlighted-section nil) (setq magit-section-highlighted-sections nil) (setq magit-section-unhighlight-sections nil) (magit-process-unset-mode-line-error-status) (let ((inhibit-read-only t)) (erase-buffer) (save-excursion (apply refresh (with-no-warnings magit-refresh-args)))) (let ((--dolist-tail-- windows)) (while --dolist-tail-- (let ((x2291 ...)) (let* (... ...) (let ... ...)) (setq --dolist-tail-- (cdr --dolist-tail--))))) (run-hooks 'magit-refresh-buffer-hook) (magit-section-update-highlight) (set-buffer-modified-p nil)) (if magit-refresh-verbose (progn (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name) (float-time (time-subtract (current-time) magit-refresh-start-time)))))))
+    (let ((refresh (intern (format "%s-refresh-buffer" (substring (symbol-name major-mode) 0 -5)))) (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0))))) (if (functionp refresh) (progn (if magit-refresh-verbose (progn (message "Refreshing buffer `%s'..." (buffer-name)))) (let* ((buffer (current-buffer)) (windows (apply 'append (mapcar ... ...)))) (deactivate-mark) (setq magit-section-highlight-overlays nil) (setq magit-section-highlighted-section nil) (setq magit-section-highlighted-sections nil) (setq magit-section-unhighlight-sections nil) (magit-process-unset-mode-line-error-status) (let ((inhibit-read-only t)) (erase-buffer) (save-excursion (apply refresh (with-no-warnings magit-refresh-args)))) (let ((--dolist-tail-- windows)) (while --dolist-tail-- (let (...) (let* ... ...) (setq --dolist-tail-- ...)))) (run-hooks 'magit-refresh-buffer-hook) (magit-section-update-highlight) (set-buffer-modified-p nil)) (if magit-refresh-verbose (progn (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name) (float-time (time-subtract ... magit-refresh-start-time))))))))
+    magit-refresh-buffer()
+    (save-current-buffer (set-buffer buffer) (run-hooks 'magit-setup-buffer-hook) (magit-refresh-buffer))
+    (let* ((value (and locked (let ((temp-buffer (generate-new-buffer " *temp*"))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn ... ...) (and ... ...)))))) (buffer (magit-get-mode-buffer mode value)) (section (and buffer (magit-current-section))) (created (not buffer))) (if buffer nil (setq buffer (let ((toplevel596 (magit-toplevel))) (if toplevel596 (let ((default-directory toplevel596)) (magit-generate-new-buffer mode value)) (magit--not-inside-repository-error))))) (save-current-buffer (set-buffer buffer) (setq magit-previous-section section) (funcall mode) (magit-xref-setup 'magit-setup-buffer-internal bindings) (let ((--dolist-tail-- bindings)) (while --dolist-tail-- (let ((x2279 (car --dolist-tail--))) (let* ((x2280 ...) (x2281 ...) (x2282 ...) (x2283 ...)) (let (... ...) (set ... val))) (setq --dolist-tail-- (cdr --dolist-tail--))))) (if created (progn (magit-status-goto-initial-section) (run-hooks 'magit-create-buffer-hook)))) (magit-display-buffer buffer) (save-current-buffer (set-buffer buffer) (run-hooks 'magit-setup-buffer-hook) (magit-refresh-buffer)) buffer)
+    magit-setup-buffer-internal(magit-status-mode nil ((magit-buffer-diff-args ("--no-ext-diff")) (magit-buffer-diff-files nil) (magit-buffer-log-args ("-n256" "--decorate")) (magit-buffer-log-files nil)))
+    magit-status-setup-buffer("/home/shae/build/shapr.github.io/drafts/")
+    magit-status(nil ((18 . 11) (("/home/shae/build/shapr.github.io/" "show" "--no-patch" "--format=%h %s" "HEAD^{commit}" "--") . "cee7133 add open source hearing aid post") (("/home/shae/build/shapr.github.io/" "symbolic-ref" "--short" "HEAD") . "develop") (("/home/shae/build/shapr.github.io/" "rev-parse" "--verify" "HEAD") . "cee71337bf0b4bde2f1d229fd62ac73bac87b335") (("/home/shae/build/shapr.github.io/" . config) . #<hash-table equal 19/65 0x244a8a1>) (("/home/shae/build/shapr.github.io/" . magit-toplevel) . "/home/shae/build/shapr.github.io/") (("/home/shae/build/shapr.github.io/drafts/" . magit-toplevel) . "/home/shae/build/shapr.github.io/") (("/home/shae/build/shapr.github.io/" "rev-parse" "--show-toplevel") . "/home/shae/build/shapr.github.io") (("/home/shae/build/shapr.github.io/" "rev-parse" "--show-cdup") . "") (("/home/shae/build/shapr.github.io/drafts/" "rev-parse" "--show-cdup") . "../") (("/home/shae/build/shapr.github.io/drafts/" "rev-parse" "--show-toplevel") . "/home/shae/build/shapr.github.io")))
+    funcall-interactively(magit-status nil ((18 . 11) (("/home/shae/build/shapr.github.io/" "show" "--no-patch" "--format=%h %s" "HEAD^{commit}" "--") . "cee7133 add open source hearing aid post") (("/home/shae/build/shapr.github.io/" "symbolic-ref" "--short" "HEAD") . "develop") (("/home/shae/build/shapr.github.io/" "rev-parse" "--verify" "HEAD") . "cee71337bf0b4bde2f1d229fd62ac73bac87b335") (("/home/shae/build/shapr.github.io/" . config) . #<hash-table equal 19/65 0x244a8a1>) (("/home/shae/build/shapr.github.io/" . magit-toplevel) . "/home/shae/build/shapr.github.io/") (("/home/shae/build/shapr.github.io/drafts/" . magit-toplevel) . "/home/shae/build/shapr.github.io/") (("/home/shae/build/shapr.github.io/" "rev-parse" "--show-toplevel") . "/home/shae/build/shapr.github.io") (("/home/shae/build/shapr.github.io/" "rev-parse" "--show-cdup") . "") (("/home/shae/build/shapr.github.io/drafts/" "rev-parse" "--show-cdup") . "../") (("/home/shae/build/shapr.github.io/drafts/" "rev-parse" "--show-toplevel") . "/home/shae/build/shapr.github.io")))
+    call-interactively(magit-status nil nil)
+    command-execute(magit-status)
+  #+end_src
+That didn't help me much.
+
+Am I able to understand the problem from the stack trace?
+
+I know it's something in magit-get-upstream-branch, and I have a suspicion that function is looking for a git remote that does not exist.
+
+If the source is available, does it help to read the code that crashed? Can I build a mental model of what went wrong?
+
+I can use C-h f magit-get-upstream-branch to find the elisp source code.
+I don't see the problem.
+
+Is there a real time discussion group where you could ask questions?
+
+I tried the #emacs channel on freenode, but it was not responsive at the time I asked my question.
+
+What's the exact question?
+
+My specific question is: Why is there a void variable named upstream in magit?
+I got some answers from the #emacs channel, one suggested fix was to remove magit entirely and reinstall. That did not change the error.
+
+As a last resort, I went to the magit bug tracker and submitted a bug. The bug submission process suggested I run emacs without any of my emacs configuration involved. I did that and was still able to reproduce the error!
+
+I ended up submitting a [[https://github.com/magit/magit/issues/4364][bug report]] and I hope to hear from the developers!
+
+* Update 2021-04-19
+The magit developers responded to my bug report in four hours and suggested that I remove all byte compiled files from my installed package directory ~/.emacs.d/elpa/**/*.elc and that fixed the problem!
+Now I want to track down the byte compiling bug so no one has to suffer such a confusing error again!
