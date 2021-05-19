@@ -37,31 +37,31 @@
 <p>The new way to remap your keyboard with X11 on Linux is <a href="https://en.wikipedia.org/wiki/X_keyboard_extension">xkb</a> and it’s completely different from xmodmap.</p>
 <p>I spent a bunch of hours reading and trying things, but the most useful link was by <a href="https://www.linux.com/news/extending-x-keyboard-map-xkb">maddduck on linux.com</a>. But that article is old, and clearly copied from somewhere else. Even so, it was the best resource for what I needed, especially once I found madduck’s <a href="https://git.madduck.net/etc/xsession.git">git repo</a> with the finished changes.</p>
 <p>The big obstacle was xkbcomp throwing an error no matter what combination of things I tried. I spent some time with <a href="https://www.x.org/releases/X11R7.7/doc/man/man1/xev.1.xhtml">xev</a> hoping that would clarify why my file was failing to pass xkbcomp, but finally realized that xev tells me what value a key press produces, not the actual name of that key! Once I realized I was trying to bind F13, F14, F15, and F16; I removed the references to XF86Launch5 and replaced them with the correct key names.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// Mod5 is super</span></a>
-<a class="sourceLine" id="cb1-2" title="2">partial modifier_keys</a>
-<a class="sourceLine" id="cb1-3" title="3">xkb_symbols <span class="st">&quot;plaidkey&quot;</span> {</a>
-<a class="sourceLine" id="cb1-4" title="4">  replace key &lt;FK15&gt; { [ VoidSymbol, VoidSymbol ] };</a>
-<a class="sourceLine" id="cb1-5" title="5">  modifier_map Mod5 { &lt;FK15&gt; };</a>
-<a class="sourceLine" id="cb1-6" title="6"></a>
-<a class="sourceLine" id="cb1-7" title="7">  replace key &lt;FK13&gt; { [ VoidSymbol, VoidSymbol ] };</a>
-<a class="sourceLine" id="cb1-8" title="8">  modifier_map Mod5 { &lt;FK13&gt; };</a>
-<a class="sourceLine" id="cb1-9" title="9"></a>
-<a class="sourceLine" id="cb1-10" title="10">  replace key &lt;FK14&gt; { [ VoidSymbol, VoidSymbol ] };</a>
-<a class="sourceLine" id="cb1-11" title="11">  modifier_map Mod4 { &lt;FK14&gt; };</a>
-<a class="sourceLine" id="cb1-12" title="12"></a>
-<a class="sourceLine" id="cb1-13" title="13">  replace key &lt;FK16&gt; { [ VoidSymbol, VoidSymbol ] };</a>
-<a class="sourceLine" id="cb1-14" title="14">  modifier_map Mod4 { &lt;FK16&gt; };</a>
-<a class="sourceLine" id="cb1-15" title="15">};</a>
-<a class="sourceLine" id="cb1-16" title="16"></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Mod5 is super</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>partial modifier_keys</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>xkb_symbols <span class="st">&quot;plaidkey&quot;</span> <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  replace key <span class="op">&lt;</span>FK15<span class="op">&gt;</span> <span class="op">{</span> <span class="op">[</span> VoidSymbol<span class="op">,</span> VoidSymbol <span class="op">]</span> <span class="op">};</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  modifier_map Mod5 <span class="op">{</span> <span class="op">&lt;</span>FK15<span class="op">&gt;</span> <span class="op">};</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  replace key <span class="op">&lt;</span>FK13<span class="op">&gt;</span> <span class="op">{</span> <span class="op">[</span> VoidSymbol<span class="op">,</span> VoidSymbol <span class="op">]</span> <span class="op">};</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  modifier_map Mod5 <span class="op">{</span> <span class="op">&lt;</span>FK13<span class="op">&gt;</span> <span class="op">};</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  replace key <span class="op">&lt;</span>FK14<span class="op">&gt;</span> <span class="op">{</span> <span class="op">[</span> VoidSymbol<span class="op">,</span> VoidSymbol <span class="op">]</span> <span class="op">};</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  modifier_map Mod4 <span class="op">{</span> <span class="op">&lt;</span>FK14<span class="op">&gt;</span> <span class="op">};</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  replace key <span class="op">&lt;</span>FK16<span class="op">&gt;</span> <span class="op">{</span> <span class="op">[</span> VoidSymbol<span class="op">,</span> VoidSymbol <span class="op">]</span> <span class="op">};</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  modifier_map Mod4 <span class="op">{</span> <span class="op">&lt;</span>FK16<span class="op">&gt;</span> <span class="op">};</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
 <p>Madduck’s step by step tutorial told me that I had to specify this as a partial modifier remap that would be overlayed onto a full keymap. The chunk of code above ends up in <code>$HOME/.xkb/symbols/shapr</code> and the source belows ends up in <code>$HOME/.xkb/keymap/default</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb2-1" title="1"><span class="cf">default</span> xkb_keymap <span class="st">&quot;default&quot;</span> {</a>
-<a class="sourceLine" id="cb2-2" title="2">  xkb_keycodes  { include <span class="st">&quot;evdev+aliases(qwerty)&quot;</span>       };</a>
-<a class="sourceLine" id="cb2-3" title="3">  xkb_types     { include <span class="st">&quot;complete&quot;</span>    };</a>
-<a class="sourceLine" id="cb2-4" title="4">  xkb_compat    { include <span class="st">&quot;complete&quot;</span>    };</a>
-<a class="sourceLine" id="cb2-5" title="5">  xkb_symbols   { include <span class="st">&quot;pc+us+inet(evdev)+compose(prsc)+shapr(plaidkey)&quot;</span>  };</a>
-<a class="sourceLine" id="cb2-6" title="6">  xkb_geometry  { include <span class="st">&quot;pc(pc104)&quot;</span>        };</a>
-<a class="sourceLine" id="cb2-7" title="7">};</a>
-<a class="sourceLine" id="cb2-8" title="8"></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">default</span> xkb_keymap <span class="st">&quot;default&quot;</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  xkb_keycodes  <span class="op">{</span> include <span class="st">&quot;evdev+aliases(qwerty)&quot;</span>       <span class="op">};</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  xkb_types     <span class="op">{</span> include <span class="st">&quot;complete&quot;</span>    <span class="op">};</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  xkb_compat    <span class="op">{</span> include <span class="st">&quot;complete&quot;</span>    <span class="op">};</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  xkb_symbols   <span class="op">{</span> include <span class="st">&quot;pc+us+inet(evdev)+compose(prsc)+shapr(plaidkey)&quot;</span>  <span class="op">};</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  xkb_geometry  <span class="op">{</span> include <span class="st">&quot;pc(pc104)&quot;</span>        <span class="op">};</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
 <p>At that point, I was able to run the command <code>xkbcomp -w3 -I$HOME/.xkb $HOME/.xkb/keymap/default $DISPLAY</code> and almost everything was perfect!</p>
 <h1 id="future-work">Future work</h1>
 <p>Some of the many documents I read about xkb claim that xkb can handle hotplug events and per-usb device keyboard layouts. If that’s true, that would save me lots of time. I use the dvorak layout natively, but switch my laptop to qwerty for my ergodox that has dvorak in the firmware. It would be nice to skip that manual step of switching the layout. Even so, the solution above required a solid eight hours of reading docs and just trying things, this part might take longer!</p>

@@ -61,330 +61,330 @@ The context is unsat. Try (reset)
 <h1 id="appendices">Appendices</h1>
 <h2 id="notwas-knapsack.py-yices2-solver">notwa’s knapsack.py yices2 solver</h2>
 <p>Originally <a href="https://gist.github.com/notwa/6595f8471eeb82cfca8bb076263a86c9">a gist</a>, takes almost exactly a minute to finish on my overpowered laptop.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="co">#!/usr/bin/env python3</span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="co"># run like:</span></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="co"># python3 knapsack.py write | yices --logic=QF_BV | python3 knapsack.py read</span></a>
-<a class="sourceLine" id="cb2-4" title="4"></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="im">from</span> collections <span class="im">import</span> namedtuple</a>
-<a class="sourceLine" id="cb2-6" title="6"></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="co"># settings</span></a>
-<a class="sourceLine" id="cb2-8" title="8"></a>
-<a class="sourceLine" id="cb2-9" title="9"><span class="co"># work our way up incrementally:</span></a>
-<a class="sourceLine" id="cb2-10" title="10">minimum_scores <span class="op">=</span> (<span class="dv">30000</span>, <span class="dv">60000</span>, <span class="dv">90000</span>, <span class="dv">92000</span>, <span class="dv">94000</span>, <span class="dv">95000</span>, <span class="dv">96000</span>)</a>
-<a class="sourceLine" id="cb2-11" title="11"></a>
-<a class="sourceLine" id="cb2-12" title="12">thrust_weight <span class="op">=</span> <span class="dv">36</span></a>
-<a class="sourceLine" id="cb2-13" title="13">turn_weight <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-14" title="14">cost_limit <span class="op">=</span> <span class="dv">210</span></a>
-<a class="sourceLine" id="cb2-15" title="15">individual_limit <span class="op">=</span> <span class="dv">7</span></a>
-<a class="sourceLine" id="cb2-16" title="16"></a>
-<a class="sourceLine" id="cb2-17" title="17"><span class="co"># data</span></a>
-<a class="sourceLine" id="cb2-18" title="18"></a>
-<a class="sourceLine" id="cb2-19" title="19">Engine <span class="op">=</span> namedtuple(<span class="st">'Engine'</span>, [<span class="st">'name'</span>, <span class="st">'size'</span>, <span class="st">'thrust'</span>, <span class="st">'turn'</span>])</a>
-<a class="sourceLine" id="cb2-20" title="20"></a>
-<a class="sourceLine" id="cb2-21" title="21"><span class="co"># from https://github.com/endless-sky/endless-sky/blob/master/data/engines.txt</span></a>
-<a class="sourceLine" id="cb2-22" title="22">engines <span class="op">=</span> [</a>
-<a class="sourceLine" id="cb2-23" title="23">    Engine(<span class="st">&quot;X1050&quot;</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">1100</span>),  <span class="co"># has both thrust and turning!</span></a>
-<a class="sourceLine" id="cb2-24" title="24">    Engine(<span class="st">&quot;X1200&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">1600</span>),</a>
-<a class="sourceLine" id="cb2-25" title="25">    Engine(<span class="st">&quot;X1700&quot;</span>, <span class="dv">16</span>, <span class="dv">60</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-26" title="26">    Engine(<span class="st">&quot;X2200&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">3070</span>),</a>
-<a class="sourceLine" id="cb2-27" title="27">    Engine(<span class="st">&quot;X2700&quot;</span>, <span class="dv">27</span>, <span class="dv">115</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-28" title="28">    Engine(<span class="st">&quot;X3200&quot;</span>, <span class="dv">35</span>, <span class="dv">0</span>, <span class="dv">5900</span>),</a>
-<a class="sourceLine" id="cb2-29" title="29">    Engine(<span class="st">&quot;X3700&quot;</span>, <span class="dv">46</span>, <span class="dv">221</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-30" title="30">    Engine(<span class="st">&quot;X4200&quot;</span>, <span class="dv">59</span>, <span class="dv">0</span>, <span class="dv">11320</span>),</a>
-<a class="sourceLine" id="cb2-31" title="31">    Engine(<span class="st">&quot;X4700&quot;</span>, <span class="dv">79</span>, <span class="dv">425</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-32" title="32">    Engine(<span class="st">&quot;X5200&quot;</span>, <span class="dv">100</span>, <span class="dv">0</span>, <span class="dv">21740</span>),</a>
-<a class="sourceLine" id="cb2-33" title="33">    Engine(<span class="st">&quot;X5700&quot;</span>, <span class="dv">134</span>, <span class="dv">815</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-34" title="34">    Engine(<span class="st">&quot;Chipmunk Thruster&quot;</span>, <span class="dv">20</span>, <span class="dv">96</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-35" title="35">    Engine(<span class="st">&quot;Chipmunk Steering&quot;</span>, <span class="dv">15</span>, <span class="dv">0</span>, <span class="dv">2560</span>),</a>
-<a class="sourceLine" id="cb2-36" title="36">    Engine(<span class="st">&quot;Greyhound Steering&quot;</span>, <span class="dv">26</span>, <span class="dv">0</span>, <span class="dv">4920</span>),</a>
-<a class="sourceLine" id="cb2-37" title="37">    Engine(<span class="st">&quot;Greyhound Thruster&quot;</span>, <span class="dv">34</span>, <span class="dv">184</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-38" title="38">    Engine(<span class="st">&quot;Impala Steering&quot;</span>, <span class="dv">43</span>, <span class="dv">0</span>, <span class="dv">9440</span>),</a>
-<a class="sourceLine" id="cb2-39" title="39">    Engine(<span class="st">&quot;Impala Thruster&quot;</span>, <span class="dv">58</span>, <span class="dv">354</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-40" title="40">    Engine(<span class="st">&quot;Orca Steering&quot;</span>, <span class="dv">74</span>, <span class="dv">0</span>, <span class="dv">18120</span>),</a>
-<a class="sourceLine" id="cb2-41" title="41">    Engine(<span class="st">&quot;Orca Thruster&quot;</span>, <span class="dv">98</span>, <span class="dv">679</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-42" title="42">    Engine(<span class="st">&quot;Tyrant Steering&quot;</span>, <span class="dv">125</span>, <span class="dv">0</span>, <span class="dv">34790</span>),</a>
-<a class="sourceLine" id="cb2-43" title="43">    Engine(<span class="st">&quot;Tyrant Thruster&quot;</span>, <span class="dv">167</span>, <span class="dv">1305</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-44" title="44">    Engine(<span class="st">&quot;A120 Thruster&quot;</span>, <span class="dv">22</span>, <span class="dv">154</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-45" title="45">    Engine(<span class="st">&quot;A125 Steering&quot;</span>, <span class="dv">16</span>, <span class="dv">0</span>, <span class="dv">3920</span>),</a>
-<a class="sourceLine" id="cb2-46" title="46">    Engine(<span class="st">&quot;A250 Thruster&quot;</span>, <span class="dv">34</span>, <span class="dv">273</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-47" title="47">    Engine(<span class="st">&quot;A255 Steering&quot;</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">6870</span>),</a>
-<a class="sourceLine" id="cb2-48" title="48">    Engine(<span class="st">&quot;A370 Thruster&quot;</span>, <span class="dv">53</span>, <span class="dv">476</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-49" title="49">    Engine(<span class="st">&quot;A375 Steering&quot;</span>, <span class="dv">38</span>, <span class="dv">0</span>, <span class="dv">11920</span>),</a>
-<a class="sourceLine" id="cb2-50" title="50">    Engine(<span class="st">&quot;A520 Thruster&quot;</span>, <span class="dv">82</span>, <span class="dv">819</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-51" title="51">    Engine(<span class="st">&quot;A525 Steering&quot;</span>, <span class="dv">60</span>, <span class="dv">0</span>, <span class="dv">20500</span>),</a>
-<a class="sourceLine" id="cb2-52" title="52">    Engine(<span class="st">&quot;A860 Thruster&quot;</span>, <span class="dv">127</span>, <span class="dv">1397</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-53" title="53">    Engine(<span class="st">&quot;A865 Steering&quot;</span>, <span class="dv">92</span>, <span class="dv">0</span>, <span class="dv">35090</span>),</a>
-<a class="sourceLine" id="cb2-54" title="54">    Engine(<span class="st">&quot;Baellie&quot;</span>, <span class="dv">24</span>, <span class="dv">101</span>, <span class="dv">2500</span>),  <span class="co"># hai</span></a>
-<a class="sourceLine" id="cb2-55" title="55">    Engine(<span class="st">&quot;Basrem Thruster&quot;</span>, <span class="dv">18</span>, <span class="dv">132</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-56" title="56">    Engine(<span class="st">&quot;Benga Thruster&quot;</span>, <span class="dv">28</span>, <span class="dv">236</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-57" title="57">    Engine(<span class="st">&quot;Biroo Thruster&quot;</span>, <span class="dv">44</span>, <span class="dv">415</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-58" title="58">    Engine(<span class="st">&quot;Bondir Thruster&quot;</span>, <span class="dv">63</span>, <span class="dv">661</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-59" title="59">    Engine(<span class="st">&quot;Bufaer Thruster&quot;</span>, <span class="dv">104</span>, <span class="dv">1201</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-60" title="60">    Engine(<span class="st">&quot;Basrem Steering&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">3090</span>),</a>
-<a class="sourceLine" id="cb2-61" title="61">    Engine(<span class="st">&quot;Benga Steering&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">5770</span>),</a>
-<a class="sourceLine" id="cb2-62" title="62">    Engine(<span class="st">&quot;Biroo Steering&quot;</span>, <span class="dv">32</span>, <span class="dv">0</span>, <span class="dv">10540</span>),</a>
-<a class="sourceLine" id="cb2-63" title="63">    Engine(<span class="st">&quot;Bondir Steering&quot;</span>, <span class="dv">49</span>, <span class="dv">0</span>, <span class="dv">17580</span>),</a>
-<a class="sourceLine" id="cb2-64" title="64">    Engine(<span class="st">&quot;Bufaer Steering&quot;</span>, <span class="dv">76</span>, <span class="dv">0</span>, <span class="dv">30430</span>),</a>
-<a class="sourceLine" id="cb2-65" title="65">    Engine(<span class="st">&quot;Coalition Large Steering&quot;</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">7119</span>),  <span class="co"># coalition</span></a>
-<a class="sourceLine" id="cb2-66" title="66">    Engine(<span class="st">&quot;Coalition Large Thruster&quot;</span>, <span class="dv">32</span>, <span class="dv">262</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-67" title="67">    Engine(<span class="st">&quot;Coalition Small Steering&quot;</span>, <span class="dv">7</span>, <span class="dv">0</span>, <span class="dv">1788</span>),</a>
-<a class="sourceLine" id="cb2-68" title="68">    Engine(<span class="st">&quot;Coalition Small Thruster&quot;</span>, <span class="dv">9</span>, <span class="dv">66</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-69" title="69">    Engine(<span class="st">&quot;Korath Asteroid Steering&quot;</span>, <span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2800</span>),  <span class="co"># Korath</span></a>
-<a class="sourceLine" id="cb2-70" title="70">    Engine(<span class="st">&quot;Korath Asteroid Thruster&quot;</span>, <span class="dv">14</span>, <span class="dv">112</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-71" title="71">    Engine(<span class="st">&quot;Korath Comet Steering&quot;</span>, <span class="dv">18</span>, <span class="dv">0</span>, <span class="dv">5688</span>),</a>
-<a class="sourceLine" id="cb2-72" title="72">    Engine(<span class="st">&quot;Korath Comet Thruster&quot;</span>, <span class="dv">24</span>, <span class="dv">218</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-73" title="73">    Engine(<span class="st">&quot;Korath Lunar Steering&quot;</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">10560</span>),</a>
-<a class="sourceLine" id="cb2-74" title="74">    Engine(<span class="st">&quot;Korath Lunar Thruster&quot;</span>, <span class="dv">40</span>, <span class="dv">412</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-75" title="75">    Engine(<span class="st">&quot;Korath Planetary Steering&quot;</span>, <span class="dv">52</span>, <span class="dv">0</span>, <span class="dv">20696</span>),</a>
-<a class="sourceLine" id="cb2-76" title="76">    Engine(<span class="st">&quot;Korath Planetary Thruster&quot;</span>, <span class="dv">69</span>, <span class="dv">800</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-77" title="77">    Engine(<span class="st">&quot;Korath Stellar Steering&quot;</span>, <span class="dv">89</span>, <span class="dv">0</span>, <span class="dv">40050</span>),</a>
-<a class="sourceLine" id="cb2-78" title="78">    Engine(<span class="st">&quot;Korath Stellar Thruster&quot;</span>, <span class="dv">118</span>, <span class="dv">1534</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-79" title="79">    Engine(<span class="st">&quot;Pug Akfar Thruster&quot;</span>, <span class="dv">43</span>, <span class="dv">280</span>, <span class="dv">0</span>),  <span class="co"># pug</span></a>
-<a class="sourceLine" id="cb2-80" title="80">    Engine(<span class="st">&quot;Pug Akfar Steering&quot;</span>, <span class="dv">33</span>, <span class="dv">0</span>, <span class="dv">7500</span>),</a>
-<a class="sourceLine" id="cb2-81" title="81">    Engine(<span class="st">&quot;Pug Cormet Thruster&quot;</span>, <span class="dv">60</span>, <span class="dv">440</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-82" title="82">    Engine(<span class="st">&quot;Pug Comet Steering&quot;</span>, <span class="dv">46</span>, <span class="dv">0</span>, <span class="dv">11300</span>),</a>
-<a class="sourceLine" id="cb2-83" title="83">    Engine(<span class="st">&quot;Pug Lohmar Thruster&quot;</span>, <span class="dv">84</span>, <span class="dv">660</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-84" title="84">    Engine(<span class="st">&quot;Pug Lohmar Steering&quot;</span>, <span class="dv">64</span>, <span class="dv">0</span>, <span class="dv">17000</span>),</a>
-<a class="sourceLine" id="cb2-85" title="85">    Engine(<span class="st">&quot;Quarg Medium Thruster&quot;</span>, <span class="dv">70</span>, <span class="dv">800</span>, <span class="dv">0</span>),  <span class="co"># quarg</span></a>
-<a class="sourceLine" id="cb2-86" title="86">    Engine(<span class="st">&quot;Quarg Medium Steering&quot;</span>, <span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">16000</span>),</a>
-<a class="sourceLine" id="cb2-87" title="87">    Engine(<span class="st">&quot;Crucible Thruster&quot;</span>, <span class="dv">20</span>, <span class="dv">180</span>, <span class="dv">0</span>),  <span class="co"># remnant</span></a>
-<a class="sourceLine" id="cb2-88" title="88">    Engine(<span class="st">&quot;Crucible Steering&quot;</span>, <span class="dv">14</span>, <span class="dv">0</span>, <span class="dv">4480</span>),</a>
-<a class="sourceLine" id="cb2-89" title="89">    Engine(<span class="st">&quot;Forge Thruster&quot;</span>, <span class="dv">39</span>, <span class="dv">370</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-90" title="90">    Engine(<span class="st">&quot;Forge Steering&quot;</span>, <span class="dv">28</span>, <span class="dv">0</span>, <span class="dv">9520</span>),</a>
-<a class="sourceLine" id="cb2-91" title="91">    Engine(<span class="st">&quot;Smelter Thruster&quot;</span>, <span class="dv">76</span>, <span class="dv">768</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-92" title="92">    Engine(<span class="st">&quot;Smelter Steering&quot;</span>, <span class="dv">55</span>, <span class="dv">0</span>, <span class="dv">19800</span>),</a>
-<a class="sourceLine" id="cb2-93" title="93">    Engine(<span class="st">&quot;Type 1 Radiant Thruster&quot;</span>, <span class="dv">12</span>, <span class="dv">66</span>, <span class="dv">0</span>),  <span class="co"># wanderer</span></a>
-<a class="sourceLine" id="cb2-94" title="94">    Engine(<span class="st">&quot;Type 1 Radiant Steering&quot;</span>, <span class="dv">9</span>, <span class="dv">0</span>, <span class="dv">1728</span>),</a>
-<a class="sourceLine" id="cb2-95" title="95">    Engine(<span class="st">&quot;Type 2 Radiant Thruster&quot;</span>, <span class="dv">27</span>, <span class="dv">176</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-96" title="96">    Engine(<span class="st">&quot;Type 2 Radiant Steering&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">4540</span>),</a>
-<a class="sourceLine" id="cb2-97" title="97">    Engine(<span class="st">&quot;Type 3 Radiant Thruster&quot;</span>, <span class="dv">42</span>, <span class="dv">315</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-98" title="98">    Engine(<span class="st">&quot;Type 3 Radiant Steering&quot;</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">7860</span>),</a>
-<a class="sourceLine" id="cb2-99" title="99">    Engine(<span class="st">&quot;Type 4 Radiant Thruster&quot;</span>, <span class="dv">64</span>, <span class="dv">552</span>, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb2-100" title="100">    Engine(<span class="st">&quot;Type 4 Radiant Steering&quot;</span>, <span class="dv">47</span>, <span class="dv">0</span>, <span class="dv">13959</span>),</a>
-<a class="sourceLine" id="cb2-101" title="101">]</a>
-<a class="sourceLine" id="cb2-102" title="102"></a>
-<a class="sourceLine" id="cb2-103" title="103"><span class="co"># utilities</span></a>
-<a class="sourceLine" id="cb2-104" title="104"></a>
-<a class="sourceLine" id="cb2-105" title="105">alphanumeric <span class="op">=</span> <span class="st">'abcdefghijklmnopqrstuvwxyz0123456789'</span></a>
-<a class="sourceLine" id="cb2-106" title="106"></a>
-<a class="sourceLine" id="cb2-107" title="107"><span class="kw">def</span> encode(name):</a>
-<a class="sourceLine" id="cb2-108" title="108">    name <span class="op">=</span> name.lower()</a>
-<a class="sourceLine" id="cb2-109" title="109">    <span class="co"># this code is a little brute but it works</span></a>
-<a class="sourceLine" id="cb2-110" title="110">    name <span class="op">=</span> <span class="st">''</span>.join(c <span class="cf">if</span> c <span class="kw">in</span> alphanumeric <span class="cf">else</span> <span class="st">'_'</span> <span class="cf">for</span> c <span class="kw">in</span> name)</a>
-<a class="sourceLine" id="cb2-111" title="111">    <span class="cf">return</span> name</a>
-<a class="sourceLine" id="cb2-112" title="112"></a>
-<a class="sourceLine" id="cb2-113" title="113"><span class="kw">def</span> scoreit(engine):</a>
-<a class="sourceLine" id="cb2-114" title="114">    <span class="cf">return</span> thrust_weight <span class="op">*</span> engine.thrust <span class="op">+</span> turn_weight <span class="op">*</span> engine.turn</a>
-<a class="sourceLine" id="cb2-115" title="115"></a>
-<a class="sourceLine" id="cb2-116" title="116"><span class="co"># main</span></a>
-<a class="sourceLine" id="cb2-117" title="117"></a>
-<a class="sourceLine" id="cb2-118" title="118"><span class="kw">def</span> read(f):</a>
-<a class="sourceLine" id="cb2-119" title="119">    variables <span class="op">=</span> <span class="bu">dict</span>()</a>
-<a class="sourceLine" id="cb2-120" title="120">    sat <span class="op">=</span> <span class="va">False</span></a>
-<a class="sourceLine" id="cb2-121" title="121">    any_sat <span class="op">=</span> <span class="va">False</span></a>
-<a class="sourceLine" id="cb2-122" title="122"></a>
-<a class="sourceLine" id="cb2-123" title="123">    <span class="kw">def</span> dump():</a>
-<a class="sourceLine" id="cb2-124" title="124">    <span class="kw">nonlocal</span> variables, sat</a>
-<a class="sourceLine" id="cb2-125" title="125">    <span class="cf">if</span> <span class="kw">not</span> sat:</a>
-<a class="sourceLine" id="cb2-126" title="126">        <span class="cf">return</span></a>
-<a class="sourceLine" id="cb2-127" title="127"></a>
-<a class="sourceLine" id="cb2-128" title="128">    <span class="bu">print</span>(<span class="st">'[solution]'</span>)</a>
-<a class="sourceLine" id="cb2-129" title="129">    <span class="cf">for</span> k, v <span class="kw">in</span> variables.items():</a>
-<a class="sourceLine" id="cb2-130" title="130">        <span class="cf">if</span> v <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb2-131" title="131">        <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{k}</span><span class="ss">=</span><span class="sc">{v}</span><span class="ss">'</span>)</a>
-<a class="sourceLine" id="cb2-132" title="132">    <span class="bu">print</span>()</a>
-<a class="sourceLine" id="cb2-133" title="133"></a>
-<a class="sourceLine" id="cb2-134" title="134">    variables <span class="op">=</span> <span class="bu">dict</span>()</a>
-<a class="sourceLine" id="cb2-135" title="135">    sat <span class="op">=</span> <span class="va">False</span></a>
-<a class="sourceLine" id="cb2-136" title="136"></a>
-<a class="sourceLine" id="cb2-137" title="137">    <span class="cf">for</span> line <span class="kw">in</span> f:</a>
-<a class="sourceLine" id="cb2-138" title="138">    line <span class="op">=</span> line.strip()</a>
-<a class="sourceLine" id="cb2-139" title="139">    <span class="cf">if</span> line.startswith(<span class="st">'(='</span>) <span class="kw">and</span> line.endswith(<span class="st">')'</span>):</a>
-<a class="sourceLine" id="cb2-140" title="140">        _, name, value <span class="op">=</span> line.split(<span class="st">' '</span>)</a>
-<a class="sourceLine" id="cb2-141" title="141">        <span class="cf">assert</span> value.startswith(<span class="st">'0b'</span>)</a>
-<a class="sourceLine" id="cb2-142" title="142">        variables[name] <span class="op">=</span> <span class="bu">int</span>(value[<span class="dv">2</span>:<span class="op">-</span><span class="dv">1</span>], <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb2-143" title="143">    <span class="cf">elif</span> line <span class="op">==</span> <span class="st">'sat'</span>:</a>
-<a class="sourceLine" id="cb2-144" title="144">        sat <span class="op">=</span> <span class="va">True</span></a>
-<a class="sourceLine" id="cb2-145" title="145">        any_sat <span class="op">=</span> <span class="va">True</span></a>
-<a class="sourceLine" id="cb2-146" title="146">    <span class="cf">elif</span> line <span class="op">==</span> <span class="st">'next'</span>:</a>
-<a class="sourceLine" id="cb2-147" title="147">        dump()</a>
-<a class="sourceLine" id="cb2-148" title="148">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb2-149" title="149">        <span class="bu">print</span>(line, <span class="bu">file</span><span class="op">=</span>sys.stderr)</a>
-<a class="sourceLine" id="cb2-150" title="150"></a>
-<a class="sourceLine" id="cb2-151" title="151">    dump()</a>
-<a class="sourceLine" id="cb2-152" title="152">    <span class="cf">return</span> any_sat</a>
-<a class="sourceLine" id="cb2-153" title="153"></a>
-<a class="sourceLine" id="cb2-154" title="154"><span class="kw">def</span> write():</a>
-<a class="sourceLine" id="cb2-155" title="155">    <span class="co"># compute the shortest bitvectors that hold the worst case scenario:</span></a>
-<a class="sourceLine" id="cb2-156" title="156">    big <span class="op">=</span> <span class="bu">sum</span>(scoreit(engine) <span class="cf">for</span> engine <span class="kw">in</span> engines)</a>
-<a class="sourceLine" id="cb2-157" title="157">    N, C <span class="op">=</span> (big <span class="op">*</span> individual_limit).bit_length(), individual_limit.bit_length()</a>
-<a class="sourceLine" id="cb2-158" title="158"></a>
-<a class="sourceLine" id="cb2-159" title="159">    <span class="bu">print</span>(<span class="ss">f'(define-type num (bitvector </span><span class="sc">{N}</span><span class="ss">))'</span>)</a>
-<a class="sourceLine" id="cb2-160" title="160">    <span class="bu">print</span>(<span class="ss">f'(define-type count (bitvector </span><span class="sc">{C}</span><span class="ss">))'</span>)</a>
-<a class="sourceLine" id="cb2-161" title="161">    <span class="bu">print</span>(<span class="st">'(define cost::num)'</span>)</a>
-<a class="sourceLine" id="cb2-162" title="162">    <span class="bu">print</span>(<span class="st">'(define score::num)'</span>)</a>
-<a class="sourceLine" id="cb2-163" title="163"></a>
-<a class="sourceLine" id="cb2-164" title="164">    variable_names <span class="op">=</span> [encode(engine.name) <span class="cf">for</span> engine <span class="kw">in</span> engines]</a>
-<a class="sourceLine" id="cb2-165" title="165"></a>
-<a class="sourceLine" id="cb2-166" title="166">    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</a>
-<a class="sourceLine" id="cb2-167" title="167">    <span class="bu">print</span>(<span class="ss">f'(define </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss">::count)'</span>)</a>
-<a class="sourceLine" id="cb2-168" title="168"></a>
-<a class="sourceLine" id="cb2-169" title="169">    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</a>
-<a class="sourceLine" id="cb2-170" title="170">    <span class="bu">print</span>(<span class="ss">f'(assert (bv-le </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{C}</span><span class="ss"> </span><span class="sc">{</span>individual_limit<span class="sc">}</span><span class="ss">)))'</span>)</a>
-<a class="sourceLine" id="cb2-171" title="171"></a>
-<a class="sourceLine" id="cb2-172" title="172">    <span class="bu">print</span>(<span class="st">'(assert (= cost (bv-add'</span>)</a>
-<a class="sourceLine" id="cb2-173" title="173">    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</a>
-<a class="sourceLine" id="cb2-174" title="174">    <span class="cf">if</span> C <span class="op">&lt;</span> N:</a>
-<a class="sourceLine" id="cb2-175" title="175">        v_count <span class="op">=</span> <span class="ss">f'(bv-zero-extend </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> </span><span class="sc">{N</span> <span class="op">-</span> <span class="sc">C}</span><span class="ss">)'</span></a>
-<a class="sourceLine" id="cb2-176" title="176">    <span class="bu">print</span>(<span class="ss">f'(bv-mul </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{N}</span><span class="ss"> </span><span class="sc">{</span>engine<span class="sc">.</span>size<span class="sc">}</span><span class="ss">))'</span>)</a>
-<a class="sourceLine" id="cb2-177" title="177">    <span class="bu">print</span>(<span class="st">')))'</span>)</a>
-<a class="sourceLine" id="cb2-178" title="178"></a>
-<a class="sourceLine" id="cb2-179" title="179">    <span class="bu">print</span>(<span class="st">'(assert (= score (bv-add'</span>)</a>
-<a class="sourceLine" id="cb2-180" title="180">    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</a>
-<a class="sourceLine" id="cb2-181" title="181">    <span class="cf">if</span> C <span class="op">&lt;</span> N:</a>
-<a class="sourceLine" id="cb2-182" title="182">        v_count <span class="op">=</span> <span class="ss">f'(bv-zero-extend </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> </span><span class="sc">{N</span> <span class="op">-</span> <span class="sc">C}</span><span class="ss">)'</span></a>
-<a class="sourceLine" id="cb2-183" title="183">    <span class="bu">print</span>(<span class="ss">f'(bv-mul </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{N}</span><span class="ss"> </span><span class="sc">{</span>scoreit(engine)<span class="sc">}</span><span class="ss">))'</span>)</a>
-<a class="sourceLine" id="cb2-184" title="184">    <span class="bu">print</span>(<span class="st">')))'</span>)</a>
-<a class="sourceLine" id="cb2-185" title="185"></a>
-<a class="sourceLine" id="cb2-186" title="186">    <span class="co"># at least one chosen engine must have thrust</span></a>
-<a class="sourceLine" id="cb2-187" title="187">    <span class="bu">print</span>(<span class="st">'(assert (or'</span>)</a>
-<a class="sourceLine" id="cb2-188" title="188">    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</a>
-<a class="sourceLine" id="cb2-189" title="189">    <span class="cf">if</span> engine.thrust <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb2-190" title="190">        <span class="bu">print</span>(<span class="ss">f'(bv-gt </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{C}</span><span class="ss"> 0))'</span>)</a>
-<a class="sourceLine" id="cb2-191" title="191">    <span class="bu">print</span>(<span class="st">'))'</span>)</a>
-<a class="sourceLine" id="cb2-192" title="192"></a>
-<a class="sourceLine" id="cb2-193" title="193">    <span class="co"># at least one chosen engine must have turn</span></a>
-<a class="sourceLine" id="cb2-194" title="194">    <span class="bu">print</span>(<span class="st">'(assert (or'</span>)</a>
-<a class="sourceLine" id="cb2-195" title="195">    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</a>
-<a class="sourceLine" id="cb2-196" title="196">    <span class="cf">if</span> engine.turn <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb2-197" title="197">        <span class="bu">print</span>(<span class="ss">f'(bv-gt </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{C}</span><span class="ss"> 0))'</span>)</a>
-<a class="sourceLine" id="cb2-198" title="198">    <span class="bu">print</span>(<span class="st">'))'</span>)</a>
-<a class="sourceLine" id="cb2-199" title="199"></a>
-<a class="sourceLine" id="cb2-200" title="200">    <span class="bu">print</span>(<span class="ss">f'(assert (and (bv-ge cost (mk-bv </span><span class="sc">{N}</span><span class="ss"> 0)) (bv-le cost (mk-bv </span><span class="sc">{N}</span><span class="ss"> </span><span class="sc">{</span>cost_limit<span class="sc">}</span><span class="ss">))))'</span>)</a>
-<a class="sourceLine" id="cb2-201" title="201"></a>
-<a class="sourceLine" id="cb2-202" title="202">    <span class="cf">for</span> minscore <span class="kw">in</span> minimum_scores:</a>
-<a class="sourceLine" id="cb2-203" title="203">    <span class="bu">print</span>(<span class="ss">f'(assert (bv-ge score (mk-bv </span><span class="sc">{N}</span><span class="ss"> </span><span class="sc">{</span>minscore<span class="sc">}</span><span class="ss">)))'</span>)</a>
-<a class="sourceLine" id="cb2-204" title="204">    <span class="bu">print</span>(<span class="st">'(check)'</span>)</a>
-<a class="sourceLine" id="cb2-205" title="205">    <span class="bu">print</span>(<span class="st">'(show-model)'</span>)</a>
-<a class="sourceLine" id="cb2-206" title="206">    <span class="bu">print</span>(<span class="st">'(echo &quot;next</span><span class="ch">\\</span><span class="st">n&quot;)'</span>)</a>
-<a class="sourceLine" id="cb2-207" title="207"></a>
-<a class="sourceLine" id="cb2-208" title="208"><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">'__main__'</span>:</a>
-<a class="sourceLine" id="cb2-209" title="209">    <span class="im">import</span> sys</a>
-<a class="sourceLine" id="cb2-210" title="210">    <span class="cf">if</span> <span class="bu">len</span>(sys.argv) <span class="op">&lt;</span> <span class="dv">2</span> <span class="kw">or</span> sys.argv[<span class="dv">1</span>] <span class="kw">not</span> <span class="kw">in</span> (<span class="st">'read'</span>, <span class="st">'write'</span>):</a>
-<a class="sourceLine" id="cb2-211" title="211">    <span class="bu">print</span>(<span class="ss">f'usage: </span><span class="sc">{</span>sys<span class="sc">.</span>argv[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> (read|write)'</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</a>
-<a class="sourceLine" id="cb2-212" title="212">    sys.exit(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb2-213" title="213">    <span class="cf">elif</span> sys.argv[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'read'</span>:</a>
-<a class="sourceLine" id="cb2-214" title="214">    sat <span class="op">=</span> read(sys.stdin)</a>
-<a class="sourceLine" id="cb2-215" title="215">    <span class="cf">if</span> <span class="kw">not</span> sat:</a>
-<a class="sourceLine" id="cb2-216" title="216">        sys.exit(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb2-217" title="217">    <span class="cf">elif</span> sys.argv[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'write'</span>:</a>
-<a class="sourceLine" id="cb2-218" title="218">    write()</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env python3</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># run like:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># python3 knapsack.py write | yices --logic=QF_BV | python3 knapsack.py read</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> namedtuple</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># settings</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># work our way up incrementally:</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>minimum_scores <span class="op">=</span> (<span class="dv">30000</span>, <span class="dv">60000</span>, <span class="dv">90000</span>, <span class="dv">92000</span>, <span class="dv">94000</span>, <span class="dv">95000</span>, <span class="dv">96000</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>thrust_weight <span class="op">=</span> <span class="dv">36</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>turn_weight <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>cost_limit <span class="op">=</span> <span class="dv">210</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>individual_limit <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># data</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>Engine <span class="op">=</span> namedtuple(<span class="st">'Engine'</span>, [<span class="st">'name'</span>, <span class="st">'size'</span>, <span class="st">'thrust'</span>, <span class="st">'turn'</span>])</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># from https://github.com/endless-sky/endless-sky/blob/master/data/engines.txt</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>engines <span class="op">=</span> [</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X1050&quot;</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">1100</span>),  <span class="co"># has both thrust and turning!</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X1200&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">1600</span>),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X1700&quot;</span>, <span class="dv">16</span>, <span class="dv">60</span>, <span class="dv">0</span>),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X2200&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">3070</span>),</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X2700&quot;</span>, <span class="dv">27</span>, <span class="dv">115</span>, <span class="dv">0</span>),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X3200&quot;</span>, <span class="dv">35</span>, <span class="dv">0</span>, <span class="dv">5900</span>),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X3700&quot;</span>, <span class="dv">46</span>, <span class="dv">221</span>, <span class="dv">0</span>),</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X4200&quot;</span>, <span class="dv">59</span>, <span class="dv">0</span>, <span class="dv">11320</span>),</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X4700&quot;</span>, <span class="dv">79</span>, <span class="dv">425</span>, <span class="dv">0</span>),</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X5200&quot;</span>, <span class="dv">100</span>, <span class="dv">0</span>, <span class="dv">21740</span>),</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;X5700&quot;</span>, <span class="dv">134</span>, <span class="dv">815</span>, <span class="dv">0</span>),</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Chipmunk Thruster&quot;</span>, <span class="dv">20</span>, <span class="dv">96</span>, <span class="dv">0</span>),</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Chipmunk Steering&quot;</span>, <span class="dv">15</span>, <span class="dv">0</span>, <span class="dv">2560</span>),</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Greyhound Steering&quot;</span>, <span class="dv">26</span>, <span class="dv">0</span>, <span class="dv">4920</span>),</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Greyhound Thruster&quot;</span>, <span class="dv">34</span>, <span class="dv">184</span>, <span class="dv">0</span>),</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Impala Steering&quot;</span>, <span class="dv">43</span>, <span class="dv">0</span>, <span class="dv">9440</span>),</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Impala Thruster&quot;</span>, <span class="dv">58</span>, <span class="dv">354</span>, <span class="dv">0</span>),</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Orca Steering&quot;</span>, <span class="dv">74</span>, <span class="dv">0</span>, <span class="dv">18120</span>),</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Orca Thruster&quot;</span>, <span class="dv">98</span>, <span class="dv">679</span>, <span class="dv">0</span>),</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Tyrant Steering&quot;</span>, <span class="dv">125</span>, <span class="dv">0</span>, <span class="dv">34790</span>),</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Tyrant Thruster&quot;</span>, <span class="dv">167</span>, <span class="dv">1305</span>, <span class="dv">0</span>),</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A120 Thruster&quot;</span>, <span class="dv">22</span>, <span class="dv">154</span>, <span class="dv">0</span>),</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A125 Steering&quot;</span>, <span class="dv">16</span>, <span class="dv">0</span>, <span class="dv">3920</span>),</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A250 Thruster&quot;</span>, <span class="dv">34</span>, <span class="dv">273</span>, <span class="dv">0</span>),</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A255 Steering&quot;</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">6870</span>),</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A370 Thruster&quot;</span>, <span class="dv">53</span>, <span class="dv">476</span>, <span class="dv">0</span>),</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A375 Steering&quot;</span>, <span class="dv">38</span>, <span class="dv">0</span>, <span class="dv">11920</span>),</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A520 Thruster&quot;</span>, <span class="dv">82</span>, <span class="dv">819</span>, <span class="dv">0</span>),</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A525 Steering&quot;</span>, <span class="dv">60</span>, <span class="dv">0</span>, <span class="dv">20500</span>),</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A860 Thruster&quot;</span>, <span class="dv">127</span>, <span class="dv">1397</span>, <span class="dv">0</span>),</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;A865 Steering&quot;</span>, <span class="dv">92</span>, <span class="dv">0</span>, <span class="dv">35090</span>),</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Baellie&quot;</span>, <span class="dv">24</span>, <span class="dv">101</span>, <span class="dv">2500</span>),  <span class="co"># hai</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Basrem Thruster&quot;</span>, <span class="dv">18</span>, <span class="dv">132</span>, <span class="dv">0</span>),</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Benga Thruster&quot;</span>, <span class="dv">28</span>, <span class="dv">236</span>, <span class="dv">0</span>),</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Biroo Thruster&quot;</span>, <span class="dv">44</span>, <span class="dv">415</span>, <span class="dv">0</span>),</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Bondir Thruster&quot;</span>, <span class="dv">63</span>, <span class="dv">661</span>, <span class="dv">0</span>),</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Bufaer Thruster&quot;</span>, <span class="dv">104</span>, <span class="dv">1201</span>, <span class="dv">0</span>),</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Basrem Steering&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">3090</span>),</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Benga Steering&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">5770</span>),</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Biroo Steering&quot;</span>, <span class="dv">32</span>, <span class="dv">0</span>, <span class="dv">10540</span>),</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Bondir Steering&quot;</span>, <span class="dv">49</span>, <span class="dv">0</span>, <span class="dv">17580</span>),</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Bufaer Steering&quot;</span>, <span class="dv">76</span>, <span class="dv">0</span>, <span class="dv">30430</span>),</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Coalition Large Steering&quot;</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">7119</span>),  <span class="co"># coalition</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Coalition Large Thruster&quot;</span>, <span class="dv">32</span>, <span class="dv">262</span>, <span class="dv">0</span>),</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Coalition Small Steering&quot;</span>, <span class="dv">7</span>, <span class="dv">0</span>, <span class="dv">1788</span>),</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Coalition Small Thruster&quot;</span>, <span class="dv">9</span>, <span class="dv">66</span>, <span class="dv">0</span>),</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Asteroid Steering&quot;</span>, <span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2800</span>),  <span class="co"># Korath</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Asteroid Thruster&quot;</span>, <span class="dv">14</span>, <span class="dv">112</span>, <span class="dv">0</span>),</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Comet Steering&quot;</span>, <span class="dv">18</span>, <span class="dv">0</span>, <span class="dv">5688</span>),</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Comet Thruster&quot;</span>, <span class="dv">24</span>, <span class="dv">218</span>, <span class="dv">0</span>),</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Lunar Steering&quot;</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">10560</span>),</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Lunar Thruster&quot;</span>, <span class="dv">40</span>, <span class="dv">412</span>, <span class="dv">0</span>),</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Planetary Steering&quot;</span>, <span class="dv">52</span>, <span class="dv">0</span>, <span class="dv">20696</span>),</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Planetary Thruster&quot;</span>, <span class="dv">69</span>, <span class="dv">800</span>, <span class="dv">0</span>),</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Stellar Steering&quot;</span>, <span class="dv">89</span>, <span class="dv">0</span>, <span class="dv">40050</span>),</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Korath Stellar Thruster&quot;</span>, <span class="dv">118</span>, <span class="dv">1534</span>, <span class="dv">0</span>),</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Pug Akfar Thruster&quot;</span>, <span class="dv">43</span>, <span class="dv">280</span>, <span class="dv">0</span>),  <span class="co"># pug</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Pug Akfar Steering&quot;</span>, <span class="dv">33</span>, <span class="dv">0</span>, <span class="dv">7500</span>),</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Pug Cormet Thruster&quot;</span>, <span class="dv">60</span>, <span class="dv">440</span>, <span class="dv">0</span>),</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Pug Comet Steering&quot;</span>, <span class="dv">46</span>, <span class="dv">0</span>, <span class="dv">11300</span>),</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Pug Lohmar Thruster&quot;</span>, <span class="dv">84</span>, <span class="dv">660</span>, <span class="dv">0</span>),</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Pug Lohmar Steering&quot;</span>, <span class="dv">64</span>, <span class="dv">0</span>, <span class="dv">17000</span>),</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Quarg Medium Thruster&quot;</span>, <span class="dv">70</span>, <span class="dv">800</span>, <span class="dv">0</span>),  <span class="co"># quarg</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Quarg Medium Steering&quot;</span>, <span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">16000</span>),</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Crucible Thruster&quot;</span>, <span class="dv">20</span>, <span class="dv">180</span>, <span class="dv">0</span>),  <span class="co"># remnant</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Crucible Steering&quot;</span>, <span class="dv">14</span>, <span class="dv">0</span>, <span class="dv">4480</span>),</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Forge Thruster&quot;</span>, <span class="dv">39</span>, <span class="dv">370</span>, <span class="dv">0</span>),</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Forge Steering&quot;</span>, <span class="dv">28</span>, <span class="dv">0</span>, <span class="dv">9520</span>),</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Smelter Thruster&quot;</span>, <span class="dv">76</span>, <span class="dv">768</span>, <span class="dv">0</span>),</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Smelter Steering&quot;</span>, <span class="dv">55</span>, <span class="dv">0</span>, <span class="dv">19800</span>),</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Type 1 Radiant Thruster&quot;</span>, <span class="dv">12</span>, <span class="dv">66</span>, <span class="dv">0</span>),  <span class="co"># wanderer</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Type 1 Radiant Steering&quot;</span>, <span class="dv">9</span>, <span class="dv">0</span>, <span class="dv">1728</span>),</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Type 2 Radiant Thruster&quot;</span>, <span class="dv">27</span>, <span class="dv">176</span>, <span class="dv">0</span>),</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Type 2 Radiant Steering&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">4540</span>),</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Type 3 Radiant Thruster&quot;</span>, <span class="dv">42</span>, <span class="dv">315</span>, <span class="dv">0</span>),</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Type 3 Radiant Steering&quot;</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">7860</span>),</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Type 4 Radiant Thruster&quot;</span>, <span class="dv">64</span>, <span class="dv">552</span>, <span class="dv">0</span>),</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    Engine(<span class="st">&quot;Type 4 Radiant Steering&quot;</span>, <span class="dv">47</span>, <span class="dv">0</span>, <span class="dv">13959</span>),</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a><span class="co"># utilities</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>alphanumeric <span class="op">=</span> <span class="st">'abcdefghijklmnopqrstuvwxyz0123456789'</span></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> encode(name):</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> name.lower()</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>    <span class="co"># this code is a little brute but it works</span></span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> <span class="st">''</span>.join(c <span class="cf">if</span> c <span class="kw">in</span> alphanumeric <span class="cf">else</span> <span class="st">'_'</span> <span class="cf">for</span> c <span class="kw">in</span> name)</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> name</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> scoreit(engine):</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> thrust_weight <span class="op">*</span> engine.thrust <span class="op">+</span> turn_weight <span class="op">*</span> engine.turn</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a><span class="co"># main</span></span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read(f):</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> <span class="bu">dict</span>()</span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>    sat <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>    any_sat <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> dump():</span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a> <span class="kw">nonlocal</span> variables, sat</span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> <span class="kw">not</span> sat:</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>     <span class="cf">return</span></span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="st">'[solution]'</span>)</span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a> <span class="cf">for</span> k, v <span class="kw">in</span> variables.items():</span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>     <span class="cf">if</span> v <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{k}</span><span class="ss">=</span><span class="sc">{v}</span><span class="ss">'</span>)</span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>()</span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a> variables <span class="op">=</span> <span class="bu">dict</span>()</span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a> sat <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a> line <span class="op">=</span> line.strip()</span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> line.startswith(<span class="st">'(='</span>) <span class="kw">and</span> line.endswith(<span class="st">')'</span>):</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>     _, name, value <span class="op">=</span> line.split(<span class="st">' '</span>)</span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>     <span class="cf">assert</span> value.startswith(<span class="st">'0b'</span>)</span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>     variables[name] <span class="op">=</span> <span class="bu">int</span>(value[<span class="dv">2</span>:<span class="op">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a> <span class="cf">elif</span> line <span class="op">==</span> <span class="st">'sat'</span>:</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>     sat <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>     any_sat <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a> <span class="cf">elif</span> line <span class="op">==</span> <span class="st">'next'</span>:</span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>     dump()</span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a> <span class="cf">else</span>:</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>     <span class="bu">print</span>(line, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>    dump()</span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> any_sat</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> write():</span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute the shortest bitvectors that hold the worst case scenario:</span></span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>    big <span class="op">=</span> <span class="bu">sum</span>(scoreit(engine) <span class="cf">for</span> engine <span class="kw">in</span> engines)</span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>    N, C <span class="op">=</span> (big <span class="op">*</span> individual_limit).bit_length(), individual_limit.bit_length()</span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'(define-type num (bitvector </span><span class="sc">{N}</span><span class="ss">))'</span>)</span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'(define-type count (bitvector </span><span class="sc">{C}</span><span class="ss">))'</span>)</span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'(define cost::num)'</span>)</span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'(define score::num)'</span>)</span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a>    variable_names <span class="op">=</span> [encode(engine.name) <span class="cf">for</span> engine <span class="kw">in</span> engines]</span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="ss">f'(define </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss">::count)'</span>)</span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="ss">f'(assert (bv-le </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{C}</span><span class="ss"> </span><span class="sc">{</span>individual_limit<span class="sc">}</span><span class="ss">)))'</span>)</span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'(assert (= cost (bv-add'</span>)</span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</span>
+<span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> C <span class="op">&lt;</span> N:</span>
+<span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a>     v_count <span class="op">=</span> <span class="ss">f'(bv-zero-extend </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> </span><span class="sc">{N</span> <span class="op">-</span> <span class="sc">C}</span><span class="ss">)'</span></span>
+<span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="ss">f'(bv-mul </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{N}</span><span class="ss"> </span><span class="sc">{</span>engine<span class="sc">.</span>size<span class="sc">}</span><span class="ss">))'</span>)</span>
+<span id="cb2-177"><a href="#cb2-177" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">')))'</span>)</span>
+<span id="cb2-178"><a href="#cb2-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-179"><a href="#cb2-179" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'(assert (= score (bv-add'</span>)</span>
+<span id="cb2-180"><a href="#cb2-180" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</span>
+<span id="cb2-181"><a href="#cb2-181" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> C <span class="op">&lt;</span> N:</span>
+<span id="cb2-182"><a href="#cb2-182" aria-hidden="true" tabindex="-1"></a>     v_count <span class="op">=</span> <span class="ss">f'(bv-zero-extend </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> </span><span class="sc">{N</span> <span class="op">-</span> <span class="sc">C}</span><span class="ss">)'</span></span>
+<span id="cb2-183"><a href="#cb2-183" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="ss">f'(bv-mul </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{N}</span><span class="ss"> </span><span class="sc">{</span>scoreit(engine)<span class="sc">}</span><span class="ss">))'</span>)</span>
+<span id="cb2-184"><a href="#cb2-184" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">')))'</span>)</span>
+<span id="cb2-185"><a href="#cb2-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-186"><a href="#cb2-186" aria-hidden="true" tabindex="-1"></a>    <span class="co"># at least one chosen engine must have thrust</span></span>
+<span id="cb2-187"><a href="#cb2-187" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'(assert (or'</span>)</span>
+<span id="cb2-188"><a href="#cb2-188" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</span>
+<span id="cb2-189"><a href="#cb2-189" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> engine.thrust <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb2-190"><a href="#cb2-190" aria-hidden="true" tabindex="-1"></a>     <span class="bu">print</span>(<span class="ss">f'(bv-gt </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{C}</span><span class="ss"> 0))'</span>)</span>
+<span id="cb2-191"><a href="#cb2-191" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'))'</span>)</span>
+<span id="cb2-192"><a href="#cb2-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-193"><a href="#cb2-193" aria-hidden="true" tabindex="-1"></a>    <span class="co"># at least one chosen engine must have turn</span></span>
+<span id="cb2-194"><a href="#cb2-194" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'(assert (or'</span>)</span>
+<span id="cb2-195"><a href="#cb2-195" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> engine, v_count <span class="kw">in</span> <span class="bu">zip</span>(engines, variable_names):</span>
+<span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> engine.turn <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a>     <span class="bu">print</span>(<span class="ss">f'(bv-gt </span><span class="sc">{</span>v_count<span class="sc">}</span><span class="ss"> (mk-bv </span><span class="sc">{C}</span><span class="ss"> 0))'</span>)</span>
+<span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'))'</span>)</span>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'(assert (and (bv-ge cost (mk-bv </span><span class="sc">{N}</span><span class="ss"> 0)) (bv-le cost (mk-bv </span><span class="sc">{N}</span><span class="ss"> </span><span class="sc">{</span>cost_limit<span class="sc">}</span><span class="ss">))))'</span>)</span>
+<span id="cb2-201"><a href="#cb2-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-202"><a href="#cb2-202" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> minscore <span class="kw">in</span> minimum_scores:</span>
+<span id="cb2-203"><a href="#cb2-203" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="ss">f'(assert (bv-ge score (mk-bv </span><span class="sc">{N}</span><span class="ss"> </span><span class="sc">{</span>minscore<span class="sc">}</span><span class="ss">)))'</span>)</span>
+<span id="cb2-204"><a href="#cb2-204" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="st">'(check)'</span>)</span>
+<span id="cb2-205"><a href="#cb2-205" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="st">'(show-model)'</span>)</span>
+<span id="cb2-206"><a href="#cb2-206" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="st">'(echo &quot;next</span><span class="ch">\\</span><span class="st">n&quot;)'</span>)</span>
+<span id="cb2-207"><a href="#cb2-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-208"><a href="#cb2-208" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">'__main__'</span>:</span>
+<span id="cb2-209"><a href="#cb2-209" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> sys</span>
+<span id="cb2-210"><a href="#cb2-210" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(sys.argv) <span class="op">&lt;</span> <span class="dv">2</span> <span class="kw">or</span> sys.argv[<span class="dv">1</span>] <span class="kw">not</span> <span class="kw">in</span> (<span class="st">'read'</span>, <span class="st">'write'</span>):</span>
+<span id="cb2-211"><a href="#cb2-211" aria-hidden="true" tabindex="-1"></a> <span class="bu">print</span>(<span class="ss">f'usage: </span><span class="sc">{</span>sys<span class="sc">.</span>argv[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> (read|write)'</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
+<span id="cb2-212"><a href="#cb2-212" aria-hidden="true" tabindex="-1"></a> sys.exit(<span class="dv">1</span>)</span>
+<span id="cb2-213"><a href="#cb2-213" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> sys.argv[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'read'</span>:</span>
+<span id="cb2-214"><a href="#cb2-214" aria-hidden="true" tabindex="-1"></a> sat <span class="op">=</span> read(sys.stdin)</span>
+<span id="cb2-215"><a href="#cb2-215" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> <span class="kw">not</span> sat:</span>
+<span id="cb2-216"><a href="#cb2-216" aria-hidden="true" tabindex="-1"></a>     sys.exit(<span class="dv">1</span>)</span>
+<span id="cb2-217"><a href="#cb2-217" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> sys.argv[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'write'</span>:</span>
+<span id="cb2-218"><a href="#cb2-218" aria-hidden="true" tabindex="-1"></a> write()</span></code></pre></div>
 <h2 id="jeegers-linear-solver">Jeeger’s linear solver</h2>
 <p>Originally <a href="https://gist.github.com/jeeger/eb4aac58dd26b4faf327aa758b31c76c">a gist</a> by Jeeger.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="im">import</span> pandas <span class="im">as</span> pd</a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="im">import</span> pulp</a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="im">import</span> collections</a>
-<a class="sourceLine" id="cb3-6" title="6"></a>
-<a class="sourceLine" id="cb3-7" title="7">Engine <span class="op">=</span> collections.namedtuple(<span class="st">&quot;Engine&quot;</span>, [<span class="st">&quot;name&quot;</span>, <span class="st">&quot;space&quot;</span>, <span class="st">&quot;thrust&quot;</span>, <span class="st">&quot;turn&quot;</span>])</a>
-<a class="sourceLine" id="cb3-8" title="8">engines <span class="op">=</span> [Engine(<span class="st">&quot;X1050&quot;</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">1100</span>) <span class="co">#  has both thrust and turning!</span></a>
-<a class="sourceLine" id="cb3-9" title="9">       , Engine(<span class="st">&quot;X1200&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">1600</span>)</a>
-<a class="sourceLine" id="cb3-10" title="10">       , Engine(<span class="st">&quot;X1700&quot;</span>, <span class="dv">16</span>, <span class="dv">60</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-11" title="11">       , Engine(<span class="st">&quot;X2200&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">3070</span>)</a>
-<a class="sourceLine" id="cb3-12" title="12">       , Engine(<span class="st">&quot;X2700&quot;</span>, <span class="dv">27</span>, <span class="dv">115</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-13" title="13">       , Engine(<span class="st">&quot;X3200&quot;</span>, <span class="dv">35</span>, <span class="dv">0</span>, <span class="dv">5900</span>)</a>
-<a class="sourceLine" id="cb3-14" title="14">       , Engine(<span class="st">&quot;X3700&quot;</span>, <span class="dv">46</span>, <span class="dv">221</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-15" title="15">       , Engine(<span class="st">&quot;X4200&quot;</span>, <span class="dv">59</span>, <span class="dv">0</span>, <span class="dv">11320</span>)</a>
-<a class="sourceLine" id="cb3-16" title="16">       , Engine(<span class="st">&quot;X4700&quot;</span>, <span class="dv">79</span>, <span class="dv">425</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-17" title="17">       , Engine(<span class="st">&quot;X5200&quot;</span>, <span class="dv">100</span>, <span class="dv">0</span>, <span class="dv">21740</span>)</a>
-<a class="sourceLine" id="cb3-18" title="18">       , Engine(<span class="st">&quot;X5700&quot;</span>, <span class="dv">134</span>, <span class="dv">815</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-19" title="19">       , Engine(<span class="st">&quot;Chipmunk Thruster&quot;</span>, <span class="dv">20</span>, <span class="dv">96</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-20" title="20">       , Engine(<span class="st">&quot;Chipmunk Steering&quot;</span>, <span class="dv">15</span>, <span class="dv">0</span>, <span class="dv">2560</span>)</a>
-<a class="sourceLine" id="cb3-21" title="21">       , Engine(<span class="st">&quot;Greyhound Steering&quot;</span>, <span class="dv">26</span>, <span class="dv">0</span>, <span class="dv">4920</span>)</a>
-<a class="sourceLine" id="cb3-22" title="22">       , Engine(<span class="st">&quot;Greyhound Thruster&quot;</span>, <span class="dv">34</span>, <span class="dv">184</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-23" title="23">       , Engine(<span class="st">&quot;Impala Steering&quot;</span>, <span class="dv">43</span>, <span class="dv">0</span>, <span class="dv">9440</span>)</a>
-<a class="sourceLine" id="cb3-24" title="24">       , Engine(<span class="st">&quot;Impala Thruster&quot;</span>, <span class="dv">58</span>, <span class="dv">354</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-25" title="25">       , Engine(<span class="st">&quot;Orca Steering&quot;</span>, <span class="dv">74</span>, <span class="dv">0</span>, <span class="dv">18120</span>)</a>
-<a class="sourceLine" id="cb3-26" title="26">       , Engine(<span class="st">&quot;Orca Thruster&quot;</span>, <span class="dv">98</span>, <span class="dv">679</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-27" title="27">       , Engine(<span class="st">&quot;Tyrant Steering&quot;</span>, <span class="dv">125</span>, <span class="dv">0</span>, <span class="dv">34790</span>)</a>
-<a class="sourceLine" id="cb3-28" title="28">       , Engine(<span class="st">&quot;Tyrant Thruster&quot;</span>, <span class="dv">167</span>, <span class="dv">1305</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-29" title="29">       , Engine(<span class="st">&quot;A120 Thruster&quot;</span>, <span class="dv">22</span>, <span class="dv">154</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-30" title="30">       , Engine(<span class="st">&quot;A125 Steering&quot;</span>, <span class="dv">16</span>, <span class="dv">0</span>, <span class="dv">3920</span>)</a>
-<a class="sourceLine" id="cb3-31" title="31">       , Engine(<span class="st">&quot;A250 Thruster&quot;</span>, <span class="dv">34</span>, <span class="dv">273</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-32" title="32">       , Engine(<span class="st">&quot;A255 Steering&quot;</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">6870</span>)</a>
-<a class="sourceLine" id="cb3-33" title="33">       , Engine(<span class="st">&quot;A370 Thruster&quot;</span>, <span class="dv">53</span>, <span class="dv">476</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-34" title="34">       , Engine(<span class="st">&quot;A375 Steering&quot;</span>, <span class="dv">38</span>, <span class="dv">0</span>, <span class="dv">11920</span>)</a>
-<a class="sourceLine" id="cb3-35" title="35">       , Engine(<span class="st">&quot;A520 Thruster&quot;</span>, <span class="dv">82</span>, <span class="dv">819</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-36" title="36">       , Engine(<span class="st">&quot;A525 Steering&quot;</span>, <span class="dv">60</span>, <span class="dv">0</span>, <span class="dv">20500</span>)</a>
-<a class="sourceLine" id="cb3-37" title="37">       , Engine(<span class="st">&quot;A860 Thruster&quot;</span>, <span class="dv">127</span>, <span class="dv">1397</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-38" title="38">       , Engine(<span class="st">&quot;A865 Steering&quot;</span>, <span class="dv">92</span>, <span class="dv">0</span>, <span class="dv">35090</span>)</a>
-<a class="sourceLine" id="cb3-39" title="39">       , Engine(<span class="st">&quot;Baellie&quot;</span>, <span class="dv">24</span>, <span class="dv">101</span>, <span class="dv">2500</span>) <span class="co">#  hai</span></a>
-<a class="sourceLine" id="cb3-40" title="40">       , Engine(<span class="st">&quot;Basrem Thruster&quot;</span>, <span class="dv">18</span>, <span class="dv">132</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-41" title="41">       , Engine(<span class="st">&quot;Benga Thruster&quot;</span>, <span class="dv">28</span>, <span class="dv">236</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-42" title="42">       , Engine(<span class="st">&quot;Biroo Thruster&quot;</span>, <span class="dv">44</span>, <span class="dv">415</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-43" title="43">       , Engine(<span class="st">&quot;Bondir Thruster&quot;</span>, <span class="dv">63</span>, <span class="dv">661</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-44" title="44">       , Engine(<span class="st">&quot;Bufaer Thruster&quot;</span>, <span class="dv">104</span>, <span class="dv">1201</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-45" title="45">       , Engine(<span class="st">&quot;Basrem Steering&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">3090</span>)</a>
-<a class="sourceLine" id="cb3-46" title="46">       , Engine(<span class="st">&quot;Benga Steering&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">5770</span>)</a>
-<a class="sourceLine" id="cb3-47" title="47">       , Engine(<span class="st">&quot;Biroo Steering&quot;</span>, <span class="dv">32</span>, <span class="dv">0</span>, <span class="dv">10540</span>)</a>
-<a class="sourceLine" id="cb3-48" title="48">       , Engine(<span class="st">&quot;Bondir Steering&quot;</span>, <span class="dv">49</span>, <span class="dv">0</span>, <span class="dv">17580</span>)</a>
-<a class="sourceLine" id="cb3-49" title="49">       , Engine(<span class="st">&quot;Bufaer Steering&quot;</span>, <span class="dv">76</span>, <span class="dv">0</span>, <span class="dv">30430</span>)</a>
-<a class="sourceLine" id="cb3-50" title="50">       , Engine(<span class="st">&quot;Coalition Large Steering&quot;</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">7119</span>) <span class="co">#  coalition</span></a>
-<a class="sourceLine" id="cb3-51" title="51">       , Engine(<span class="st">&quot;Coalition Large Thruster&quot;</span>, <span class="dv">32</span>, <span class="dv">262</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-52" title="52">       , Engine(<span class="st">&quot;Coalition Small Steering&quot;</span>, <span class="dv">7</span>, <span class="dv">0</span>, <span class="dv">1788</span>)</a>
-<a class="sourceLine" id="cb3-53" title="53">       , Engine(<span class="st">&quot;Coalition Small Thruster&quot;</span>, <span class="dv">9</span>, <span class="dv">66</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-54" title="54">       , Engine(<span class="st">&quot;Korath Asteroid Steering&quot;</span>, <span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2800</span>) <span class="co">#  Korath</span></a>
-<a class="sourceLine" id="cb3-55" title="55">       , Engine(<span class="st">&quot;Korath Asteroid Thruster&quot;</span>, <span class="dv">14</span>, <span class="dv">112</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-56" title="56">       , Engine(<span class="st">&quot;Korath Comet Steering&quot;</span>, <span class="dv">18</span>, <span class="dv">0</span>, <span class="dv">5688</span>)</a>
-<a class="sourceLine" id="cb3-57" title="57">       , Engine(<span class="st">&quot;Korath Comet Thruster&quot;</span>, <span class="dv">24</span>, <span class="dv">218</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-58" title="58">       , Engine(<span class="st">&quot;Korath Lunar Steering&quot;</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">10560</span>)</a>
-<a class="sourceLine" id="cb3-59" title="59">       , Engine(<span class="st">&quot;Korath Lunar Thruster&quot;</span>, <span class="dv">40</span>, <span class="dv">412</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-60" title="60">       , Engine(<span class="st">&quot;Korath Planetary Steering&quot;</span>, <span class="dv">52</span>, <span class="dv">0</span>, <span class="dv">20696</span>)</a>
-<a class="sourceLine" id="cb3-61" title="61">       , Engine(<span class="st">&quot;Korath Planetary Thruster&quot;</span>, <span class="dv">69</span>, <span class="dv">800</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-62" title="62">       , Engine(<span class="st">&quot;Korath Stellar Steering&quot;</span>, <span class="dv">89</span>, <span class="dv">0</span>, <span class="dv">40050</span>)</a>
-<a class="sourceLine" id="cb3-63" title="63">       , Engine(<span class="st">&quot;Korath Stellar Thruster&quot;</span>, <span class="dv">118</span>, <span class="dv">1534</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-64" title="64">       , Engine(<span class="st">&quot;Pug Akfar Thruster&quot;</span>, <span class="dv">43</span>, <span class="dv">280</span>, <span class="dv">0</span>) <span class="co">#  pug</span></a>
-<a class="sourceLine" id="cb3-65" title="65">       , Engine(<span class="st">&quot;Pug Akfar Steering&quot;</span>, <span class="dv">33</span>, <span class="dv">0</span>, <span class="dv">7500</span>)</a>
-<a class="sourceLine" id="cb3-66" title="66">       , Engine(<span class="st">&quot;Pug Cormet Thruster&quot;</span>, <span class="dv">60</span>, <span class="dv">440</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-67" title="67">       , Engine(<span class="st">&quot;Pug Comet Steering&quot;</span>, <span class="dv">46</span>, <span class="dv">0</span>, <span class="dv">11300</span>)</a>
-<a class="sourceLine" id="cb3-68" title="68">       , Engine(<span class="st">&quot;Pug Lohmar Thruster&quot;</span>, <span class="dv">84</span>, <span class="dv">660</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-69" title="69">       , Engine(<span class="st">&quot;Pug Lohmar Steering&quot;</span>, <span class="dv">64</span>, <span class="dv">0</span>, <span class="dv">17000</span>)</a>
-<a class="sourceLine" id="cb3-70" title="70">       , Engine(<span class="st">&quot;Quarg Medium Thruster&quot;</span>, <span class="dv">70</span>, <span class="dv">800</span>, <span class="dv">0</span>) <span class="co">#  quarg</span></a>
-<a class="sourceLine" id="cb3-71" title="71">       , Engine(<span class="st">&quot;Quarg Medium Steering&quot;</span>, <span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">16000</span>)</a>
-<a class="sourceLine" id="cb3-72" title="72">       , Engine(<span class="st">&quot;Crucible Thruster&quot;</span>, <span class="dv">20</span>, <span class="dv">180</span>, <span class="dv">0</span>) <span class="co">#  remnant</span></a>
-<a class="sourceLine" id="cb3-73" title="73">       , Engine(<span class="st">&quot;Crucible Steering&quot;</span>, <span class="dv">14</span>, <span class="dv">0</span>, <span class="dv">4480</span>)</a>
-<a class="sourceLine" id="cb3-74" title="74">       , Engine(<span class="st">&quot;Forge Thruster&quot;</span>, <span class="dv">39</span>, <span class="dv">370</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-75" title="75">       , Engine(<span class="st">&quot;Forge Steering&quot;</span>, <span class="dv">28</span>, <span class="dv">0</span>, <span class="dv">9520</span>)</a>
-<a class="sourceLine" id="cb3-76" title="76">       , Engine(<span class="st">&quot;Smelter Thruster&quot;</span>, <span class="dv">76</span>, <span class="dv">768</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-77" title="77">       , Engine(<span class="st">&quot;Smelter Steering&quot;</span>, <span class="dv">55</span>, <span class="dv">0</span>, <span class="dv">19800</span>)</a>
-<a class="sourceLine" id="cb3-78" title="78">       , Engine(<span class="st">&quot;Type 1 Radiant Thruster&quot;</span>, <span class="dv">12</span>, <span class="dv">66</span>, <span class="dv">0</span>) <span class="co">#  wanderer</span></a>
-<a class="sourceLine" id="cb3-79" title="79">       , Engine(<span class="st">&quot;Type 1 Radiant Steering&quot;</span>, <span class="dv">9</span>, <span class="dv">0</span>, <span class="dv">1728</span>)</a>
-<a class="sourceLine" id="cb3-80" title="80">       , Engine(<span class="st">&quot;Type 2 Radiant Thruster&quot;</span>, <span class="dv">27</span>, <span class="dv">176</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-81" title="81">       , Engine(<span class="st">&quot;Type 2 Radiant Steering&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">4540</span>)</a>
-<a class="sourceLine" id="cb3-82" title="82">       , Engine(<span class="st">&quot;Type 3 Radiant Thruster&quot;</span>, <span class="dv">42</span>, <span class="dv">315</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-83" title="83">       , Engine(<span class="st">&quot;Type 3 Radiant Steering&quot;</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">7860</span>)</a>
-<a class="sourceLine" id="cb3-84" title="84">       , Engine(<span class="st">&quot;Type 4 Radiant Thruster&quot;</span>, <span class="dv">64</span>, <span class="dv">552</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-85" title="85">       , Engine(<span class="st">&quot;Type 4 Radiant Steering&quot;</span>, <span class="dv">47</span>, <span class="dv">0</span>, <span class="dv">13959</span>)</a>
-<a class="sourceLine" id="cb3-86" title="86">]</a>
-<a class="sourceLine" id="cb3-87" title="87"></a>
-<a class="sourceLine" id="cb3-88" title="88">p <span class="op">=</span> pulp.LpProblem(<span class="st">&quot;Engines&quot;</span>, sense<span class="op">=</span>pulp.constants.LpMaximize)</a>
-<a class="sourceLine" id="cb3-89" title="89"></a>
-<a class="sourceLine" id="cb3-90" title="90">amountOfEngines <span class="op">=</span> {engine.name: pulp.LpVariable(<span class="st">&quot;amountOf_</span><span class="sc">%s</span><span class="st">&quot;</span> <span class="op">%</span> engine.name, lowBound<span class="op">=</span><span class="dv">0</span>, cat<span class="op">=</span><span class="st">'Integer'</span>) <span class="cf">for</span> engine <span class="kw">in</span> engines}</a>
-<a class="sourceLine" id="cb3-91" title="91"></a>
-<a class="sourceLine" id="cb3-92" title="92">constraint <span class="op">=</span> pulp.lpSum([amountOfEngines[engine.name] <span class="op">*</span> engine.space <span class="cf">for</span> engine <span class="kw">in</span> engines]) <span class="op">&lt;=</span> <span class="dv">210</span>, <span class="st">'Total space'</span></a>
-<a class="sourceLine" id="cb3-93" title="93"></a>
-<a class="sourceLine" id="cb3-94" title="94">p <span class="op">+=</span> constraint</a>
-<a class="sourceLine" id="cb3-95" title="95"></a>
-<a class="sourceLine" id="cb3-96" title="96">totalThrust <span class="op">=</span> pulp.lpSum([amountOfEngines[engine.name] <span class="op">*</span> engine.thrust <span class="cf">for</span> engine <span class="kw">in</span> engines])</a>
-<a class="sourceLine" id="cb3-97" title="97">totalTurn <span class="op">=</span> pulp.lpSum([amountOfEngines[engine.name] <span class="op">*</span> engine.turn <span class="cf">for</span> engine <span class="kw">in</span> engines])</a>
-<a class="sourceLine" id="cb3-98" title="98"></a>
-<a class="sourceLine" id="cb3-99" title="99">p <span class="op">+=</span> totalThrust <span class="op">*</span> <span class="dv">36</span> <span class="op">+</span> totalTurn</a>
-<a class="sourceLine" id="cb3-100" title="100"></a>
-<a class="sourceLine" id="cb3-101" title="101">p.solve()</a>
-<a class="sourceLine" id="cb3-102" title="102"></a>
-<a class="sourceLine" id="cb3-103" title="103"><span class="cf">for</span> engine <span class="kw">in</span> engines:</a>
-<a class="sourceLine" id="cb3-104" title="104">    <span class="bu">print</span>(<span class="st">&quot;</span><span class="sc">{}</span><span class="st">: </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(engine.name, pulp.value(amountOfEngines[engine.name])))</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pulp</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> collections</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>Engine <span class="op">=</span> collections.namedtuple(<span class="st">&quot;Engine&quot;</span>, [<span class="st">&quot;name&quot;</span>, <span class="st">&quot;space&quot;</span>, <span class="st">&quot;thrust&quot;</span>, <span class="st">&quot;turn&quot;</span>])</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>engines <span class="op">=</span> [Engine(<span class="st">&quot;X1050&quot;</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">1100</span>) <span class="co">#  has both thrust and turning!</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X1200&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">1600</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X1700&quot;</span>, <span class="dv">16</span>, <span class="dv">60</span>, <span class="dv">0</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X2200&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">3070</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X2700&quot;</span>, <span class="dv">27</span>, <span class="dv">115</span>, <span class="dv">0</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X3200&quot;</span>, <span class="dv">35</span>, <span class="dv">0</span>, <span class="dv">5900</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X3700&quot;</span>, <span class="dv">46</span>, <span class="dv">221</span>, <span class="dv">0</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X4200&quot;</span>, <span class="dv">59</span>, <span class="dv">0</span>, <span class="dv">11320</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X4700&quot;</span>, <span class="dv">79</span>, <span class="dv">425</span>, <span class="dv">0</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X5200&quot;</span>, <span class="dv">100</span>, <span class="dv">0</span>, <span class="dv">21740</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;X5700&quot;</span>, <span class="dv">134</span>, <span class="dv">815</span>, <span class="dv">0</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Chipmunk Thruster&quot;</span>, <span class="dv">20</span>, <span class="dv">96</span>, <span class="dv">0</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Chipmunk Steering&quot;</span>, <span class="dv">15</span>, <span class="dv">0</span>, <span class="dv">2560</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Greyhound Steering&quot;</span>, <span class="dv">26</span>, <span class="dv">0</span>, <span class="dv">4920</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Greyhound Thruster&quot;</span>, <span class="dv">34</span>, <span class="dv">184</span>, <span class="dv">0</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Impala Steering&quot;</span>, <span class="dv">43</span>, <span class="dv">0</span>, <span class="dv">9440</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Impala Thruster&quot;</span>, <span class="dv">58</span>, <span class="dv">354</span>, <span class="dv">0</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Orca Steering&quot;</span>, <span class="dv">74</span>, <span class="dv">0</span>, <span class="dv">18120</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Orca Thruster&quot;</span>, <span class="dv">98</span>, <span class="dv">679</span>, <span class="dv">0</span>)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Tyrant Steering&quot;</span>, <span class="dv">125</span>, <span class="dv">0</span>, <span class="dv">34790</span>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Tyrant Thruster&quot;</span>, <span class="dv">167</span>, <span class="dv">1305</span>, <span class="dv">0</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A120 Thruster&quot;</span>, <span class="dv">22</span>, <span class="dv">154</span>, <span class="dv">0</span>)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A125 Steering&quot;</span>, <span class="dv">16</span>, <span class="dv">0</span>, <span class="dv">3920</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A250 Thruster&quot;</span>, <span class="dv">34</span>, <span class="dv">273</span>, <span class="dv">0</span>)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A255 Steering&quot;</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">6870</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A370 Thruster&quot;</span>, <span class="dv">53</span>, <span class="dv">476</span>, <span class="dv">0</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A375 Steering&quot;</span>, <span class="dv">38</span>, <span class="dv">0</span>, <span class="dv">11920</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A520 Thruster&quot;</span>, <span class="dv">82</span>, <span class="dv">819</span>, <span class="dv">0</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A525 Steering&quot;</span>, <span class="dv">60</span>, <span class="dv">0</span>, <span class="dv">20500</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A860 Thruster&quot;</span>, <span class="dv">127</span>, <span class="dv">1397</span>, <span class="dv">0</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;A865 Steering&quot;</span>, <span class="dv">92</span>, <span class="dv">0</span>, <span class="dv">35090</span>)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Baellie&quot;</span>, <span class="dv">24</span>, <span class="dv">101</span>, <span class="dv">2500</span>) <span class="co">#  hai</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Basrem Thruster&quot;</span>, <span class="dv">18</span>, <span class="dv">132</span>, <span class="dv">0</span>)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Benga Thruster&quot;</span>, <span class="dv">28</span>, <span class="dv">236</span>, <span class="dv">0</span>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Biroo Thruster&quot;</span>, <span class="dv">44</span>, <span class="dv">415</span>, <span class="dv">0</span>)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Bondir Thruster&quot;</span>, <span class="dv">63</span>, <span class="dv">661</span>, <span class="dv">0</span>)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Bufaer Thruster&quot;</span>, <span class="dv">104</span>, <span class="dv">1201</span>, <span class="dv">0</span>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Basrem Steering&quot;</span>, <span class="dv">12</span>, <span class="dv">0</span>, <span class="dv">3090</span>)</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Benga Steering&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">5770</span>)</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Biroo Steering&quot;</span>, <span class="dv">32</span>, <span class="dv">0</span>, <span class="dv">10540</span>)</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Bondir Steering&quot;</span>, <span class="dv">49</span>, <span class="dv">0</span>, <span class="dv">17580</span>)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Bufaer Steering&quot;</span>, <span class="dv">76</span>, <span class="dv">0</span>, <span class="dv">30430</span>)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Coalition Large Steering&quot;</span>, <span class="dv">25</span>, <span class="dv">0</span>, <span class="dv">7119</span>) <span class="co">#  coalition</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Coalition Large Thruster&quot;</span>, <span class="dv">32</span>, <span class="dv">262</span>, <span class="dv">0</span>)</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Coalition Small Steering&quot;</span>, <span class="dv">7</span>, <span class="dv">0</span>, <span class="dv">1788</span>)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Coalition Small Thruster&quot;</span>, <span class="dv">9</span>, <span class="dv">66</span>, <span class="dv">0</span>)</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Asteroid Steering&quot;</span>, <span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2800</span>) <span class="co">#  Korath</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Asteroid Thruster&quot;</span>, <span class="dv">14</span>, <span class="dv">112</span>, <span class="dv">0</span>)</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Comet Steering&quot;</span>, <span class="dv">18</span>, <span class="dv">0</span>, <span class="dv">5688</span>)</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Comet Thruster&quot;</span>, <span class="dv">24</span>, <span class="dv">218</span>, <span class="dv">0</span>)</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Lunar Steering&quot;</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">10560</span>)</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Lunar Thruster&quot;</span>, <span class="dv">40</span>, <span class="dv">412</span>, <span class="dv">0</span>)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Planetary Steering&quot;</span>, <span class="dv">52</span>, <span class="dv">0</span>, <span class="dv">20696</span>)</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Planetary Thruster&quot;</span>, <span class="dv">69</span>, <span class="dv">800</span>, <span class="dv">0</span>)</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Stellar Steering&quot;</span>, <span class="dv">89</span>, <span class="dv">0</span>, <span class="dv">40050</span>)</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Korath Stellar Thruster&quot;</span>, <span class="dv">118</span>, <span class="dv">1534</span>, <span class="dv">0</span>)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Pug Akfar Thruster&quot;</span>, <span class="dv">43</span>, <span class="dv">280</span>, <span class="dv">0</span>) <span class="co">#  pug</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Pug Akfar Steering&quot;</span>, <span class="dv">33</span>, <span class="dv">0</span>, <span class="dv">7500</span>)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Pug Cormet Thruster&quot;</span>, <span class="dv">60</span>, <span class="dv">440</span>, <span class="dv">0</span>)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Pug Comet Steering&quot;</span>, <span class="dv">46</span>, <span class="dv">0</span>, <span class="dv">11300</span>)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Pug Lohmar Thruster&quot;</span>, <span class="dv">84</span>, <span class="dv">660</span>, <span class="dv">0</span>)</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Pug Lohmar Steering&quot;</span>, <span class="dv">64</span>, <span class="dv">0</span>, <span class="dv">17000</span>)</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Quarg Medium Thruster&quot;</span>, <span class="dv">70</span>, <span class="dv">800</span>, <span class="dv">0</span>) <span class="co">#  quarg</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Quarg Medium Steering&quot;</span>, <span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">16000</span>)</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Crucible Thruster&quot;</span>, <span class="dv">20</span>, <span class="dv">180</span>, <span class="dv">0</span>) <span class="co">#  remnant</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Crucible Steering&quot;</span>, <span class="dv">14</span>, <span class="dv">0</span>, <span class="dv">4480</span>)</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Forge Thruster&quot;</span>, <span class="dv">39</span>, <span class="dv">370</span>, <span class="dv">0</span>)</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Forge Steering&quot;</span>, <span class="dv">28</span>, <span class="dv">0</span>, <span class="dv">9520</span>)</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Smelter Thruster&quot;</span>, <span class="dv">76</span>, <span class="dv">768</span>, <span class="dv">0</span>)</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Smelter Steering&quot;</span>, <span class="dv">55</span>, <span class="dv">0</span>, <span class="dv">19800</span>)</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Type 1 Radiant Thruster&quot;</span>, <span class="dv">12</span>, <span class="dv">66</span>, <span class="dv">0</span>) <span class="co">#  wanderer</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Type 1 Radiant Steering&quot;</span>, <span class="dv">9</span>, <span class="dv">0</span>, <span class="dv">1728</span>)</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Type 2 Radiant Thruster&quot;</span>, <span class="dv">27</span>, <span class="dv">176</span>, <span class="dv">0</span>)</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Type 2 Radiant Steering&quot;</span>, <span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">4540</span>)</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Type 3 Radiant Thruster&quot;</span>, <span class="dv">42</span>, <span class="dv">315</span>, <span class="dv">0</span>)</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Type 3 Radiant Steering&quot;</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">7860</span>)</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Type 4 Radiant Thruster&quot;</span>, <span class="dv">64</span>, <span class="dv">552</span>, <span class="dv">0</span>)</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>    , Engine(<span class="st">&quot;Type 4 Radiant Steering&quot;</span>, <span class="dv">47</span>, <span class="dv">0</span>, <span class="dv">13959</span>)</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> pulp.LpProblem(<span class="st">&quot;Engines&quot;</span>, sense<span class="op">=</span>pulp.constants.LpMaximize)</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>amountOfEngines <span class="op">=</span> {engine.name: pulp.LpVariable(<span class="st">&quot;amountOf_</span><span class="sc">%s</span><span class="st">&quot;</span> <span class="op">%</span> engine.name, lowBound<span class="op">=</span><span class="dv">0</span>, cat<span class="op">=</span><span class="st">'Integer'</span>) <span class="cf">for</span> engine <span class="kw">in</span> engines}</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>constraint <span class="op">=</span> pulp.lpSum([amountOfEngines[engine.name] <span class="op">*</span> engine.space <span class="cf">for</span> engine <span class="kw">in</span> engines]) <span class="op">&lt;=</span> <span class="dv">210</span>, <span class="st">'Total space'</span></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>p <span class="op">+=</span> constraint</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>totalThrust <span class="op">=</span> pulp.lpSum([amountOfEngines[engine.name] <span class="op">*</span> engine.thrust <span class="cf">for</span> engine <span class="kw">in</span> engines])</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>totalTurn <span class="op">=</span> pulp.lpSum([amountOfEngines[engine.name] <span class="op">*</span> engine.turn <span class="cf">for</span> engine <span class="kw">in</span> engines])</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>p <span class="op">+=</span> totalThrust <span class="op">*</span> <span class="dv">36</span> <span class="op">+</span> totalTurn</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>p.solve()</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> engine <span class="kw">in</span> engines:</span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;</span><span class="sc">{}</span><span class="st">: </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(engine.name, pulp.value(amountOfEngines[engine.name])))</span></code></pre></div>
 
         </div>
         <div id="footer">

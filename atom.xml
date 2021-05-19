@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2019-08-03T00:00:00Z</updated>
+    <updated>2021-04-18T00:00:00Z</updated>
     <entry>
+    <title>Why does magit-status give me an error?</title>
+    <link href="http://shapr.github.io/posts/2021-04-18-emacs-debugging.html" />
+    <id>http://shapr.github.io/posts/2021-04-18-emacs-debugging.html</id>
+    <published>2021-04-18T00:00:00Z</published>
+    <updated>2021-04-18T00:00:00Z</updated>
+    <summary type="html"><![CDATA[A stream of consciousness recording of my attempt to debug an emacs problem]]></summary>
+</entry>
+<entry>
     <title>Open Source Hardware Hearing Aid Part 1</title>
     <link href="http://shapr.github.io/posts/2019-08-03-tympan.html" />
     <id>http://shapr.github.io/posts/2019-08-03-tympan.html</id>
@@ -80,14 +88,6 @@
     <published>2019-05-31T00:00:00Z</published>
     <updated>2019-05-31T00:00:00Z</updated>
     <summary type="html"><![CDATA[markov keyboard that changes with every letter you type]]></summary>
-</entry>
-<entry>
-    <title>mastermind in elisp</title>
-    <link href="http://shapr.github.io/posts/2019-05-21-mastermind-elisp.html" />
-    <id>http://shapr.github.io/posts/2019-05-21-mastermind-elisp.html</id>
-    <published>2019-05-21T00:00:00Z</published>
-    <updated>2019-05-21T00:00:00Z</updated>
-    <summary type="html"><![CDATA[sketch of a mastermind game in elisp]]></summary>
 </entry>
 
 </feed>
