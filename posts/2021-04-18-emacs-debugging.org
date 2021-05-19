@@ -5,6 +5,9 @@ tags: emacs, debugging
 ---
 #+AUTHOR: Shae Erisson
 #+DATE: 2021-04-18
+
+![](../images/toustefna.png)
+
 * Why does magit-status give me an error?
 
 My debugging process:
