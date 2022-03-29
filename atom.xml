@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2021-04-18T00:00:00Z</updated>
+    <updated>2022-03-29T00:00:00Z</updated>
     <entry>
+    <title>Recurse Center again!</title>
+    <link href="http://shapr.github.io/posts/2022-03-29-rc-again.html" />
+    <id>http://shapr.github.io/posts/2022-03-29-rc-again.html</id>
+    <published>2022-03-29T00:00:00Z</published>
+    <updated>2022-03-29T00:00:00Z</updated>
+    <summary type="html"><![CDATA[Shae attends another Recurse Center batch]]></summary>
+</entry>
+<entry>
     <title>Why does magit-status give me an error?</title>
     <link href="http://shapr.github.io/posts/2021-04-18-emacs-debugging.html" />
     <id>http://shapr.github.io/posts/2021-04-18-emacs-debugging.html</id>
@@ -80,14 +88,6 @@
     <published>2019-06-01T00:00:00Z</published>
     <updated>2019-06-01T00:00:00Z</updated>
     <summary type="html"><![CDATA[retrospective on two weeks at the recurse center]]></summary>
-</entry>
-<entry>
-    <title>markov keyboard</title>
-    <link href="http://shapr.github.io/posts/2019-05-31-markov-keyboard.html" />
-    <id>http://shapr.github.io/posts/2019-05-31-markov-keyboard.html</id>
-    <published>2019-05-31T00:00:00Z</published>
-    <updated>2019-05-31T00:00:00Z</updated>
-    <summary type="html"><![CDATA[markov keyboard that changes with every letter you type]]></summary>
 </entry>
 
 </feed>
