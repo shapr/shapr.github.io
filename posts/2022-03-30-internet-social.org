@@ -1,0 +1,54 @@
+---
+title: How to improve meaningful social interactions on the internet?
+description: there must be a better way to video chat
+tags: recurse center, video chat
+---
+#+AUTHOR: Shae Erisson
+#+DATE: 2022-03-30
+
+[[../images/brynslustafir.png]]
+
+* Internet Video Chats Are not Great, How to Improve?
+Perhaps we could make video chats more like the good parts of in person social interactions?
+
+** Could I make it more like meeting a friend while out on a walk?
+
+For that approach, I'd want to build a "friend-finder" where you click that you have an hour free, and any of your friends can one-click jump into a video chat.
+
+Several people have said they would value a serendipitous low-friction video chat organizer thing.
+
+** Could I make it more like an in-person conversation?
+
+*** fix the network?
+I could decrease packet loss and latency by writing user-friendly network testing tools.
+
+The goal there would be to figure out if the user device is overloaded, or the WiFi is too busy, or the user ISP is dropping packets.
+
+If the goal is low latency peer to peer connections, perhaps a VPN like WireGuard (TailScale?) would help with that? I will elide technical details of [[https://en.wikipedia.org/wiki/NAT_traversal][NAT traversal]] for voice calls.
+
+Perhaps network problems aren't visible to end users? I've heard WebRTC has some sort of statistics reported, and my previous job experience with [[https://en.wikipedia.org/wiki/Voice_over_IP][VoIP]] suggests that's [[https://en.wikipedia.org/wiki/Real-time_Transport_Protocol][RTP]] based reporting.
+
+*** fix the user facing experience?
+Sometimes I'm in a video call with several users and one of them is much quieter than the others, and my brain listens to the loudest person first.
+
+Perhaps a volume equalizer audio mixer would help there?
+
+Or what about just improving the inputs and outputs?
+
+I recently bought a [[https://www.bluemic.com/en-us/products/yeti-x/][better microphone]] to record a [[https://anchor.fm/cofree-coffee/episodes/Shae-Erisson-e1f3o16][podcast episode]], and noticed that improved the way other participants experienced our video calls.
+I used headphones on video calls so I don't have to worry about [[https://en.wikipedia.org/wiki/Echo_suppression_and_cancellation][echo cancellation]].
+I do not yet have a *real* camera, but I have seen the benefits when others used them.
+
+So perhaps a webpage that lists these recommendations and links to a youtube video that shows the experience with and without each?
+
+*** fix the USER?
+I personally have so much going on in my head that it's hard for me to remember to STOP TALKING and listen.
+
+Maybe conversational training would help people like me? I could put a card in front of my screen that says "ask the other people about themselves".
+
+* Music Consumption Group finds
+
+Today I'm obsessed with several ambient music tracks that were submitted at Recurse Center's Music Consumption Group.
+- Chopped up cello in [[https://olivercoates.bandcamp.com/track/butoh-baby][butoh baby]], and the rest of the album is good too.
+- I asked the submitter of the above track for related music and heard about [[https://caterinabarbieri.bandcamp.com/album/ecstatic-computation][Caterina Barbieri]].
+- This math-named [[https://hallowground.bandcamp.com/album/dedekind-cut-the-expanding-domain-ded005][album]].
