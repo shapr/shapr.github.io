@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Shae Erisson's blog - SMT Solvers part three</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="logo">
+                <a href="../">Shae Erisson's Blog</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>SMT Solvers part three</h1>
+
+            <div class="info">
+    Posted on April 11, 2022
+    
+</div>
+
+<p><img src="../images/lasabrjotur.png" /></p>
+<h1 id="pairing-workshop">Pairing workshop</h1>
+<p>Recurse Center has a workshop in the first week, introduction to pairing.</p>
+<p>We all sign up in a google spreadsheet, row labels on the left are people names,
+column labels are programming language names.</p>
+<p>The intersection of person and language can have three values:</p>
+<ul>
+<li>empty</li>
+<li>ok</li>
+<li>preferred</li>
+</ul>
+<p>I have the impression that the RC faculty solves this semi-manually, but I don’t really know. In any case, why not hit it with the biggest hammer?</p>
+<h1 id="how-to-phrase-the-problem">How to phrase the problem?</h1>
+<p>I started with a list of users like <code>[("shae",0,1,2),("chris",2,1,0)]</code> where the tuple elements were name and language preference.
+I arbitrarily decided that a preferred language was 2, an ok language was 1, and empty was 0.</p>
+<p>I decided my value proposition would be something like “amount of points removed from the total by subtracting one user from another” and it just didn’t work out. I got stuck and frustrated.</p>
+<h1 id="vm-allocation-is-a-better-example">VM allocation is a better example</h1>
+<p>A few days later I brought this up during a pairing session with <a href="https://github.com/cdsmith">Chris Smith</a>.</p>
+<p>After giving Chris a hand wavy explanation and a quick tour of the SMT examples, he suggested we take the approach from the
+<a href="https://github.com/LeventErkok/sbv/blob/master/Documentation/SBV/Examples/Optimization/VM.hs">Virtual Machine allocation example</a>.</p>
+<p>If you read the Dennis Yurichev’s book <a href="https://sat-smt.codes/">SAT/SMT By Example</a> VM allocation is in the section on Knapsack problems, and that’s pretty much what we have.</p>
+<p>Chris also suggested we change the scoring function to be the sum of the matched part of the pairs.</p>
+<p>When Chris and I started out with a list of tuples it worked, but hard to add new languages.
+We converted the players to a tuple of <code>(String,[Int])</code> and it got much easier.</p>
+<p>Originally I wanted to return the players and what language matched them, but matching people is more fun because they have something to talk about.</p>
+<h1 id="the-source">the source!</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a> <span class="ot">{-# LANGUAGE TupleSections #-}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a> <span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a> <span class="kw">import</span> <span class="dt">Control.Monad</span> (forM_)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a> <span class="kw">import</span> <span class="dt">Data.Maybe</span> (fromJust)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a> <span class="kw">import</span> <span class="dt">Data.SBV</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a> <span class="kw">import</span> <span class="dt">Data.SBV.Internals</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ot"> main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a> main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>   <span class="dt">LexicographicResult</span> res <span class="ot">&lt;-</span> optimize <span class="dt">Lexicographic</span> allocate</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>   <span class="kw">case</span> res <span class="kw">of</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>     <span class="dt">Satisfiable</span> config model <span class="ot">-&gt;</span> <span class="fu">print</span> <span class="op">$</span> <span class="fu">filter</span> ((<span class="op">==</span> <span class="dt">True</span>) <span class="op">.</span> cvToBool <span class="op">.</span> <span class="fu">snd</span>) (modelAssocs model)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>     _ <span class="ot">-&gt;</span> <span class="fu">print</span> <span class="st">&quot;Unsatisfiable&quot;</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a> <span class="co">-- per language: 0 &quot;no interest&quot;, 1 &quot;ok&quot;, 2 &quot;preferred&quot;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a> <span class="co">-- (&quot;name&quot;,[javascript, python, haskell,lisp] )</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ot"> players ::</span> [<span class="dt">Player</span>]</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a> players <span class="ot">=</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>   [ (<span class="st">&quot;p1 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>]),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p2 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>]),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p3 &quot;</span>, [<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">1</span>]),</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p4 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>]),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p5 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>]),</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p6 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>]),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p7 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>]),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p8 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>]),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p9 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>]),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;p0 &quot;</span>, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>]),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>     (<span class="st">&quot;bot &quot;</span>, [<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>])</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>   ]</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a> <span class="kw">type</span> <span class="dt">Player</span> <span class="ot">=</span> (<span class="dt">String</span>, <span class="dt">Score</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a> <span class="kw">type</span> <span class="dt">Score</span> <span class="ot">=</span> [<span class="dt">Int</span>]</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="ot"> score ::</span> <span class="dt">Score</span> <span class="ot">-&gt;</span> <span class="dt">Score</span> <span class="ot">-&gt;</span> <span class="dt">SWord32</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a> score s1 s2 <span class="ot">=</span> <span class="fu">fromIntegral</span> <span class="op">$</span> <span class="fu">maximum</span> <span class="op">$</span> <span class="fu">zipWith</span> scoreLang s1 s2</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>   <span class="kw">where</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>     scoreLang a b <span class="ot">=</span> (<span class="dv">2</span> <span class="op">*</span> <span class="fu">min</span> a b) <span class="op">+</span> <span class="fu">max</span> a b</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="ot"> allocate ::</span> <span class="dt">Goal</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a> allocate <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>   <span class="kw">let</span> uPairs <span class="ot">=</span> uniquePairs players</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>pairname ((n1, _), (n2, _)) <span class="ot">=</span> n1 <span class="op">&lt;&gt;</span> n2</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>   vars <span class="ot">&lt;-</span> sBools <span class="op">$</span> pairname <span class="op">&lt;$&gt;</span> uPairs</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>   <span class="kw">let</span> pairsWithVars <span class="ot">=</span> <span class="fu">zip</span> uPairs<span class="ot"> vars ::</span> [((<span class="dt">Player</span>, <span class="dt">Player</span>), <span class="dt">SBool</span>)]</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>   forM_ players <span class="op">$</span> \(name, _) <span class="ot">-&gt;</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>     constrain <span class="op">$</span> pbMutexed [v <span class="op">|</span> (((n1, _), (n2, _)), v) <span class="ot">&lt;-</span> pairsWithVars, n1 <span class="op">==</span> name <span class="op">||</span> n2 <span class="op">==</span> name]</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>   maximize</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>     <span class="st">&quot;best pairs&quot;</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>     (<span class="fu">sum</span> [ite v (score s1 s2) <span class="dv">0</span> <span class="op">|</span> (((n1, s1), (n2, s2)), v) <span class="ot">&lt;-</span> pairsWithVars]<span class="ot"> ::</span> <span class="dt">SWord32</span>)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="ot"> uniquePairs ::</span> [a] <span class="ot">-&gt;</span> [(a, a)]</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a> uniquePairs [] <span class="ot">=</span> []</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a> uniquePairs (x <span class="op">:</span> xs) <span class="ot">=</span> <span class="fu">map</span> (x,) xs <span class="op">&lt;&gt;</span> uniquePairs xs</span></code></pre></div>
+<h1 id="the-output">the output!</h1>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>[(<span class="st">&quot;p1 p8 &quot;</span>,<span class="dt">True</span><span class="ot"> ::</span> <span class="dt">Bool</span>),(<span class="st">&quot;p2 p5 &quot;</span>,<span class="dt">True</span><span class="ot"> ::</span> <span class="dt">Bool</span>),(<span class="st">&quot;p3 p9 &quot;</span>,<span class="dt">True</span><span class="ot"> ::</span> <span class="dt">Bool</span>),(<span class="st">&quot;p4 p7 &quot;</span>,<span class="dt">True</span><span class="ot"> ::</span> <span class="dt">Bool</span>),(<span class="st">&quot;p6 p0 &quot;</span>,<span class="dt">True</span><span class="ot"> ::</span> <span class="dt">Bool</span>),(<span class="st">&quot;best pairs&quot;</span>,<span class="dv">20</span><span class="ot"> ::</span> <span class="dt">Word32</span>)]</span></code></pre></div>
+<p>This means player 1 is matched with player 8, player 2 is matched with player 5, … and the “best pairs” result means the total utility of this combination is 20.</p>
+<h1 id="bonus-features">bonus features</h1>
+<p>The VM allocation example uses <a href="https://hackage.haskell.org/package/sbv-8.17/docs/Data-SBV.html#v:pbStronglyMutexed">pbStronglyMutexed</a> and that surprised us when one of our inputs gave “Unsatisfiable.” After a moment of staring at the code, we realized there were an odd number of players.
+You can’t pair up every player if you don’t have an even number of players!</p>
+<p>Chris suggested we switch to <a href="https://hackage.haskell.org/package/sbv-8.17/docs/Data-SBV.html#v:pbMutexed">pbMutexed</a> which requires that there is “at most one bit” set, so we wouldn’t have that error again.</p>
+<p>I had the idea to add a faculty / bot player with all zero values so they’d be the odd one out unless a player was left without a match.</p>
+<p>Normally, the results of this code looked like the somewhat unreadable output below:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>shaejoe          <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>shaebob          <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>shaebob2         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>shaebob3         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>shaebob4         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>shaebob5         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>joebob           <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>joebob2          <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>joebob3          <span class="ot">=</span>  <span class="dt">True</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>joebob4          <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>joebob5          <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>bobbob2          <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>bobbob3          <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>bobbob4          <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>bobbob5          <span class="ot">=</span>  <span class="dt">True</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>bob2bob3         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>bob2bob4         <span class="ot">=</span>  <span class="dt">True</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>bob2bob5         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>bob3bob4         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>bob3bob5         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>bob4bob5         <span class="ot">=</span> <span class="dt">False</span><span class="ot"> ::</span> <span class="dt">Bool</span></span></code></pre></div>
+<p>To improve readability, we pattern matched on the result and only displayed the pairs that were matched, it looks much nicer.</p>
+<h1 id="how-to-improve">how to improve?</h1>
+<p>The pairing workshop uses google sheets for signup, and I have the urge to export that as CSV and read that directly into the players datastructure, maybe that’s a short and easy improvement?</p>
+<p>At one point we were using <a href="https://hackage.haskell.org/package/sbv-8.17/docs/Data-SBV.html#t:OptimizeStyle">Pareto (Just 5)</a> instead of <code>LexicographicResult</code>, that returned the top five solutions. If I can think of how that’s useful, I’ll switch back to that.</p>
+<p>The output formatting could be much nicer?</p>
+<h1 id="conclusion">conclusion</h1>
+<p>If you get excited about SMT solvers, check out the syllabus for <a href="http://composition.al/CSE290Q-2019-09/">Lindsey Kuper</a>’s course, and <a href="https://sat-smt.codes/">the book</a> by Dennis Yurichev.</p>
+<p>Send me your suggestions for improvement, I want to hear what you think!</p>
+
+        </div>
+        <div id="footer">
+	    <a href="feed.rss">RSS</a>
+	    <a href="atom.xml">ATOM</a>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+
+        </div>
+    </body>
+</html>
