@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Shae Erisson's blog - Android app in Haskell, six months, no previous Android experience</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="logo">
+                <a href="../">Shae Erisson's Blog</a>
+            </div>
+            <div id="navigation">
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </div>
+        </div>
+
+        <div id="content">
+            <h1>Android app in Haskell, six months, no previous Android experience</h1>
+
+            <div class="info">
+    Posted on July 25, 2023
+    
+</div>
+
+<p><img src="../images/gapaldur.png" /></p>
+<h1 id="what-did-you-do">What did you do?</h1>
+<p>We built an <span class="spurious-link" target="whetstone.private.storage/privatestorage/privatestoragemobile/"><em>open source</em></span> Android app for <a href="https://private.storage">Private Storage</a>, with Haskell, in six months.</p>
+<p><img src="../images/psm-front.png" /> <img src="../images/psm-file-list.png" /></p>
+<h1 id="why">Why?</h1>
+<p>When I joined in October 2022, Private Storage had an existing <a href="https://en.wikipedia.org/wiki/Bureau_of_Democracy,_Human_Rights,_and_Labor">grant deadline</a> to ship an Android app by the end of July 2023.
+This seemed like the most important thing to do, so we did. We also improved the underlying layers of the tech stack in the process.</p>
+<h1 id="who">Who?</h1>
+<p>I work for <a href="https://private.storage/">Private Storage</a>, a secure file sharing system on top of <a href="https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs">Tahoe-LAFS</a>.</p>
+<h1 id="success">Success?</h1>
+<p>YES! As of &lt;2023-07-25&gt; the app is submitted but not yet through the Google Play Store review process.</p>
+<h1 id="who-worked-on-this">Who worked on this?</h1>
+<ul>
+<li>Shae Erisson, me</li>
+<li><a href="https://github.com/exarkun">Jean-Paul Calderone</a> who knows much nix, Python, and now Haskell!</li>
+<li><a href="https://flosse.works/">Florian Sesser</a> did css wizardry, I learned much about material.</li>
+<li><a href="https://meejah.ca/">Meejah</a> worked on magic wormhole pieces and picked up Haskell as we went.</li>
+</ul>
+<h1 id="useful-strategies">Useful strategies?</h1>
+<ul>
+<li>We almost always paired, so we all knew the state of the codebase and where we were heading.</li>
+<li>When we didn’t understand a thing, we would write a small standalone prototype for that one feature or library to teach ourselves how that worked.</li>
+<li>We paid <a href="https://obsidian.systems/">Obsidian Systems</a> for one hour a week to help where we got stuck.</li>
+<li>We used <a href="https://nixos.org/">nix</a> for cross compilation and build automation.</li>
+<li>We spent several hours a week explicitly teaching each other what we knew.
+I really want to put this first in the list, as the culture of being open and teaching was a massive benefit.
+We had one hour a week where the Jean-Paul taught nix, one hour a week where I taught beginning Haskell, another hour where I taught advanced Haskell (things I was learning that might help).
+We also had two hours a week of explicit scheduled pairing where we all got together and worked on the stickiest problem along the path to shipping.</li>
+</ul>
+<p>Most software dev jobs I’ve had want me to “do the thing” while spending zero time teaching or training others. I wanted to take the opposite approach and this paid off far more than my already wild hopes.</p>
+<h1 id="what-tech-did-you-use-to-get-haskell-running-on-android">What tech did you use to get Haskell running on Android?</h1>
+<p>We used <a href="https://reflex-frp.org/">reflex-frp</a>, meaning the app was a webview component that worked on Android and also on localhost.</p>
+<p>First we learned about <a href="http://conal.net/">functional reactive programming</a>, then specifically reflex-frp, then we got a one hour a week contract with Obsidian Systems ( creators of reflex-frp ) where we could ask questions when stuck.</p>
+<h1 id="why-didnt-you-use-kotlin-java-or-port-the-python-codebase-to-android">Why didn’t you use Kotlin, Java, or port the Python codebase to Android?</h1>
+<p>Private Storage is a thin layer on top of <a href="https://github.com/gridsync/gridsync/">gridsync</a>, which is a layer on top of <a href="https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs">Tahoe-LAFS</a>, and it’s almost entirely written in Python.</p>
+<p>One of these ingredients, <a href="https://github.com/tahoe-lafs/zfec/">zfec</a>, is a <a href="https://en.wikipedia.org/wiki/Error_correction_code">forward error correction layer</a> that splits your saved file into five pieces, allowing you to recover the data from any three of those pieces.
+Tahoe’s ZFEC is a <a href="https://github.com/tahoe-lafs/zfec/blob/master/zfec/fec.c">17 year old C file</a> that compiles to a shared object that dynamically loads into our application.
+Jean-Paul figured out the magic to cross compile this shared object to Android. :tada:</p>
+<p>I spent eight weeks failing to load the shared object into a Python on Android.</p>
+<p>When we hit the point where we could not pay <a href="https://chaquo.com/chaquopy/contact/">anyone</a> to do it for us, I tried Haskell.</p>
+<p>I was able to load the shared object into ghci on termux in two days. So we tried building an Android app in Haskell.</p>
+<p>Here’s demo code for using Haskell’s foreign function interface from inside GHCi:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- this works great in ghci:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall &quot;math.h sin&quot; c_sin :: <span class="dt">Double</span> -&gt; <span class="dt">Double</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>c_sin <span class="fl">1.0</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE ForeignFunctionInterface #-}</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.C.String</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.Ptr</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">C_Token</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall &quot;lib.h token_random&quot; tokenRandom :: <span class="dt">IO</span> (<span class="dt">Ptr</span> <span class="dt">C_Token</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall &quot;lib.h token_encode_base64&quot; tokenEncodeBase64 :: (<span class="dt">Ptr</span> <span class="dt">C_Token</span>) -&gt; <span class="dt">IO</span> <span class="dt">CString</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">do</span> tr <span class="ot">&lt;-</span> tokenRandom</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>   btr <span class="ot">&lt;-</span> tokenEncodeBase64 tr</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>   res <span class="ot">&lt;-</span> peekCAString btr</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>   <span class="fu">print</span> res</span></code></pre></div>
+<p>This was more work than it seems, I had to install the latest version of termux from the F-Droid store due to changes in Android permissions.</p>
+<p>I don’t remember where I got a version of GHC built for termux, but if you want to know, I can check my notes.</p>
+<h1 id="no-really-why-not-java-or-kotlin">No really, why not Java or Kotlin?</h1>
+<p>Jean-Paul and I had previous Java experience, but didn’t really want to write it in Java if possible.</p>
+<h1 id="why-haskell">Why Haskell?</h1>
+<p>My previous job was Haskell, Jean-Paul wanted to use Haskell in anger.</p>
+<p>In my experience, Haskell is more fun to write than Java or Kotlin.</p>
+<h1 id="random-useful-bits">Random useful bits</h1>
+<p>Using <a href="https://github.com/Genymobile/scrcpy">scrcpy</a> to interact with my phone from my desktop was good for pairing, team demos, and the screenshots in this blog post.</p>
+
+        </div>
+        <div id="footer">
+	    <a href="feed.rss">RSS</a>
+	    <a href="atom.xml">ATOM</a>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+
+        </div>
+    </body>
+</html>
