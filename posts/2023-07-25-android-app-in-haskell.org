@@ -10,7 +10,9 @@ tags: android, haskell, job
 
 * What did you do?
 
-We built an [[whetstone.private.storage/privatestorage/privatestoragemobile/][open source]] Android app for [[https://private.storage][Private Storage]], with Haskell, in six months.
+We built an open source Android app for [[https://private.storage][Private Storage]], with Haskell, in six months.
+
+Here's the [[whetstone.private.storage/privatestorage/privatestoragemobile/][repository]].
 
 [[../images/psm-front.png]] [[../images/psm-file-list.png]]
 
@@ -26,6 +28,8 @@ I work for [[https://private.storage/][Private Storage]], a secure file sharing 
 * Success?
 
 YES! As of <2023-07-25> the app is submitted but not yet through the Google Play Store review process.
+
+When released, the app will be available on the [[https://play.google.com/store/apps/details?id=io.privatestorage.privatestoragemobile][Google Play store]]
 
 * Who worked on this?
 - Shae Erisson, me
