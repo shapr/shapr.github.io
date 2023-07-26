@@ -31,12 +31,17 @@
 <p>I want my keyboard to have nearly all the modifier keys. That means I want keys for Alt, Meta, <a href="https://en.wikipedia.org/wiki/Super_key_(keyboard_button)#Linux_and_BSD">Hyper, and Super</a>.</p>
 <p><img src="../images/courtstave.png" /></p>
 <h1 id="why-xmonad">Why? XMonad!</h1>
-<p>I switched my window manager to <a href="https://xmonad.org/">xmonad</a> before I started at the recurse center, but I still hadn’t figured out how to get back my old familiar keyboard bindings. Previously I had Super-n switch to the next Xinerama display, and Hyper-n switch to the next application on the active display. At the time I used xmodmap to turn some of the thumb keys on a kinesis contoured keyboard into hyper and super, but xmodmap isn’t the way things work these days.</p>
+<p>I switched my window manager to <a href="https://xmonad.org/">xmonad</a> before I started at the recurse center, but I still hadn’t figured out how to get back my old familiar keyboard bindings.
+Previously I had Super-n switch to the next Xinerama display, and Hyper-n switch to the next application on the active display.
+At the time I used xmodmap to turn some of the thumb keys on a kinesis contoured keyboard into hyper and super, but xmodmap isn’t the way things work these days.</p>
 <p>If you’re not familiar with keyboards that have clusters of keys for your thumb, jump to the end and click on the links to the keyboard pictures!</p>
 <h1 id="xkb">xkb</h1>
 <p>The new way to remap your keyboard with X11 on Linux is <a href="https://en.wikipedia.org/wiki/X_keyboard_extension">xkb</a> and it’s completely different from xmodmap.</p>
-<p>I spent a bunch of hours reading and trying things, but the most useful link was by <a href="https://www.linux.com/news/extending-x-keyboard-map-xkb">maddduck on linux.com</a>. But that article is old, and clearly copied from somewhere else. Even so, it was the best resource for what I needed, especially once I found madduck’s <a href="https://git.madduck.net/etc/xsession.git">git repo</a> with the finished changes.</p>
-<p>The big obstacle was xkbcomp throwing an error no matter what combination of things I tried. I spent some time with <a href="https://www.x.org/releases/X11R7.7/doc/man/man1/xev.1.xhtml">xev</a> hoping that would clarify why my file was failing to pass xkbcomp, but finally realized that xev tells me what value a key press produces, not the actual name of that key! Once I realized I was trying to bind F13, F14, F15, and F16; I removed the references to XF86Launch5 and replaced them with the correct key names.</p>
+<p>I spent a bunch of hours reading and trying things, but the most useful link was by <a href="https://www.linux.com/news/extending-x-keyboard-map-xkb">maddduck on linux.com</a>. But that article is old, and clearly copied from somewhere else.
+Even so, it was the best resource for what I needed, especially once I found madduck’s <a href="https://git.madduck.net/etc/xsession.git">git repo</a> with the finished changes.</p>
+<p>The big obstacle was xkbcomp throwing an error no matter what combination of things I tried.
+I spent some time with <a href="https://www.x.org/releases/X11R7.7/doc/man/man1/xev.1.xhtml">xev</a> hoping that would clarify why my file was failing to pass xkbcomp, but finally realized that xev tells me what value a key press produces, not the actual name of that key!
+Once I realized I was trying to bind F13, F14, F15, and F16; I removed the references to XF86Launch5 and replaced them with the correct key names.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Mod5 is super</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>partial modifier_keys</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>xkb_symbols <span class="st">&quot;plaidkey&quot;</span> <span class="op">{</span></span>
@@ -53,7 +58,8 @@
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  modifier_map Mod4 <span class="op">{</span> <span class="op">&lt;</span>FK16<span class="op">&gt;</span> <span class="op">};</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
-<p>Madduck’s step by step tutorial told me that I had to specify this as a partial modifier remap that would be overlayed onto a full keymap. The chunk of code above ends up in <code>$HOME/.xkb/symbols/shapr</code> and the source belows ends up in <code>$HOME/.xkb/keymap/default</code>.</p>
+<p>Madduck’s step by step tutorial told me that I had to specify this as a partial modifier remap that would be overlayed onto a full keymap.
+The chunk of code above ends up in <code>$HOME/.xkb/symbols/shapr</code> and the source belows ends up in <code>$HOME/.xkb/keymap/default</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">default</span> xkb_keymap <span class="st">&quot;default&quot;</span> <span class="op">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  xkb_keycodes  <span class="op">{</span> include <span class="st">&quot;evdev+aliases(qwerty)&quot;</span>       <span class="op">};</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  xkb_types     <span class="op">{</span> include <span class="st">&quot;complete&quot;</span>    <span class="op">};</span></span>
@@ -64,11 +70,18 @@
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
 <p>At that point, I was able to run the command <code>xkbcomp -w3 -I$HOME/.xkb $HOME/.xkb/keymap/default $DISPLAY</code> and almost everything was perfect!</p>
 <h1 id="future-work">Future work</h1>
-<p>Some of the many documents I read about xkb claim that xkb can handle hotplug events and per-usb device keyboard layouts. If that’s true, that would save me lots of time. I use the dvorak layout natively, but switch my laptop to qwerty for my ergodox that has dvorak in the firmware. It would be nice to skip that manual step of switching the layout. Even so, the solution above required a solid eight hours of reading docs and just trying things, this part might take longer!</p>
-<p>The code above does most things right, but the keys still act as if they are keys to be toggled rather than pure modifier keys This means that just pressing those keys gives an error in emacs <code>&lt;VoidSymbol&gt; is undefined</code>. Not sure how to fix that, but would be nice to figure out.</p>
-<p>In the original tutorial, madduck has his settings loaded in his <code>.xsession</code> but I’m not sure how to hook that into the display manager I’m using in Ubuntu. I’ve found that gdm3 has a shell script <code>/etc/gdm3/Xsession</code> that has some sort of hooks to load user level xkb files, but it also has a comment <code># Eeek, this seems like too much magic here</code> so I wonder if there’s a better approach. On the good side, that shell script tells me to put all my xkb into <code>$HOME/.Xkbmap</code> so at least I know where to try this.s</p>
+<p>Some of the many documents I read about xkb claim that xkb can handle hotplug events and per-usb device keyboard layouts. If that’s true, that would save me lots of time.
+I use the dvorak layout natively, but switch my laptop to qwerty for my ergodox that has dvorak in the firmware.
+It would be nice to skip that manual step of switching the layout. Even so, the solution above required a solid eight hours of reading docs and just trying things, this part might take longer!</p>
+<p>The code above does most things right, but the keys still act as if they are keys to be toggled rather than pure modifier keys
+This means that just pressing those keys gives an error in emacs <code>&lt;VoidSymbol&gt; is undefined</code>. Not sure how to fix that, but would be nice to figure out.</p>
+<p>In the original tutorial, madduck has his settings loaded in his <code>.xsession</code> but I’m not sure how to hook that into the display manager I’m using in Ubuntu.
+I’ve found that gdm3 has a shell script <code>/etc/gdm3/Xsession</code> that has some sort of hooks to load user level xkb files, but it also has a comment
+<code># Eeek, this seems like too much magic here</code> so I wonder if there’s a better approach.
+On the good side, that shell script tells me to put all my xkb into <code>$HOME/.Xkbmap</code> so at least I know where to try this.s</p>
 <h1 id="pretty-keyboard-pictures">Pretty keyboard pictures</h1>
-<p>At the recurse center I’m using an <a href="https://kono.store/products/infinity-ergodox-keyboard">ergodox infinity</a> with <a href="https://imgur.com/gallery/69stJ6K">elvish keycaps</a>. In my storage unit waits my other ergodox infinity with <a href="https://imgur.com/gallery/us5PXto">oblotzky oblivion keycaps</a>. My significant other is using the third ergodox with the <a href="https://imgur.com/gallery/w8bbPKt">light version</a> of those same keycaps.</p>
+<p>At the recurse center I’m using an <a href="https://kono.store/products/infinity-ergodox-keyboard">ergodox infinity</a> with <a href="https://imgur.com/gallery/69stJ6K">elvish keycaps</a>. In my storage unit waits my other ergodox infinity with <a href="https://imgur.com/gallery/us5PXto">oblotzky oblivion keycaps</a>.
+My significant other is using the third ergodox with the <a href="https://imgur.com/gallery/w8bbPKt">light version</a> of those same keycaps.</p>
 
         </div>
         <div id="footer">

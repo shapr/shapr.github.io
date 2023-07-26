@@ -35,11 +35,13 @@
 <p>Did I update my thing to the latest version?</p>
 <p>This version of magit is four days ago, so an update is unlikely to help, but I could still check for a more recent version.</p>
 <p>Have I looked at the bug reports for the thing?</p>
-<p>I asked a search engine for the magit website, that got me to <a href="https://magit.vc/">https://magit.vc/</a> and the front page links to the <a href="https://github.com/magit/magit/issues">issue tracker</a>. I don’t see any bug reports that are similar to my problem.</p>
+<p>I asked a search engine for the magit website, that got me to <a href="https://magit.vc/">https://magit.vc/</a> and the front page links to the <a href="https://github.com/magit/magit/issues">issue tracker</a>.
+I don’t see any bug reports that are similar to my problem.</p>
 <p>Did I make a change that may have caused this problem?</p>
 <p>I renamed a git remote from origin to upstream in one of my repos, and I’ve had this problem in every repo since that change.</p>
 <p>Is this something I can debug myself?</p>
-<p>I used M-x toggle-debug-on-error to view a traceback. I then ran the command magit-status and I see this debugger traceback.</p>
+<p>I used M-x toggle-debug-on-error to view a traceback.
+I then ran the command magit-status and I see this debugger traceback.</p>
 <pre class="elisp"><code>Debugger entered--Lisp error: (void-variable upstream)
   magit-get-upstream-branch(&quot;develop&quot;)
   magit-insert-upstream-branch-header()
@@ -71,15 +73,18 @@
 <p>Am I able to understand the problem from the stack trace?</p>
 <p>I know it’s something in magit-get-upstream-branch, and I have a suspicion that function is looking for a git remote that does not exist.</p>
 <p>If the source is available, does it help to read the code that crashed? Can I build a mental model of what went wrong?</p>
-<p>I can use C-h f magit-get-upstream-branch to find the elisp source code. I don’t see the problem.</p>
+<p>I can use C-h f magit-get-upstream-branch to find the elisp source code.
+I don’t see the problem.</p>
 <p>Is there a real time discussion group where you could ask questions?</p>
 <p>I tried the #emacs channel on freenode, but it was not responsive at the time I asked my question.</p>
 <p>What’s the exact question?</p>
-<p>My specific question is: Why is there a void variable named upstream in magit? I got some answers from the #emacs channel, one suggested fix was to remove magit entirely and reinstall. That did not change the error.</p>
+<p>My specific question is: Why is there a void variable named upstream in magit?
+I got some answers from the #emacs channel, one suggested fix was to remove magit entirely and reinstall. That did not change the error.</p>
 <p>As a last resort, I went to the magit bug tracker and submitted a bug. The bug submission process suggested I run emacs without any of my emacs configuration involved. I did that and was still able to reproduce the error!</p>
 <p>I ended up submitting a <a href="https://github.com/magit/magit/issues/4364">bug report</a> and I hope to hear from the developers!</p>
 <h1 id="update-2021-04-19">Update 2021-04-19</h1>
-<p>The magit developers responded to my bug report in four hours and suggested that I remove all byte compiled files from my installed package directory ~/.emacs.d/elpa/**/*.elc and that fixed the problem! Now I want to track down the byte compiling bug so no one has to suffer such a confusing error again!</p>
+<p>The magit developers responded to my bug report in four hours and suggested that I remove all byte compiled files from my installed package directory ~/.emacs.d/elpa/**/*.elc and that fixed the problem!
+Now I want to track down the byte compiling bug so no one has to suffer such a confusing error again!</p>
 
         </div>
         <div id="footer">

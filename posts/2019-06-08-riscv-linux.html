@@ -30,7 +30,8 @@
 <h1 id="whats-risc-v">What’s RISC-V ?</h1>
 <p><a href="https://en.wikipedia.org/wiki/RISC-V">RISC-V</a> is a new type of CPU architecture.</p>
 <p><img src="../images/ghoststaves.png" /></p>
-<p>If you’ve used a desktop or laptop computer, it’s almost certainly using Intel’s <a href="https://en.wikipedia.org/wiki/X86">x86 architecture</a>. If you’ve used a cell phone, it’s almost certainly using Advanced Research Machines’ <a href="https://en.wikipedia.org/wiki/ARM_architecture">ARM architecture</a>.</p>
+<p>If you’ve used a desktop or laptop computer, it’s almost certainly using Intel’s <a href="https://en.wikipedia.org/wiki/X86">x86 architecture</a>.
+If you’ve used a cell phone, it’s almost certainly using Advanced Research Machines’ <a href="https://en.wikipedia.org/wiki/ARM_architecture">ARM architecture</a>.</p>
 <p>In a nutshell, a <a href="https://en.wikipedia.org/wiki/Central_processing_unit">CPU</a> architecture is one way to answer “How do I describe work to be done?” as well as “How do I build a machine to cheaply and efficiently do the described work?”.</p>
 <p>Both x86 and ARM are copyrighted, and have various restrictions on use. While Intel designs and builds their own CPUs, ARM designs but does not build.</p>
 <p>ARM designs many different options that are easy to plug together so a licensee can choose any combination of trade-off between performance and cost.</p>
@@ -45,7 +46,8 @@
 <h1 id="how-are-you-doing-this">How are you doing this?</h1>
 <p>My familiar development environment is a Linux system, preferably the <a href="https://www.debian.org/">Debian</a> distribution so I can easily install packages I need.</p>
 <p>When <a href="https://www.sifive.com/boards/hifive-unleashed">the board</a> arrived, I booted it up and discovered it does have Linux, but only <a href="https://en.wikipedia.org/wiki/BusyBox">busybox</a> and a very small set of tools.</p>
-<p>The hardware is nice, it has 8 gigabytes of RAM and four RISC-V 64-bit cores. The board boots from an SD card, but the documentation says that SD card read/write speed is slow. If you’re willing to spend another $2,000 USD, you can get the <a href="https://www.crowdsupply.com/microsemi/hifive-unleashed-expansion-board">expansion board</a> that lets you connect a real disk drive, a screen, and even more RAM! I decided the thousand dollar base board would have to work for me, and I’d skip the extra two thousand dollars.</p>
+<p>The hardware is nice, it has 8 gigabytes of RAM and four RISC-V 64-bit cores. The board boots from an SD card, but the documentation says that SD card read/write speed is slow.
+If you’re willing to spend another $2,000 USD, you can get the <a href="https://www.crowdsupply.com/microsemi/hifive-unleashed-expansion-board">expansion board</a> that lets you connect a real disk drive, a screen, and even more RAM! I decided the thousand dollar base board would have to work for me, and I’d skip the extra two thousand dollars.</p>
 <h1 id="so-you-want-to-install-a-real-linux">So you want to install a Real Linux?</h1>
 <p>Yes! I was hoping this would be as easy as 1990s Linux installs where I would download an image to write to an SD card, and the system would then boot into ‘real’ Linux!</p>
 <p>But no, it’s not yet that easy.</p>
@@ -60,7 +62,8 @@
 <p>I spent several days fighting to mount the second partition on the SD card, always getting the most generic error possible.</p>
 <p><code>wrong fs type, bad option, bad superblock on /dev/loop23p2, missing codepage or helper program, or other error</code></p>
 <p>Nothing shows up in dmesg or other system logs, I just don’t know.</p>
-<p>On the good side, I ran across the creator of Debian filesystem images on IRC, and they confirmed that I don’t have to do it this way! They used scp to dump the files onto the filesystem, and it will likely work for me. But at this point, I’ve had too much frustration and it’s time to do something else.</p>
+<p>On the good side, I ran across the creator of Debian filesystem images on IRC, and they confirmed that I don’t have to do it this way! They used scp to dump the files onto the filesystem, and it will likely work for me.
+But at this point, I’ve had too much frustration and it’s time to do something else.</p>
 <p>Next time I pick this up, I should be able to start from <a href="https://wiki.debian.org/RISC-V#OS_.2F_filesystem_images">Debian RISC-V</a> and jump in!</p>
 
         </div>

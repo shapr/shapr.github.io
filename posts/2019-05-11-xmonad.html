@@ -30,12 +30,14 @@
 <h1 id="tiling-window-managers-xmonad-on-ubuntu-19.04">tiling window managers, xmonad on ubuntu 19.04</h1>
 <p>I like screen real estate, my laptop has a 4k screen and I mean to use every last pixel to display code. Gnome on Ubuntu has two bars at the top of the screen, I want to use that space for code!</p>
 <p>I often press F11 in various applications to take up the entire screen, but I want more, it’s time to install <a href="https://xmonad.org/">xmonad</a>!</p>
-<p>xmonad has great features like virtual desktops. I keep my shell open in desktop 1, emacs on 2, a browser on 3, and other apps on their own desktops. I’m also a fan of recompiling and reloading my xmonad config at runtime to try out new changes.</p>
+<p>xmonad has great features like virtual desktops. I keep my shell open in desktop 1, emacs on 2, a browser on 3, and other apps on their own desktops.
+I’m also a fan of recompiling and reloading my xmonad config at runtime to try out new changes.</p>
 <p>xmonad expects to be installed system-wide so it can easily recompile itself, but I’ve since switched to cabal’s new-build and new-install commands.</p>
 <p><img src="../images/girlstave.png" /></p>
 <h1 id="xmonad-with-cabal-new-install">xmonad with cabal new-install</h1>
 <p>I asked on the #xmonad IRC channel, geekosaur told me I can use a build script to get around system-wide installation.</p>
-<p>I’m still fighting with build scripts but in short I ended up creating a <a href="https://github.com/shapr/shaexmonad">separate cabal project</a> that depends on xmonad and xmonad-contrib. The <a href="https://github.com/xmonad/xmonad-testing">xmonad-testing</a> repository was suggested, it includes an <a href="https://github.com/xmonad/xmonad-testing/blob/master/build-scripts/build-with-cabal-new.sh">example build script</a>.</p>
+<p>I’m still fighting with build scripts but in short I ended up creating a <a href="https://github.com/shapr/shaexmonad">separate cabal project</a> that depends on xmonad and xmonad-contrib.
+The <a href="https://github.com/xmonad/xmonad-testing">xmonad-testing</a> repository was suggested, it includes an <a href="https://github.com/xmonad/xmonad-testing/blob/master/build-scripts/build-with-cabal-new.sh">example build script</a>.</p>
 <ol>
 <li>git clone <a href="https://github.com/shapr/shaexmonad.git">https://github.com/shapr/shaexmonad.git</a></li>
 <li>mkdir ~/.xmonad</li>

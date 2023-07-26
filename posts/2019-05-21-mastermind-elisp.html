@@ -28,10 +28,13 @@
 </div>
 
 <h1 id="pair-programming">pair programming</h1>
-<p>Today at recurse center there was a pair programming intro session and implementing the mastermind game was suggested. <img src="../images/kaupaloki.png" /></p>
+<p>Today at recurse center there was a pair programming intro session and implementing the mastermind game was suggested.
+<img src="../images/kaupaloki.png" /></p>
 <h1 id="mastermind">mastermind</h1>
-<p><a href="https://en.wikipedia.org/wiki/Mastermind_(board_game)">Mastermind</a> is a board game with four colored pegs where the active player tries to guess the hidden pattern. Both the color and the order of the pegs must be correct for the player to win.</p>
-<p>When a player enters a guess of four colored pegs, four black or white pegs are the response. Black pegs means the correct color in the correct position, white pegs means the correct color but in the wrong position.</p>
+<p><a href="https://en.wikipedia.org/wiki/Mastermind_(board_game)">Mastermind</a> is a board game with four colored pegs where the active player tries to guess the hidden pattern.
+Both the color and the order of the pegs must be correct for the player to win.</p>
+<p>When a player enters a guess of four colored pegs, four black or white pegs are the response.
+Black pegs means the correct color in the correct position, white pegs means the correct color but in the wrong position.</p>
 <p>My pairing partner and I decided to use emacs lisp as our implementation language, here’s the result.</p>
 <div class="sourceCode" id="cb1" data-org-language="lisp"><pre class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a> (<span class="kw">require</span> 'dash)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -73,8 +76,10 @@
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a> (<span class="kw">let</span> ((guess '(:cyan :blue :green :red))</span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>(key '(:red :green :blue :cyan)))</span>
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  (score-game guess key))</span></code></pre></div>
-<p>My partner had never used emacs or lisp, but quickly picked up both. I don’t think I’ve written lisp in the last ten years, but memories started to surface as we wrote code and read elisp docs.</p>
-<p>In our implementation, we have a list of six colors named <code>kColors</code> and we use <code>make-random-color</code> to choose one, while <code>make-sequence</code> calls <code>make-random-color</code> <code>n</code> times.</p>
+<p>My partner had never used emacs or lisp, but quickly picked up both.
+I don’t think I’ve written lisp in the last ten years, but memories started to surface as we wrote code and read elisp docs.</p>
+<p>In our implementation, we have a list of six colors named <code>kColors</code> and we use <code>make-random-color</code> to choose one,
+while <code>make-sequence</code> calls <code>make-random-color</code> <code>n</code> times.</p>
 <p>We discovered that <code>element</code> returns the entire sequence if the element is present in the sequence. My partner used that and a zip3 to do the black and white scoring in a single step.</p>
 <p>My Haskell approach would have essentially been <code>zipWith (==) hidden guess</code> but I couldn’t figure out how to easily score the white pegs, luckily my pairing partner just solved everything in a single go.</p>
 

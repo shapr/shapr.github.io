@@ -33,8 +33,12 @@
 <p>Sparklines are such a cool idea, but I rarely use them because most of my code talks to databases or consoles, not graphical displays.</p>
 <p>Just now, I almost missed my flight but it was delayed two hours! So maybe I can build a small thing?</p>
 <p>Ok, I’m not the first person to have this idea, there’s even a <a href="https://rosettacode.org/wiki/Sparkline_in_unicode">rosetta code entry</a> for this!</p>
-<p>So I’ll hack up something quick in Haskell, and if I get stuck, read the existing answers. The rosetta code entry has unit tests I can steal, that’s handy. The eight unicode characters they suggest are in the heading above.</p>
-<p>First thought on how to solve this is, for any set of numbers, find the max and min, then calculate the half, quarter, and eighth values, to be able to put all input numbers in a region. Then output one of the eight values.</p>
+<p>So I’ll hack up something quick in Haskell, and if I get stuck, read the existing answers.
+The rosetta code entry has unit tests I can steal, that’s handy.
+The eight unicode characters they suggest are in the heading above.</p>
+<p>First thought on how to solve this is, for any set of numbers,
+find the max and min, then calculate the half, quarter, and eighth values, to be able to put all input numbers in a region.
+Then output one of the eight values.</p>
 <p>First, calculate the eight regions, then map a function over the numbers that replaces each one with the character that matches this region.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -69,10 +73,14 @@
 <p>The code above is what I wrote without consulting the typechecker.</p>
 <p>The <a href="https://www.haskell.org/onlinereport/haskell2010/haskellch6.html#x13-1270011">Haskell 2010 Report - Standard Classes</a> shows the hierarchy of number types.</p>
 <h1 id="floating-point-numbers-are-not-your-friend">Floating point numbers are not your friend</h1>
-<p>Once I reached the point where I expected the code to work, I ran across a conflict between <code>div</code> and <code>/</code> in Haskell. In the interest of getting the code done quickly, I decided to divide the difference between the max and min by the number of sparkline characters, eight in this case. Then I could add that increment a certain number of times and use that number to index into the list of sparkline characters. The index operator <code>!!</code> requires an integer, but all the other division operations really need to be floating point (or maybe ratio?).</p>
+<p>Once I reached the point where I expected the code to work, I ran across a conflict between <code>div</code> and <code>/</code> in Haskell.
+In the interest of getting the code done quickly, I decided to divide the difference between the max and min by the number of sparkline characters, eight in this case.
+Then I could add that increment a certain number of times and use that number to index into the list of sparkline characters.
+The index operator <code>!!</code> requires an integer, but all the other division operations really need to be floating point (or maybe ratio?).</p>
 <p>I hacked around on the code above, when the type system was happy, it required the input number type to be both a whole number <strong>and</strong> a fractional number!</p>
 <p>Since that’s not a real thing, I had to find a better way to do this. I ended ugly hacking around the problem by relying on rounding converting a floating point number that’s less than zero but more than -1 into zero, ugh!</p>
-<p>The initial version was two hours before and during a flight to Atlanta, then an hour fighting with floating point math on the flight back to NYC. If already you have Haskell installed, you can copy the the version below into a file, set it executable, and it works as a shell script if you feed it numbers.</p>
+<p>The initial version was two hours before and during a flight to Atlanta, then an hour fighting with floating point math on the flight back to NYC.
+If already you have Haskell installed, you can copy the the version below into a file, set it executable, and it works as a shell script if you feed it numbers.</p>
 <pre class="shell"><code>% ./Sparkline.hs 1 2 3 4 5 6 7 8 9
 ▁▁▂▃▄▅▆▇█
 </code></pre>
@@ -119,7 +127,8 @@
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  args <span class="ot">&lt;-</span> getArgs</span>
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">putStrLn</span> <span class="op">.</span> sparkline <span class="op">$</span> <span class="fu">read</span> <span class="op">&lt;$&gt;</span> args</span></code></pre></div>
 <h1 id="final-thoughts">Final thoughts</h1>
-<p>The Recurse Center manual says “understand why your code works the way it does”. When I’m tired, it’s too easy for me to fix the code to make the type checker happy without using my brain to consider the actual problem. As I said in the two week retro, if I’m tired I write code that I have to fix later.</p>
+<p>The Recurse Center manual says “understand why your code works the way it does”. When I’m tired, it’s too easy for me to fix the code to make the type checker happy without using my brain to consider the actual problem.
+As I said in the two week retro, if I’m tired I write code that I have to fix later.</p>
 <p>After my version worked, I looked at the <a href="https://rosettacode.org/wiki/Sparkline_in_unicode#Haskell">Haskell solutions</a> and golly that second solution is compact.</p>
 <p>If you assume each input number is a separate command line argument, there’s an even more compact version below.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a> <span class="op">#!</span> runhaskell</span>

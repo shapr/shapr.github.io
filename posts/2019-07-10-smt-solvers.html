@@ -33,7 +33,8 @@
 <p>I get addicted to games I play on my computer. The best fix I’ve found is to write code to solve the game once and for all.</p>
 <h1 id="what-endless-sky">What? Endless Sky!</h1>
 <p>I like to play this game <a href="https://endless-sky.github.io/">Endless Sky</a> and part of the games is exploring the starmap discovering different nations offering unique ships and ship components. Sometimes these new components have big benefits.</p>
-<p>But hey, I’m at a programmer’s summer camp, and this looks like a constraint problem of some sort? Given the list of components with their stats and a particular ship with a certain amount of space for engines and weapons, I should be able to calculate the optimal components, right?</p>
+<p>But hey, I’m at a programmer’s summer camp, and this looks like a constraint problem of some sort?
+Given the list of components with their stats and a particular ship with a certain amount of space for engines and weapons, I should be able to calculate the optimal components, right?</p>
 <p>For Endless Sky my question is, how can I maximize the value of thrust and turn with without exceeding a certain value for engine capacity?</p>
 <p>But I have no idea how to do that! Even better, when I do it by hand, I keep finding novel solutions that are better than I thought was possible. How do I solve this once and forever?</p>
 <p>Davean suggested I use into <a href="https://en.wikipedia.org/wiki/Integer_programming">integer</a> <a href="https://en.wikipedia.org/wiki/Integer_programming">linear</a> programming. I also investigated <a href="https://en.wikipedia.org/wiki/Mathematical_optimization">many other options</a> but finally decided to try an <a href="https://en.wikipedia.org/wiki/Satisfiability_modulo_theories">SMT solver</a>. That led to <strong>many</strong> days of reading and frustration, but finally VICTORY (well, sort of).</p>
@@ -44,11 +45,14 @@
 <p>The term SMT Solver is <a href="https://en.wikipedia.org/wiki/Satisfiability_modulo_theories">satisfiability modulo theories</a> which is a generalization <a href="https://en.wikipedia.org/wiki/Boolean_satisfiability_problem">boolean satisfiability</a> which is roughly “I have a boolean expression, is there any combination of inputs that will make its outputs true?</p>
 <p>With help (and <a href="https://github.com/vaibhavsagar/advent-of-code/blob/master/2018/notebooks/Day23.ipynb">demo code</a>) from Vaibhav, I chose the <a href="http://hackage.haskell.org/package/sbv">sbv</a> Haskell library as a friendly wrapper for talking to SMT solvers.</p>
 <p>I read the examples several times, and finally chose the <a href="https://github.com/LeventErkok/sbv/blob/master/Documentation/SBV/Examples/Optimization/VM.hs">virtual machine packing example</a> as a starting point. I didn’t get anywhere, after hours of trying to figure out how to express the problem.</p>
-<p>After much skull sweat, how to express the idea came from <a href="https://vaibhavsagar.com/">Vaibhav</a> saying “Express it as a sum of Integers”. That is, a ship can have zero or more of each engine, and each of those integers has a particular value. <a href="https://en.wikipedia.org/wiki/Integer_programming">Integer linear programming</a>! SMT solvers are much more general than ILP, but they can also do that, with their usual “can do, but won’t be fast” kind of approach.</p>
-<p>A bunch of searching around turned up the <a href="https://rise4fun.com/Z3/tutorialcontent/optimization#h25">z3 optimization tutorial</a> which does the same thing, but then says “In this example, the boolean encoding is not really natural.” They rewrite the problem with a bunch of Integer values, and that’s what I want!</p>
+<p>After much skull sweat, how to express the idea came from <a href="https://vaibhavsagar.com/">Vaibhav</a> saying “Express it as a sum of Integers”. That is, a ship can have zero or more of each engine, and each of those integers has a particular value.
+<a href="https://en.wikipedia.org/wiki/Integer_programming">Integer linear programming</a>! SMT solvers are much more general than ILP, but they can also do that, with their usual “can do, but won’t be fast” kind of approach.</p>
+<p>A bunch of searching around turned up the <a href="https://rise4fun.com/Z3/tutorialcontent/optimization#h25">z3 optimization tutorial</a> which does the same thing, but then says “In this example, the boolean encoding is not really natural.”
+They rewrite the problem with a bunch of Integer values, and that’s what I want!</p>
 <h1 id="look-i-totally-zoned-out-can-you-repeat-all-that-stuff-in-much-smaller-words">Look, I totally zoned out, can you repeat all that stuff in much smaller words?</h1>
 <p>Ok, let’s start much much smaller. The heavily commented Z3 tutorial example in this post has three Virtual Machines that can run on one or more of three host servers, let’s shrink that down a bunch.</p>
-<p>The Haskell library I want to use has a port of the virtual machine packing example from the z3 tutorial. I decided to cut that port down into the simplest thing that would demonstrate to me that this approach was going to work.</p>
+<p>The Haskell library I want to use has a port of the virtual machine packing example from the z3 tutorial.
+I decided to cut that port down into the simplest thing that would demonstrate to me that this approach was going to work.</p>
 <p>Something has a name, a cost, and a benefit. Given a limited budget, what’s the largest benefit I can get that fits?</p>
 <p>In the code below, the somethings have names of x1, x2, x3; costs of 100, 50, and 15; and benefits of 83, 42, and 13.</p>
 <p>There’s one function that calculates the cost, one for the benefit, a few extra constraints are thrown into the mix and everything is handed off to the z3 SMT solver.</p>
@@ -111,9 +115,12 @@
 </code></pre>
 <p>The best profit is 82, and comes from producing two of x2.</p>
 <h1 id="ok-so-why-is-the-room-near-you-warmer-than-the-rest-of-the-building">Ok, so why is the room near you warmer than the rest of the building?</h1>
-<p>Once I had the example above working, I was able to port it to exactly the problem I wanted to solve. In the process of banging my head on this and complaining on various IRC channels I ran across <a href="https://github.com/peddie">Matt Peddie</a> in one of the Australian FP chats. He confirmed that I was on the right track, and that this would likely suceed.</p>
+<p>Once I had the example above working, I was able to port it to exactly the problem I wanted to solve.
+In the process of banging my head on this and complaining on various IRC channels I ran across <a href="https://github.com/peddie">Matt Peddie</a> in one of the Australian FP chats.
+He confirmed that I was on the right track, and that this would likely suceed.</p>
 <p>The code below has a list of all the engines in Endless Sky, as well as the amount of space required, and turn and thrust produced.</p>
-<p>Originally I used floating point values directly from the data files, Matt suggested switching to the smallest integer type that wouldn’t overflow, as that would be solved in the smallest amount of time by z3. So I multiplied thrust and turn values by ten, as the data files had at most one number after the decimal point.</p>
+<p>Originally I used floating point values directly from the data files, Matt suggested switching to the smallest integer type that wouldn’t overflow, as that would be solved in the smallest amount of time by z3.
+So I multiplied thrust and turn values by ten, as the data files had at most one number after the decimal point.</p>
 <p>Initial runs would sit and spin for ten or twenty minutes, and give no result. Matt suggested I comment out all but a few of the engine components to see if that gave results in a reasonable amount of time.</p>
 <p>With eleven engines as input, a good solution took a fraction of a second! With nineteen engines, 7.3 seconds to find the best solution. Thirty one engines takes 24 seconds for the perfect solution. Forty two engines … I gave up after half an hour and killed it. There are seventy eight engines in the data file, I figured I’d uncomment them all and let it run overnight.</p>
 <p>So here’s the code that’s been heating up my living area for the past fourteen hours:</p>
@@ -247,7 +254,9 @@
 <span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
 <p>Given the progress above, I’m not terribly optimistic about how long z3 might take to solve this problem. Within my lifetime? Who knows?</p>
 <p>Seems like davean was right, I should have used <a href="http://hackage.haskell.org/package/limp">limp</a> or other ILP solver.</p>
-<p>Even so, my goal was to get started with SMT solvers and the sbv library. The <a href="https://github.com/LeventErkok/sbv/tree/master/Documentation/SBV/Examples">sbv examples</a> show <strong>many</strong> more flavors of SMT-soluble problems that aren’t the optimization problems I described above, you may find something you like! If you want non-interactive input from the helpful Matt Peddie, check out this <a href="https://www.youtube.com/watch?v=luaPkv5Rnpk">video of a talk</a> he gave to the Brisbane Functional Programming Group.</p>
+<p>Even so, my goal was to get started with SMT solvers and the sbv library.
+The <a href="https://github.com/LeventErkok/sbv/tree/master/Documentation/SBV/Examples">sbv examples</a> show <strong>many</strong> more flavors of SMT-soluble problems that aren’t the optimization problems I described above, you may find something you like!
+If you want non-interactive input from the helpful Matt Peddie, check out this <a href="https://www.youtube.com/watch?v=luaPkv5Rnpk">video of a talk</a> he gave to the Brisbane Functional Programming Group.</p>
 <h1 id="appendix-many-helpful-comments-for-the-integer-example-in-the-z3-docs">Appendix: Many helpful comments for the Integer Example In The Z3 Docs</h1>
 <p>I had a hard time reading the <a href="https://rise4fun.com/Z3/tutorial/guide">z3 tutorial</a> so I’ve added a bunch of comments to the optimization example that uses integer constraints, in hopes of easing comprehension for YOU should you decide to dig into this subject.</p>
 <div class="sourceCode" id="cb4" data-org-language="lisp"><pre class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">;; declare a cartesian product of host server and VM</span></span>

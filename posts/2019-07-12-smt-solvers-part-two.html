@@ -37,22 +37,27 @@
 <p>But several people reduced it to an easily solved integer programming problem, and one person used a different problem expression and SMT solver to produce a solution in just over a minute.</p>
 <h2 id="linear-programming">Linear Programming</h2>
 <p>Five minutes after the blog post was live, Davean had written <a href="https://code.xkrd.net/davean/shapr-ilp">a solver</a> that uses <a href="http://hackage.haskell.org/package/limp">limp</a> that could find a solution in three milliseconds, but it only returns one single engine component, and I haven’t figured out how to fix it.</p>
-<p>Jeeger used an <a href="https://gist.github.com/jeeger/eb4aac58dd26b4faf327aa758b31c76c">IPython notebook in a gist</a>, I didn’t know you could do that! I haven’t tried this one locally, so I don’t know how long it takes to run on my laptop. Jeeger’s code matches the other solvers with the claim that Korath Stellar steering and thruster are the best solution.</p>
+<p>Jeeger used an <a href="https://gist.github.com/jeeger/eb4aac58dd26b4faf327aa758b31c76c">IPython notebook in a gist</a>, I didn’t know you could do that! I haven’t tried this one locally, so I don’t know how long it takes to run on my laptop.
+Jeeger’s code matches the other solvers with the claim that Korath Stellar steering and thruster are the best solution.</p>
 <h2 id="smt-solver">SMT Solver</h2>
 <p>I’m glad I posted a link on twitter, I got a reply from <a href="https://gist.github.com/notwa">notwa</a> who used Python bindings to yices2 to find <a href="https://gist.github.com/notwa/6595f8471eeb82cfca8bb076263a86c9">the solution</a> in one minute! This solver also says that Korath Stellar steering and thruster is the best solution.</p>
 <h2 id="dynamic-programming-and-just-using-your-brain">Dynamic programming, and just using your brain</h2>
 <p>My friend Chazz occasionally uses simulated annealing at work, so he came up with some <a href="https://github.com/chazzam/endless-sky-sa">really neat Python code</a> that dynamically finds better solutions and also found the best answer as described above.</p>
-<p>My friend <a href="https://twitter.com/opticron">opticron</a> created a <a href="https://docs.google.com/spreadsheets/d/1KVgHrmw1vB2DCKb5qwZA51yiWjy7qaSq-pRrfEBz4S8/edit#gid=309298984">spreadsheet</a> scoring engines based on the original fitness function. He also came up with a fitness function that matches the top and bottom the thrust and steering components. It looks like <code>((thrust * 20) + 1060) * turn</code> and when inserted into the yices2/knapsack SMT solver code above, breaks everything. Instead you get some suboptimal solutions and then quite a few lines of:</p>
+<p>My friend <a href="https://twitter.com/opticron">opticron</a> created a <a href="https://docs.google.com/spreadsheets/d/1KVgHrmw1vB2DCKb5qwZA51yiWjy7qaSq-pRrfEBz4S8/edit#gid=309298984">spreadsheet</a> scoring engines based on the original fitness function. He also came up with a fitness function that matches the top and bottom the thrust and steering components.
+It looks like <code>((thrust * 20) + 1060) * turn</code> and when inserted into the yices2/knapsack SMT solver code above, breaks everything. Instead you get some suboptimal solutions and then quite a few lines of:</p>
 <pre class="fundamental"><code>The context is unsat. No model.
 unsat
 The context is unsat. Try (reset)
 </code></pre>
 <p>Opticron also decided that Korath Stellar steering and thruster is the best configuration.</p>
 <h1 id="further-work">Further work</h1>
-<p>I’d like to find the best scoring engine components for all the ships in Endless Sky. I’d also like to add the amount of heat produced so I could minimize total outfit space used to go fast. That is, Korath engines produce so much heat you end up being forced to add coolers or your ship shuts down every few seconds. So what’s the best thrust+turn I can get that produces the least amount of heat? Lots of interesting questions I could answer if I’m not totally bored of Endless Sky.</p>
+<p>I’d like to find the best scoring engine components for all the ships in Endless Sky. I’d also like to add the amount of heat produced so I could minimize total outfit space used to go fast.
+That is, Korath engines produce so much heat you end up being forced to add coolers or your ship shuts down every few seconds. So what’s the best thrust+turn I can get that produces the least amount of heat?
+Lots of interesting questions I could answer if I’m not totally bored of Endless Sky.</p>
 <h1 id="conclusion">Conclusion</h1>
 <p>Paraphrasing something <a href="https://github.com/ekmett/">Ed</a> said to me years ago: “SMT is the biggest hammer. It can likely solve your problem but is rarely the best at solving problems in a particular domain.”</p>
-<p>Prior to this investigation, I had not realized the speed difference could be so large between an SMT solver and a solver optimized for the domain. Seems like it’s still important to know which solvers are fast at which things, and how to express the problem so the solver can go fast.</p>
+<p>Prior to this investigation, I had not realized the speed difference could be so large between an SMT solver and a solver optimized for the domain.
+Seems like it’s still important to know which solvers are fast at which things, and how to express the problem so the solver can go fast.</p>
 <p>I still have many questions, are SMT solvers in general better for solving linear constraints? I know they have a bunch of ‘backend solvers’ but I don’t know how they choose among the options. Is that a manual decision?</p>
 <p>Is there some survey that shows which SMT solvers are fast at which things? Can I mix and match? Is that why <a href="http://smtlib.cs.uiowa.edu/">SMT-LIB</a> was created in the first place? Find out on the next episode of SMT SOLVERS IN PROBLEM SPACE!</p>
 <p>Also, I need to understand all the other things SMT solvers can do and figure out how to apply them to my everyday life questions (more games?).</p>
