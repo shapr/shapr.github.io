@@ -10,9 +10,7 @@ tags: android, haskell, job
 
 * What did you do?
 
-We built an open source Android app for [[https://private.storage][Private Storage]], with Haskell, in six months.
-
-Here's the [[whetstone.private.storage/privatestorage/privatestoragemobile/][repository]].
+We built an [[https://whetstone.private.storage/privatestorage/privatestoragemobile/][open source]] Android app for [[https://private.storage][Private Storage]], with Haskell, in six months.
 
 [[../images/psm-front.png]] [[../images/psm-file-list.png]]
 
