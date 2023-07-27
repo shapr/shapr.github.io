@@ -32,7 +32,7 @@ When released, the app will be available on the [[https://play.google.com/store/
 * Who worked on this?
 - Shae Erisson, me
 - [[https://github.com/exarkun][Jean-Paul Calderone]] who knows much nix, Python, and now Haskell!
-- [[https://flosse.works/][Florian Sesser]] did css wizardry, I learned much about material.
+- [[https://florian.sesser.at/][Florian Sesser]] did css wizardry, I learned much about material.
 - [[https://meejah.ca/][Meejah]] worked on magic wormhole pieces and picked up Haskell as we went.
 
 * Useful strategies?
@@ -42,7 +42,7 @@ When released, the app will be available on the [[https://play.google.com/store/
 - We used [[https://nixos.org/][nix]] for cross compilation and build automation.
 - We spent several hours a week explicitly teaching each other what we knew.
   I really want to put this first in the list, as the culture of being open and teaching was a massive benefit.
-  We had one hour a week where the Jean-Paul taught nix, one hour a week where I taught beginning Haskell, another hour where I taught advanced Haskell (things I was learning that might help).
+  We had one hour a week where Jean-Paul taught nix, one hour a week where I taught beginning Haskell, another hour where I taught advanced Haskell (things I was learning that might help).
   We also had two hours a week of explicit scheduled pairing where we all got together and worked on the stickiest problem along the path to shipping.
 
 Most software dev jobs I've had want me to "do the thing" while spending zero time teaching or training others. I wanted to take the opposite approach and this paid off far more than my already wild hopes.
@@ -62,7 +62,7 @@ Jean-Paul figured out the magic to cross compile this shared object to Android. 
 
 I spent eight weeks failing to load the shared object into a Python on Android.
 
-When we hit the point where we could not pay [[https://chaquo.com/chaquopy/contact/][anyone]] to do it for us, I tried Haskell.
+When we hit the point where we could not find [[https://chaquo.com/chaquopy/contact/][anyone]] who [[https://nuitka.net/][would]] take our money to show us how to do it, I tried Haskell.
 
 I was able to load the shared object into ghci on termux in two days. So we tried building an Android app in Haskell.
 
@@ -74,6 +74,7 @@ Here's demo code for using Haskell's foreign function interface from inside GHCi
   c_sin 1.0
 #+end_src
 
+Once the simple demo code above worked, I wrote this code to call into our cross-compiled shared object:
 #+begin_src haskell
   {-# LANGUAGE ForeignFunctionInterface #-}
   import Foreign.C.String
