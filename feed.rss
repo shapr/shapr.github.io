@@ -7,8 +7,16 @@
         <description><![CDATA[This feed provides fresh recipes for fresh food!]]></description>
         <atom:link href="http://shapr.github.io/feed.rss" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 25 Jul 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 30 Jul 2023 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Run property tests until coverage stops increasing</title>
+    <link>http://shapr.github.io/posts/2023-07-30-goldilocks-property-tests.html</link>
+    <description><![CDATA[just the right amount of property tests]]></description>
+    <pubDate>Sun, 30 Jul 2023 00:00:00 UT</pubDate>
+    <guid>http://shapr.github.io/posts/2023-07-30-goldilocks-property-tests.html</guid>
+    <dc:creator>Shae Erisson</dc:creator>
+</item>
+<item>
     <title>Android app in Haskell, six months, no previous Android experience</title>
     <link>http://shapr.github.io/posts/2023-07-25-android-app-in-haskell.html</link>
     <description><![CDATA[Android app in Haskell, six months, no previous Android experience]]></description>
@@ -78,14 +86,6 @@
     <description><![CDATA[How do I get started optimizing cost/benefit with constraints?]]></description>
     <pubDate>Wed, 10 Jul 2019 00:00:00 UT</pubDate>
     <guid>http://shapr.github.io/posts/2019-07-10-smt-solvers.html</guid>
-    <dc:creator>Shae Erisson</dc:creator>
-</item>
-<item>
-    <title>Sparklines in text</title>
-    <link>http://shapr.github.io/posts/2019-06-16-tmux-sparklines.html</link>
-    <description><![CDATA[I want to use sparklines to display data in tmux]]></description>
-    <pubDate>Sun, 16 Jun 2019 00:00:00 UT</pubDate>
-    <guid>http://shapr.github.io/posts/2019-06-16-tmux-sparklines.html</guid>
     <dc:creator>Shae Erisson</dc:creator>
 </item>
 

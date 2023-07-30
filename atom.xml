@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2023-07-25T00:00:00Z</updated>
+    <updated>2023-07-30T00:00:00Z</updated>
     <entry>
+    <title>Run property tests until coverage stops increasing</title>
+    <link href="http://shapr.github.io/posts/2023-07-30-goldilocks-property-tests.html" />
+    <id>http://shapr.github.io/posts/2023-07-30-goldilocks-property-tests.html</id>
+    <published>2023-07-30T00:00:00Z</published>
+    <updated>2023-07-30T00:00:00Z</updated>
+    <summary type="html"><![CDATA[just the right amount of property tests]]></summary>
+</entry>
+<entry>
     <title>Android app in Haskell, six months, no previous Android experience</title>
     <link href="http://shapr.github.io/posts/2023-07-25-android-app-in-haskell.html" />
     <id>http://shapr.github.io/posts/2023-07-25-android-app-in-haskell.html</id>
@@ -80,14 +88,6 @@
     <published>2019-07-10T00:00:00Z</published>
     <updated>2019-07-10T00:00:00Z</updated>
     <summary type="html"><![CDATA[How do I get started optimizing cost/benefit with constraints?]]></summary>
-</entry>
-<entry>
-    <title>Sparklines in text</title>
-    <link href="http://shapr.github.io/posts/2019-06-16-tmux-sparklines.html" />
-    <id>http://shapr.github.io/posts/2019-06-16-tmux-sparklines.html</id>
-    <published>2019-06-16T00:00:00Z</published>
-    <updated>2019-06-16T00:00:00Z</updated>
-    <summary type="html"><![CDATA[I want to use sparklines to display data in tmux]]></summary>
 </entry>
 
 </feed>

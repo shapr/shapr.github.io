@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Shae Erisson's blog - Run property tests until coverage stops increasing</title>
+	<link rel="stylesheet" type="text/css" href="../css/default.css" />
+    </head>
+    <body>
+	<div id="header">
+	    <div id="logo">
+		<a href="../">Shae Erisson's Blog</a>
+	    </div>
+	    <div id="navigation">
+		<a href="../">Home</a>
+		<a href="../about.html">About</a>
+		<a href="../contact.html">Contact</a>
+		<a href="../archive.html">Archive</a>
+	    </div>
+	</div>
+
+	<div id="content">
+	    <h1>Run property tests until coverage stops increasing</h1>
+
+	    <div class="info">
+    Posted on July 30, 2023
+    
+</div>
+
+<p><img src="../images/dreprun.png" /></p>
+<h1 id="whats-the-context">What’s the context?</h1>
+<p>I like <a href="https://en.wikipedia.org/wiki/Property_testing">property based testing</a>.</p>
+<p>Your code generates a random input and then checks whether the property holds true for your code.</p>
+<p>An example of a simple property is something like “the length of a list should be the same after sorting the list”.</p>
+<h1 id="whats-the-question">What’s the question?</h1>
+<p>How many random inputs do you feed to your property and call that enough?</p>
+<p>I asked <a href="https://github.com/cdsmith/">a friend</a> this exact question and he said “turn on <a href="https://wiki.haskell.org/Haskell_program_coverage">Haskell program coverage</a> and see how much of your code was executed”.</p>
+<p><img src="../images/hpc.gif" /></p>
+<p>That seemed really manual, I don’t want to be the human in the loop when the computer is doing useful things for me.</p>
+<p>I decided to come up with a way to connect the code coverage tool to the property test runner.</p>
+<h1 id="how-did-you-do-it">How did you do it?</h1>
+<p>The final idea was “keep running property tests until coverage stops increasing”.</p>
+<p>The hpc tool creates a tree of regions for all the source in your program. When a region is executed, its execution count is increased by one.</p>
+<p>I chose to map each of those regions to a boolean value describing how much of the program’s source has been executed.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- | How many regions were executed at least once for this module?</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ot">tixCount ::</span> <span class="dt">TixModule</span> <span class="ot">-&gt;</span> <span class="dt">Integer</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>tixCount (<span class="dt">TixModule</span> _ _ _ regions) <span class="ot">=</span> <span class="fu">sum</span> <span class="op">$</span> <span class="dv">1</span> <span class="op">&lt;$</span> <span class="fu">filter</span> (<span class="op">&gt;</span> <span class="dv">0</span>) regions</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- | How many regions were executed at least once for all these modules?</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ot">tixModuleCount ::</span> <span class="dt">Tix</span> <span class="ot">-&gt;</span> <span class="dt">Integer</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>tixModuleCount (<span class="dt">Tix</span> ms) <span class="ot">=</span> <span class="fu">sum</span> <span class="op">$</span> <span class="fu">map</span> tixCount ms</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- | call out to the runtime system for region counts for all regions in all modules</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ot">examineAndCount ::</span> ([<span class="dt">String</span>], <span class="dt">Bool</span>) <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Integer</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>examineAndCount v <span class="ot">=</span> unless (<span class="fu">snd</span> v) (<span class="fu">error</span> <span class="st">&quot;your code is broken&quot;</span>) <span class="op">&gt;&gt;</span> tixModuleCount <span class="op">&lt;$&gt;</span> examineTix</span></code></pre></div>
+<p>The <a href="https://github.com/shapr/kudzu/blob/main/src/Kudzu.hs">final code</a> is able to use QuickCheck, Hedgehog, and LeanCheck as the test runner.</p>
+<p>I discovered that sometimes a few runs would go by without increased coverage, so the API includes “run this many tests without increased coverage”.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">testUntilSameLCMany ::</span> (<span class="dt">Traversable</span> t, <span class="dt">LC.Testable</span> a) <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> t a <span class="ot">-&gt;</span> <span class="dt">IO</span> (t (<span class="dt">Int</span>, <span class="dt">Maybe</span> <span class="dt">Integer</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>testUntilSameLCMany howMany ts <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapM</span> (testUntilSameLC howMany) ts</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- | LeanCheck</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ot">testUntilSameLC ::</span> <span class="dt">LC.Testable</span> a <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Int</span>, <span class="dt">Maybe</span> <span class="dt">Integer</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>testUntilSameLC n testable <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> rs <span class="ot">=</span> examineAndCount <span class="op">&lt;$&gt;</span> LC.results testable</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  r1 <span class="ot">&lt;-</span> <span class="fu">head</span> rs</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  grabUntilNSame <span class="dv">0</span> n n (<span class="fu">tail</span> rs) r1</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ot">grabUntilNSame ::</span> (<span class="dt">Monad</span> m, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [m a] <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> m (<span class="dt">Int</span>, <span class="dt">Maybe</span> a)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>grabUntilNSame c _ <span class="dv">0</span> _ z <span class="ot">=</span> <span class="fu">pure</span> (c, <span class="dt">Just</span> z)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>grabUntilNSame c _ _ [] _ <span class="ot">=</span> <span class="fu">pure</span> (c, <span class="dt">Nothing</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>grabUntilNSame c orig n (a <span class="op">:</span> as) z <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  a' <span class="ot">&lt;-</span> a</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span> a' <span class="op">==</span> z</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">then</span> grabUntilNSame (c <span class="op">+</span> <span class="dv">1</span>) orig (n <span class="op">-</span> <span class="dv">1</span>) as z</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span> grabUntilNSame (c <span class="op">+</span> <span class="dv">1</span>) orig orig as a'</span></code></pre></div>
+<p>One surprise is that <a href="https://github.com/rudymatela/leancheck/">LeanCheck</a>’s enumerative generator required the fewest steps to converge on maximum code coverage!
+QuickCheck took the longest, and Hedgehog was somewhere between the two for number of tests required to consider “enough”.</p>
+<h1 id="any-cool-links">Any cool links?</h1>
+<p>Two weeks into this project I found Dan Luu’s <a href="https://danluu.com/testing/">blog post on testing</a>, there’s way more awesome info on that post.
+If you enjoyed this post, go read that post next!</p>
+<p>I did turn those ideas into another testing library that’s <a href="https://github.com/shapr/trynocular">larger and far reaching</a>, but that’s a different blog post.</p>
+<h1 id="random-tidbits">Random tidbits?</h1>
+<p>At my previous job we used property based tests in our continuous integration pipeline, and some of my coworkers would get snippy when bugs were found that they had not added. They only wanted to know about “new” bugs, not “old” bugs.</p>
+<p>We switched to using the same seed for the random number generator for every run, and their frustrations went away.</p>
+<p>I wanted the best of both worlds, and after talking to a developer at hasura, he suggested that we save a “known good” seed, and whenever the tests failed on a new unknown seed, switch back to the known good seed so we could tell if this was a new or old bug.</p>
+<p>Perhaps I’ll get around to adding explicit support for that to the Haskell property test frameworks someday? It’s a great solution!</p>
+
+	</div>
+	<div id="footer">
+	    <a href="../feed.rss">RSS</a>
+	    <a href="../atom.xml">ATOM</a>
+	    Site proudly generated by
+	    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+
+	</div>
+    </body>
+</html>
