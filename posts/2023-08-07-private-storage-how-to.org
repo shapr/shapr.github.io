@@ -1,0 +1,93 @@
+---
+title: How to use Private Storage to securely share
+description: step by step installing gridsync and private storage and sharing data
+tags: android, haskell, job, data privacy
+---
+#+AUTHOR: Shae Erisson
+#+DATE: <2023-08-07 Mon>
+
+[[../images/ginfaxi.png]]
+
+The Android app from my previous post is released, you can install it!
+
+So today, let's get some data into [[https://private.storage][PrivateStorage]] so you can invite Android devices to your shared folders!
+
+CAVEAT: If you add content to PrivateStorage via this walkthrough, you will end up spending $6.50 US dollars.
+
+* The Plan
+
+1. Install PrivateStorage desktop on your computer and PrivateStorage Android app on your phone
+2. Share a folder with PrivateStorage desktop
+3. Invite your phone as a read-only device to the folder
+4. Accept the invite on your phone
+5. View files on your phone
+
+
+* installing PrivateStorage
+
+First, [[https://private.storage/getstarted/][download]] and install the PrivateStorage desktop client, with these handy instructions. (insert link or instructions)
+
+Once you get it installed and running, you'll be asked to buy storage time and create a recovery key.
+
+The Android app is available on the [[https://play.google.com/store/apps/details?id=io.privatestorage.privatestoragemobile][Google Play Store]], you'll need that too.
+
+
+* Add a folder
+
+The best introduction is in the Getting Started section of the [[https://private.storage/knowledgebase/][PrivateStorage knowledgebase]]. I suggest you follow those instructions and then come back to the next step.
+
+GridSync is the layer underneath PrivateStorage and it has some helpful [[https://github.com/gridsync/gridsync/#screenshots-latest-release-running-macos-1014-with-dark-mode-enabled][screenshots]].
+
+If you're using a modified gridsync like I am, you can click on "Add folder" in the top left" and then "From Local Device".
+
+[[../images/gridsync-add-folder.png]]
+
+When you choose the folder, its contents will be encrypted and the encrypted pieces will be sent to the PrivateStorage servers. The PrivateStorage company running the servers cannot decrypt the data in the files you uploaded.
+
+* Invite your phone to the folder
+
+We have a folder saved in PrivateStorage!
+
+Next create an invite so the phone gets access.
+
+Right click on the folder you want to share with your phone, click on "Sync with device" then choose "Create Invite Code" as shown below.
+
+[[../images/invite-create-popup.png]]
+
+For the moment, you *must* create a read-only invite, because that's what we got finished in time for the deadline.
+
+That means you must check the "This device may only read updates" when creating the invite.
+
+[[../images/invite-create.png]]
+
+Ok, so you made sure to check the "read only" box, and your invite has been created. Hopefully it looks something like this:
+
+[[../images/invite-created.png]]
+
+But wait, how is that I can show you the invite code I created, and I don't have to worry about you having access to my shared folder?
+
+Invite codes are one use! If you accept an invite code, no one else can re-use that code.
+
+* accept the invite on your phone
+
+Now on your phone, open the PrivateStorage app, click the "I'm Ready!" button and you'll get to a nearly blank screen with a plus sign in the bottom right.
+
+[[../images/magic-folders-listed.png]]
+
+click on the plus sign and you'll see a popup titled "Add magic folder"
+
+[[../images/invite-entering-code.png]]
+
+Here you put in the code that was generated from your invite.
+
+At that point, your screen won't be entirely blank, you'll have the name of your folder listed.
+
+* view files on your phone
+
+Tap on the folder name!
+
+It takes me about four seconds for the client to fetch the list of files in the folder.
+
+[[../images/shared-folder-file-listing.png]]
+
+After that, you can tap on a filename and Android will pass the file contents to a viewer.
