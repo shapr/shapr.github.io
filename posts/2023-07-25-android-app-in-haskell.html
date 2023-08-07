@@ -32,10 +32,10 @@
 <p>We built an <a href="https://whetstone.private.storage/privatestorage/privatestoragemobile/">open source</a> Android app for <a href="https://private.storage">Private Storage</a>, with Haskell, in six months.</p>
 <p><img src="../images/psm-front.png" /> <img src="../images/psm-file-list.png" /></p>
 <h1 id="why">Why?</h1>
-<p>When I joined in October 2022, Private Storage had an existing <a href="https://en.wikipedia.org/wiki/Bureau_of_Democracy,_Human_Rights,_and_Labor">grant deadline</a> to ship an Android app by the end of July 2023.
+<p>When I joined in October 2022, PrivateStorage had an existing <a href="https://en.wikipedia.org/wiki/Bureau_of_Democracy,_Human_Rights,_and_Labor">grant deadline</a> to ship an Android app by the end of July 2023.
 This seemed like the most important thing to do, so we did. We also improved the underlying layers of the tech stack in the process.</p>
 <h1 id="who">Who?</h1>
-<p>I work for <a href="https://private.storage/">Private Storage</a>, a secure file sharing system on top of <a href="https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs">Tahoe-LAFS</a>.</p>
+<p>I work for <a href="https://private.storage/">PrivateStorage</a>, a secure file sharing system on top of <a href="https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs">Tahoe-LAFS</a>.</p>
 <h1 id="success">Success?</h1>
 <p>YES! As of &lt;2023-07-25&gt; the app is submitted but not yet through the Google Play Store review process.</p>
 <p>When released, the app will be available on the <a href="https://play.google.com/store/apps/details?id=io.privatestorage.privatestoragemobile">Google Play store</a></p>
@@ -62,7 +62,7 @@ We also had two hours a week of explicit scheduled pairing where we all got toge
 <p>We used <a href="https://reflex-frp.org/">reflex-frp</a>, meaning the app was a webview component that worked on Android and also on localhost.</p>
 <p>First we learned about <a href="http://conal.net/">functional reactive programming</a>, then specifically reflex-frp, then we got a one hour a week contract with Obsidian Systems ( creators of reflex-frp ) where we could ask questions when stuck.</p>
 <h1 id="why-didnt-you-use-kotlin-java-or-port-the-python-codebase-to-android">Why didn’t you use Kotlin, Java, or port the Python codebase to Android?</h1>
-<p>Private Storage is a thin layer on top of <a href="https://github.com/gridsync/gridsync/">gridsync</a>, which is a layer on top of <a href="https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs">Tahoe-LAFS</a>, and it’s almost entirely written in Python.</p>
+<p>PrivateStorage is a thin layer on top of <a href="https://github.com/gridsync/gridsync/">gridsync</a>, which is a layer on top of <a href="https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs">Tahoe-LAFS</a>, and it’s almost entirely written in Python.</p>
 <p>One of these ingredients, <a href="https://github.com/tahoe-lafs/zfec/">zfec</a>, is a <a href="https://en.wikipedia.org/wiki/Error_correction_code">forward error correction layer</a> that splits your saved file into five pieces, allowing you to recover the data from any three of those pieces.
 Tahoe’s ZFEC is a <a href="https://github.com/tahoe-lafs/zfec/blob/master/zfec/fec.c">17 year old C file</a> that compiles to a shared object that dynamically loads into our application.
 Jean-Paul figured out the magic to cross compile this shared object to Android. :tada:</p>

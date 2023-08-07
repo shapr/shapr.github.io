@@ -8,8 +8,16 @@
         <name>Shae Erisson</name>
         <email>shae+blog@ScannedInAvian.com</email>
     </author>
-    <updated>2023-07-30T00:00:00Z</updated>
+    <updated>2023-08-07T00:00:00Z</updated>
     <entry>
+    <title>How to use Private Storage to securely share</title>
+    <link href="http://shapr.github.io/posts/2023-08-07-private-storage-how-to.html" />
+    <id>http://shapr.github.io/posts/2023-08-07-private-storage-how-to.html</id>
+    <published>2023-08-07T00:00:00Z</published>
+    <updated>2023-08-07T00:00:00Z</updated>
+    <summary type="html"><![CDATA[step by step installing gridsync and private storage and sharing data]]></summary>
+</entry>
+<entry>
     <title>Run property tests until coverage stops increasing</title>
     <link href="http://shapr.github.io/posts/2023-07-30-goldilocks-property-tests.html" />
     <id>http://shapr.github.io/posts/2023-07-30-goldilocks-property-tests.html</id>
@@ -80,14 +88,6 @@
     <published>2019-07-12T00:00:00Z</published>
     <updated>2019-07-12T00:00:00Z</updated>
     <summary type="html"><![CDATA[Other people already know how to do this well]]></summary>
-</entry>
-<entry>
-    <title>SMT Solvers, Integer Linear Programming</title>
-    <link href="http://shapr.github.io/posts/2019-07-10-smt-solvers.html" />
-    <id>http://shapr.github.io/posts/2019-07-10-smt-solvers.html</id>
-    <published>2019-07-10T00:00:00Z</published>
-    <updated>2019-07-10T00:00:00Z</updated>
-    <summary type="html"><![CDATA[How do I get started optimizing cost/benefit with constraints?]]></summary>
 </entry>
 
 </feed>
