@@ -1,5 +1,5 @@
 ---
-title: How to use Private Storage to securely share
+title: How to use Private Storage on Android
 description: step by step installing gridsync and private storage and sharing data
 tags: android, haskell, job, data privacy
 ---
