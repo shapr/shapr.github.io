@@ -16,12 +16,12 @@ We built an [[https://whetstone.private.storage/privatestorage/privatestoragemob
 
 * Why?
 
-When I joined in October 2022, Private Storage had an existing [[https://en.wikipedia.org/wiki/Bureau_of_Democracy,_Human_Rights,_and_Labor][grant deadline]] to ship an Android app by the end of July 2023.
+When I joined in October 2022, PrivateStorage had an existing [[https://en.wikipedia.org/wiki/Bureau_of_Democracy,_Human_Rights,_and_Labor][grant deadline]] to ship an Android app by the end of July 2023.
 This seemed like the most important thing to do, so we did. We also improved the underlying layers of the tech stack in the process.
 
 * Who?
 
-I work for [[https://private.storage/][Private Storage]], a secure file sharing system on top of [[https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs][Tahoe-LAFS]].
+I work for [[https://private.storage/][PrivateStorage]], a secure file sharing system on top of [[https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs][Tahoe-LAFS]].
 
 * Success?
 
@@ -54,7 +54,7 @@ First we learned about [[http://conal.net/][functional reactive programming]], t
 
 * Why didn't you use Kotlin, Java, or port the Python codebase to Android?
 
-Private Storage is a thin layer on top of [[https://github.com/gridsync/gridsync/][gridsync]], which is a layer on top of [[https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs][Tahoe-LAFS]], and it's almost entirely written in Python.
+PrivateStorage is a thin layer on top of [[https://github.com/gridsync/gridsync/][gridsync]], which is a layer on top of [[https://tahoe-lafs.readthedocs.io/en/latest/about-tahoe.html#what-is-tahoe-lafs][Tahoe-LAFS]], and it's almost entirely written in Python.
 
 One of these ingredients,  [[https://github.com/tahoe-lafs/zfec/][zfec]], is a [[https://en.wikipedia.org/wiki/Error_correction_code][forward error correction layer]] that splits your saved file into five pieces, allowing you to recover the data from any three of those pieces.
 Tahoe's ZFEC is a [[https://github.com/tahoe-lafs/zfec/blob/master/zfec/fec.c][17 year old C file]] that compiles to a shared object that dynamically loads into our application.

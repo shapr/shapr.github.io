@@ -158,6 +158,8 @@ The output formatting could be much nicer?
 
 * conclusion
 
-If you get excited about SMT solvers, check out the syllabus for [[http://composition.al/CSE290Q-2019-09/][Lindsey Kuper]]'s course, and [[https://sat-smt.codes/][the book]] by Dennis Yurichev.
+If you get excited about SMT solvers, check out the syllabus for [[https://decomposition.al/CSE290Q-2019-09/][Lindsey Kuper]]'s course, and [[https://sat-smt.codes/][the book]] by Dennis Yurichev.
+
+
 
 Send me your suggestions for improvement, I want to hear what you think!
